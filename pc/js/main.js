@@ -1,11 +1,11 @@
 // Точка входа PC-версии: выбор города, загрузка, игровой цикл, мышь и клавиатура, сохранение.
-import {loadCity, geocode, PRESETS, DEMO} from './osm.js';
-import {RoadGraph} from './roads.js';
-import {World, QUALITY} from './world.js';
-import {RTSCamera} from './camera.js';
-import {Game} from './game.js';
-import {UI, UNIT_BG, esc} from './ui.js';
-import {ROLES, TYPES} from './data.js';
+import {loadCity, geocode, PRESETS, DEMO} from './osm.js?v=3';
+import {RoadGraph} from './roads.js?v=3';
+import {World, QUALITY} from './world.js?v=3';
+import {RTSCamera} from './camera.js?v=3';
+import {Game} from './game.js?v=3';
+import {UI, UNIT_BG, esc} from './ui.js?v=3';
+import {ROLES, TYPES} from './data.js?v=3';
 
 const $ = s => document.querySelector(s);
 const SAVE = 'uchastok7pc', GFX = 'uchastok7pc.gfx', GFX_AUTO = 'uchastok7pc.gfxauto';
@@ -386,6 +386,7 @@ function act(a, btn) {
   app.ui.renderRight(true); app.ui.renderList(true);
 }
 $('#crimeBtn').addEventListener('click', toggleCrime);
+if (!$('#gfxBtn')) $('.res').insertAdjacentHTML('beforeend', '<button type="button" class="iconbtn" id="gfxBtn">⚙ Авто</button>');
 $('#gfxBtn').addEventListener('click', () => setGfx(GFX_ORDER[(GFX_ORDER.indexOf(gfxMode) + 1) % GFX_ORDER.length]));
 for (const id of ['#left', '#right']) $(id).addEventListener('pointerdown', () => { app.uiHold = true; });
 addEventListener('pointerup', () => { app.uiHold = false; });

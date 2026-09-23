@@ -1,6 +1,6 @@
 // Интерфейс PC-версии: верхняя панель, списки слева, панель выбранного справа, журнал, мини-карта.
-import {ROLES, TYPES, KIND_N} from './data.js';
-import {chance, CAR_COST, HIRE_COST, WIN} from './game.js';
+import {ROLES, TYPES, KIND_N} from './data.js?v=3';
+import {chance, CAR_COST, HIRE_COST, WIN} from './game.js?v=3';
 
 const $ = s => document.querySelector(s);
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'})[c]);

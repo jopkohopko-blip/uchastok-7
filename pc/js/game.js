@@ -1,7 +1,7 @@
 // Симуляция: время суток, наряды на улицах, вызовы 102, здания полиции, расползание преступности, экономика.
 // 1 секунда реального времени на скорости ×1 = 1 игровая минута. Машины едут в метрах за реальную секунду.
-import {ROLES, TYPES, CALLS, SERVICE, FM, FF, LN} from './data.js';
-import {centroid, ringArea} from './osm.js';
+import {ROLES, TYPES, CALLS, SERVICE, FM, FF, LN} from './data.js?v=3';
+import {centroid, ringArea} from './osm.js?v=3';
 
 export const SPEEDS = [0, 1, 2, 4];
 const pick = a => a[Math.floor(Math.random() * a.length)];
