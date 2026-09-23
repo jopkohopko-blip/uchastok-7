@@ -650,7 +650,7 @@ function sendSquad(m, ids) {
   const squad = ids.map(oById).filter(o => o && avail(o));
   if (!squad.length || m.start) return false;
   const ap = missionApproach(m);
-  if (S.money < ap.cost) { toast(`Для поддержки нужно ${ap.cost} ₽`); return false; }
+  if (S.money < ap.cost) return false;
   const sp = squadPower(squad.map(o => o.id), m.type), now = gnow();
   S.money -= ap.cost;
   m.spent = (m.spent || 0) + ap.cost;
@@ -660,6 +660,7 @@ function sendSquad(m, ids) {
   return true;
 }
 function dispatch(m) {
+  if (S.money < missionApproach(m).cost) return toast(`Для поддержки нужно ${missionApproach(m).cost} ₽`);
   if (!sendSquad(m, [...sel])) return;
   toast('Отряд выехал на вызов');
   closeSheet(); render(); save();
@@ -2915,7 +2916,12 @@ function dispHandle(m, now) {
   const real = clamp(chance(sp.P, m.diff) * (m.vague ? .9 : 1) + sp.luck, .03, .97);
   const est = clamp(real * (1 + (Math.random() * 2 - 1) * [0, .25, .12, .04][a.lv]), 0, 1);
   if (est * 100 < R.dispMin) return esc(`сил мало (шанс ~${Math.round(est * 100)}%) — жду приказа`, true);
-  sendSquad(m, ids);
+  if (!sendSquad(m, ids)) {
+    if ((m.approach || 'standard') === 'standard') return esc('не смог отправить отряд — жду приказа', true);
+    m.approach = 'standard';
+    if (!sendSquad(m, ids)) return esc('не смог отправить отряд — жду приказа', true);
+    alog('disp', `«${m.name}»: на поддержку не хватило денег — отправил обычным выездом`, false);
+  }
   alog('disp', `Отправил ${ids.length} сотр. на «${m.name}» (оценка шанса ~${Math.round(est * 100)}%)`);
   return true;
 }
