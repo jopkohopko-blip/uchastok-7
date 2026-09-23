@@ -280,7 +280,7 @@ export async function loadCity({lat, lon, r, name}, onStatus) {
   return map;
 }
 
-export const DEMO = {name: 'Москва, Арбат (демо)', lat: 55.7497, lon: 37.5925, r: 650, file: 'data/demo-arbat.json', key: mapKey(55.7497, 37.5925, 650)};
+export const DEMO = {name: 'Москва, Арбат (демо)', lat: 55.7497, lon: 37.5925, r: 650, file: 'data/demo-arbat.json?v=3', key: mapKey(55.7497, 37.5925, 650)};
 export async function loadDemo(onStatus) {
   onStatus('Открываю демо-город…');
   const r = await fetch(DEMO.file);
