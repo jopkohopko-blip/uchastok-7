@@ -204,6 +204,22 @@ main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px}
 .speedbar.peace{background:linear-gradient(90deg,#1c2d4c,#12213a)}
 .speedbar.peace .spd{display:none}
 .speedbar .shiftbtn{padding:6px 11px}
+.daycard{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 4px}
+.dc{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.dc small{color:var(--dim);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.dc b{font:700 15px var(--disp)}
+.dc .muted{font-size:11px;line-height:1.35}
+.dc.ev{border-color:var(--gold)}
+.dc.ev.lv1{border-color:#ff9a4d}
+.dc.ev.lv2{border-color:var(--red);box-shadow:0 0 16px #ff617b33}
+.lvl{display:flex;gap:3px}
+.lvl i{flex:1;height:5px;border-radius:3px;background:#ffffff14}
+.lvl i.on{background:var(--green)}
+.lvl i.on:nth-child(n+3){background:var(--gold)}
+.lvl i.on:nth-child(n+5){background:var(--red)}
+.plan{display:flex;flex-direction:column;gap:7px;padding:11px 12px}
+.plan small{font-size:11px}
+@media(max-width:420px){.daycard{grid-template-columns:1fr}}
 .peacecard{margin-top:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .off{width:100%;cursor:pointer}
 .meters{display:flex;gap:4px;margin-top:5px;max-width:160px}
@@ -583,6 +599,7 @@ function load() {
       if (!S.city) initCity();
       if (!S.ast) initAst();
       if (!S.mode) initShifts();
+      if (!S.today) rollDay();
       if (S.call) {
         for (const q of ['scene', 'route']) S.call.lines[q] ||= callFallback[S.call.kind]?.[q] || 'Не могу сейчас уточнить.';
         if (S.call.state === 'talk' && !S.call.talkEnd) S.call.talkEnd = gnow() + 60000;
@@ -650,9 +667,9 @@ function upgrade(i, quiet) {
 function missionApproach(m) { return APPROACH[m.approach] || APPROACH.standard; }
 function missionChance(m, sp) {
   const ap = missionApproach(m);
-  return clamp(chance(sp.P, m.diff) * (m.vague ? .9 : 1) + sp.luck + ap.chance + Math.min(5, m.intel || 0) * .012, .03, .97);
+  return clamp(chance(sp.P, m.diff) * (m.vague ? .9 : 1) + sp.luck + ap.chance + Math.min(5, m.intel || 0) * .012 + planChance(m), .03, .97);
 }
-function missionDuration(m) { return m.baseDur * durMult() * missionApproach(m).time; }
+function missionDuration(m) { return m.baseDur * durMult() * missionApproach(m).time * dayMod('dur') * (planIs('cars', 'Техосмотр') ? .9 : 1); }
 function sendSquad(m, ids) {
   const squad = ids.map(oById).filter(o => o && avail(o));
   if (!squad.length || m.start) return false;
@@ -664,6 +681,7 @@ function sendSquad(m, ids) {
   m.start = now; m.end = now + missionDuration(m) * 1000; m.esc = null;
   m.squad = squad.map(o => o.id); m.chance = missionChance(m, sp);
   squad.forEach(o => o.busy = m.id);
+  if (planIs('cars', 'Сэкономить на ремонте') && Math.random() < .2) { m.end = now + (m.end - now) * 1.3; toast('🔧 Машина сломалась в пути — наряд задерживается'); }
   return true;
 }
 function dispatch(m) {
@@ -691,8 +709,8 @@ function resolve(m) {
   }
   const ok = Math.random() < m.chance, now = gnow(), rank0 = rankOf(S.rep);
   const money = Math.round(m.money * (ok ? rewMult() : .25)), sq = S.officers.filter(o => m.squad.includes(o.id));
-  const rep = ok ? m.rep + sq.filter(o => hasT(o, 'honest')).length : 0;
-  S.money += money; S.rep += rep;
+  const rep = (ok ? m.rep + sq.filter(o => hasT(o, 'honest')).length : 0) + (planIs('press', 'Взять с собой') ? (ok ? 1 : -2) : 0);
+  S.money += money; S.rep = Math.max(0, S.rep + rep);
   cityOnResolve(m, ok);
   for (let i = 0; i < sq.length; i++) for (let j = i + 1; j < sq.length; j++) relAdd(sq[i].id, sq[j].id, ok ? 4 : -3);
   const lines = sq.map(o => {
@@ -705,9 +723,9 @@ function resolve(m) {
       o.sp = (o.sp || 0) + up * 2;
     }
     o.st.calls++; if (ok) o.st.ok++;
-    o.fat += (10 + 4 * m.tier) * (hasT(o, 'tough') ? .6 : 1) * (o.gear.a === 'heavy' ? 1.2 : 1);
+    o.fat += (10 + 4 * m.tier) * (hasT(o, 'tough') ? .6 : 1) * (o.gear.a === 'heavy' ? 1.2 : 1) * dayMod('fat');
     o.mor += ok ? 5 : -8 * (hasT(o, 'coward') ? 1.5 : 1);
-    const hurt = Math.random() < (ok ? .1 : .5) * ap.injury * (m.radioInjury || 1) * (m.safeGuide ? .82 : 1) * (gearOf(o, 'a').inj || 1) * (hasT(o, 'talker') ? .7 : 1);
+    const hurt = Math.random() < (ok ? .1 : .5) * ap.injury * (m.radioInjury || 1) * (m.safeGuide ? .82 : 1) * (gearOf(o, 'a').inj || 1) * (hasT(o, 'talker') ? .7 : 1) * (planIs('mood', 'Жёстко') ? 1.3 : planIs('mood', 'Аккуратно') ? .7 : 1);
     if (hurt) {
       o.hurt = now + (ok ? 15000 : 25000) * (hasT(o, 'tough') ? .6 : 1); o.st.hurt++; o.mor -= 12;
       const pr = o.partner && oById(o.partner);
@@ -715,7 +733,7 @@ function resolve(m) {
     }
     if (o.st.calls >= 25 && !hasT(o, 'veteran')) { o.traits.push('veteran'); toast(`${o.name} получает черту «Ветеран»`); }
     if (ok && m.tier >= 2 && Math.random() < .15) queueEvent('hero', o, null, {mname: m.name});
-    if (hasT(o, 'hothead') && Math.random() < (o.gear.g === 'cam' ? .1 : .3)) queueEvent('complaint', o);
+    if (hasT(o, 'hothead') && Math.random() < (o.gear.g === 'cam' ? .1 : .3) * (planIs('mood', 'Жёстко') ? 1.5 : 1)) queueEvent('complaint', o);
     return {id: o.id, name: o.name, gain, up, lv: o.lv, hurt};
   });
   normalizeStaff();
@@ -766,7 +784,7 @@ function tick() {
     if (now >= S.call.ringEnd) {
       if (S.call.kind === 'police') { S.rep = Math.max(0, S.rep - 1); toast('Пропущен звонок на 102. Доверие −1'); }
       else toast('Звонящий повесил трубку');
-      S.call = null; S.nextCall = now + rint(8, 14) * 1000; changed = true;
+      S.call = null; S.nextCall = now + callGap(8, 14); changed = true;
     } else if (now - lastRing > 2800) { lastRing = now; ringSound(); }
   }
   if (S.call && S.call.state === 'talk' && now >= S.call.talkEnd) { expireCall(S.call); changed = true; }
@@ -1929,9 +1947,11 @@ const callFallback = {
 };
 
 function newCall() {
-  const r = Math.random(), want = r < .58 ? 'police' : r < .8 ? 'fake' : 'service';
-  const pool = SC.filter(s => (want === 'service' ? s.k === 'ems' || s.k === 'fire' : s.k === want) && (!s.hq || hq() >= s.hq));
-  const s = pick(pool), loc = crimeLoc(), fem = s.g ? s.g === 'f' : Math.random() < .5;
+  const L = LOAD[S.today ? S.today.load : 2], wP = .58, wF = .22 * dayMod('fake') * (planIs('school', 'Провести беседы') ? .5 : 1), wS = .2 * dayMod('service');
+  const r = Math.random() * (wP + wF + wS), want = r < wP ? 'police' : r < wP + wF ? 'fake' : 'service';
+  let pool = SC.filter(s => (want === 'service' ? s.k === 'ems' || s.k === 'fire' : s.k === want) && (!s.hq || hq() >= s.hq));
+  if (Math.random() < L.urg && pool.some(x => x.urgent)) pool = pool.filter(x => x.urgent);
+  const s = wpick(pool, x => typeWeight(x.type)), loc = eventLoc() || crimeLoc(), fem = s.g ? s.g === 'f' : Math.random() < .5;
   const nm = `${pick(fem ? FF : FM)} ${pick(LN)}${fem ? 'а' : ''}`, addr = `${loc.street}, ${rint(1, 140)}`;
   let persona = s.persona || (s.k === 'fake' ? 'prank' : s.urgent && Math.random() < .6 ? 'panic' : Math.random() < .1 ? 'elderly' : 'normal');
   let vague = s.k === 'fake' && !!s.addrText && !s.addrText.includes('{street}');
@@ -1948,10 +1968,10 @@ function newCall() {
     lines[k] = t;
   }
   return {
-    id: uid(), state: 'ring', ringEnd: gnow() + 20000, phone: randPhone(), persona, fem, voiceIx: rint(0, 9),
-    kind: s.k, type: s.type, title: s.title, tier: clamp(hq() + rint(-1, 0) + (s.tier || 0), 1, 7), urgent: !!s.urgent,
+    id: uid(), state: 'ring', ringEnd: gnow() + 20000 * dayMod('ring'), phone: randPhone(), persona, fem, voiceIx: rint(0, 9),
+    kind: s.k, type: s.type, title: s.title, tier: clamp(hq() + rint(-1, 0) + (s.tier || 0) + L.tier + dayMod('tier', 0), 1, 7), urgent: !!s.urgent,
     loc, dist: distAt(loc.x, loc.y).n, vague, addrText: s.addrText ? fill(s.addrText) : drunkReal ? `где-то на ${loc.street}` : addr,
-    lines, asked: [], log: [], escal: 0, known: {}, guide: null
+    lines, asked: [], log: [], escal: 0, known: planIs('intel', 'Заплатить') ? {diff: true} : {}, guide: null
   };
 }
 function callSay(text) {
@@ -2019,7 +2039,7 @@ function endCall() {
   clearInterval(typer); typer = null; typing = null;
   try { speechSynthesis.cancel(); } catch (e) {}
   beep(420, .12, .04); beep(340, .18, .04, .14);
-  S.call = null; S.nextCall = gnow() + rint(10, 18) * 1000;
+  S.call = null; S.nextCall = gnow() + callGap(10, 18);
   sheetCtx = null; $('#sheetBg').hidden = true;
 }
 function incidentFrom(c) {
@@ -2597,7 +2617,7 @@ const COURSE = {
   social: {n: 'Открытый город', d: 'Горожане следят за работой полиции: доверие за решения по звонкам ×1.5 — и штрафы тоже.', budget: 1, tax: 1, rep: 1.5, col: '#3ddc97'}
 };
 const courseOf = () => COURSE[(S && S.city && S.city.mayor.course) || 'social'];
-const taxMult = () => (S && S.city ? courseOf().tax : 1);
+const taxMult = () => (S && S.city ? courseOf().tax : 1) * (S && S.mode !== 'peace' ? dayMod('tax') : 1);
 const LASTN = ['Самойлов', 'Грачёв', 'Воронцов', 'Беляев', 'Королёв', 'Шубин', 'Ефимов', 'Маслов', 'Дроздов', 'Лаптев'];
 const ORD_N = {crime: 'Преступность', calls: 'Раскрываемость', visit: 'Визит', staff: 'Штат'};
 function mkNpc(fem, age, cls = 'det') {
@@ -2650,10 +2670,10 @@ function cityOnResolve(m, ok) {
   if (!m.dist) return;
   crimeAdd(m.dist, ok ? -6 : 4);
   for (const o of S.city.orders) if (o.state === 'active' && o.dist === m.dist && o.kind === 'calls' && ok) o.prog++;
-  if (!ok) orderFailIn(m.dist);
+  if (!ok) { orderFailIn(m.dist); if (S.today) S.today.failIn[m.dist] = true; }
 }
-function cityOnExpire(m) { if (!m.dist || m.fake) return; crimeAdd(m.dist, 5); orderFailIn(m.dist); }
-function cityOnCall(c, act) { if (c.kind === 'police' && act !== 'send') { crimeAdd(c.dist, 3); orderFailIn(c.dist); } }
+function cityOnExpire(m) { if (!m.dist || m.fake) return; crimeAdd(m.dist, 5); orderFailIn(m.dist); if (S.today) S.today.failIn[m.dist] = true; }
+function cityOnCall(c, act) { if (c.kind === 'police' && act !== 'send') { crimeAdd(c.dist, 3); orderFailIn(c.dist); if (S.today) S.today.failIn[c.dist] = true; } }
 function electionResult() {
   const C = S.city, E = C.elect, avg = avgCrime();
   let p = .5 + (avg < 40 ? .1 : avg > 60 ? -.15 : 0) + (C.rel - 50) / 500;
@@ -2670,7 +2690,7 @@ function electionResult() {
 function cityTick(now, dt) {
   const C = S.city, E = C.elect;
   let ch = false;
-  for (const k in C.crime) C.crime[k] = clamp(C.crime[k] + dt * .01 * (C.mayor.course === 'hard' ? .8 : 1), 0, 100);
+  for (const k in C.crime) C.crime[k] = clamp(C.crime[k] + dt * .01 * (C.mayor.course === 'hard' ? .8 : 1) * crimeDriftMult(k), 0, 100);
   C.heat = Math.max(0, C.heat - dt * .02);
   if (avgCrime() > 60) cityRel(-dt * .01);
   for (const o of C.orders) if (o.state === 'active' && ((o.kind === 'crime' && C.crime[o.dist] <= o.target) || (o.kind === 'calls' && o.prog >= o.need) || (o.kind === 'staff' && S.officers.length >= o.need))) { orderDone(o, true); ch = true; }
@@ -2878,7 +2898,7 @@ function opHandle(c, forced) {
   const ideal = {police: 'send', fake: R.opPrank === 'drop' ? 'drop' : 'send', ems: 'ems', fire: 'fire'}[c.kind];
   const wrong = {police: pick(['drop', 'ems']), fake: 'send', ems: pick(['send', 'drop']), fire: pick(['send', 'ems'])}[c.kind];
   const act = good ? ideal : wrong;
-  S.call = null; S.nextCall = gnow() + rint(10, 18) * 1000;
+  S.call = null; S.nextCall = gnow() + callGap(10, 18);
   if (act === 'send') {
     c.known.addr = true;
     if (Math.random() < [0, .5, .85, 1][a.lv]) c.known.diff = true;
@@ -3047,6 +3067,7 @@ function initShifts() {
   S.city.negoDay = S.city.negoDay || 0;
   S.officers.forEach(o => { o.off = false; });
   S.call = null;
+  rollDay();
 }
 function reportLine(r) {
   if (r.kind === 'call') return `${r.ok ? '✔' : '✖'} Звонок: ${r.title}${r.rep ? ` (${r.rep > 0 ? '+' : '−'}${Math.abs(r.rep)} ★)` : ''}`;
@@ -3059,13 +3080,14 @@ function pushReport(r) {
   if (onShift() && S.shift) { S.shift.log.push(r); toast(reportLine(r)); }
   else S.reports.push(r);
 }
-const shiftPay = len => Math.round((S.officers.reduce((a, o) => a + sal(o), 0) + astSal()) * len);
+const shiftPay = len => Math.round((S.officers.reduce((a, o) => a + sal(o), 0) + astSal()) * len * payMult());
 function startShift() {
   const P = S.shiftPref, roster = S.officers.filter(o => !P.off.includes(o.id)).map(o => o.id);
   if (!roster.length) return toast('Некому выходить на смену — отметь хотя бы одного сотрудника');
   const now = gnow(), C = S.city;
   for (const o of C.orders) if (o.state === 'offer') { o.state = 'gone'; cityRel(-4); toast(`Мэрия: предложение «${o.title}» осталось без ответа. Отношения −4`); }
   C.orders = C.orders.filter(o => o.state === 'active');
+  applyPlan(roster);
   S.mode = 'shift';
   S.shift = {len: P.len, start: now, end: now + P.len * 60000, roster, money0: S.money, rep0: S.rep, crime0: avgCrime(), log: [], missed: 0};
   S.officers.forEach(o => { o.off = !roster.includes(o.id); });
@@ -3091,6 +3113,7 @@ function endShift() {
     orderDone(o, o.kind === 'crime' ? C.crime[o.dist] <= o.target : o.kind === 'calls' ? o.prog >= o.need : o.kind === 'staff' ? S.officers.length >= o.need : !o.failed);
   }
   C.orders = C.orders.filter(o => o.state === 'active');
+  const dayNotes = settleDay(sh.roster);
   const earned = Math.round(S.money - sh.money0), repD = S.rep - sh.rep0, pay = shiftPay(sh.len), paid = S.money >= pay;
   if (paid) S.money -= pay; else S.officers.forEach(o => { o.mor -= 15; });
   const grant = grantAmount(sh.len);
@@ -3099,7 +3122,7 @@ function endShift() {
   for (const r of mis) for (const l of r.lines || []) { if (l.up) ups.push(`${l.name} → ур. ${l.lv}`); if (l.hurt) hurts.push(l.name); }
   S.reports.push({kind: 'shift', day: S.day, len: sh.len, earned, grant, pay, paid, repD, crime0: sh.crime0, crime1: avgCrime(),
     missions: mis.length, okM: mis.filter(r => r.ok).length, calls: calls.length, badCalls: calls.filter(r => !r.ok).length, missed: sh.missed,
-    lines: log.slice(-12).map(reportLine), ups, hurts});
+    lines: log.slice(-12).map(reportLine), ups, hurts, loadN: LOAD[S.today ? S.today.load : 2].n, dayNotes});
   if (E.phase === 'campaign' && S.day >= E.day) electionResult();
   // ночь: стройка доделывается, люди отдыхают и выздоравливают
   S.plots.forEach(p => { if (p && p.build) { const wasNew = p.lv === 0; p.lv = p.build.to; delete p.build; if (wasNew) p.t = now; } });
@@ -3123,6 +3146,7 @@ function endShift() {
   if (C.heat >= 60 && Math.random() < C.heat / 120) queueEvent('scandal', null);
   if (C.orders.length < 2 && Math.random() < .7) C.orders.push(genOrder(now));
   S.cands = genCands();
+  rollDay();
   normalizeStaff();
   muteToasts = false;
   $('#toasts').innerHTML = '';
@@ -3134,7 +3158,7 @@ function sheetBrief() {
   const hot = Object.keys(C.crime).sort((a, b) => C.crime[b] - C.crime[a]).slice(0, 2);
   const act = C.orders.filter(o => o.state === 'active'), offers = C.orders.filter(o => o.state === 'offer');
   const onDuty = S.officers.filter(o => !P.off.includes(o.id)), staffEv = S.events.filter(e => !EV[e.kind].city).length;
-  let h = head(`Смена · день ${S.day}`, 'Брифинг перед сменой');
+  let h = head(`Смена · день ${S.day}`, 'Брифинг перед сменой') + dayCard() + planHtml() + '<h3 class="sub">Обстановка в городе</h3>';
   h += `<div class="kv"><span>Горячие районы</span><b>${hot.map(d => `${d} ${Math.round(C.crime[d])}%`).join(' · ')}</b></div>`;
   if (act.length) h += `<div class="kv"><span>Поручения мэрии</span><b>${act.map(o => esc(o.title)).join('; ')}</b></div>`;
   if (offers.length) h += '<p class="why">📜 Предложение мэрии без ответа: если начать смену, это будет отказом (отношения −4).</p>';
@@ -3161,7 +3185,8 @@ function sheetShift(r) {
   const good = r.okM * 2 >= r.missions && r.repD >= 0;
   const morning = [staffEv ? `💬 ${staffEv} ${plural(staffEv, 'разговор', 'разговора', 'разговоров')} с сотрудниками` : '', cityEv ? `🏛️ приёмная мэрии: ${cityEv}` : '', offers ? '📜 новое предложение мэрии' : '', S.city.elect.phase === 'campaign' ? '🗳 сегодня выборы мэра' : ''].filter(Boolean);
   return `<div class="report${good ? '' : ' fail'}"><small>Итоги смены · день ${r.day}</small><h2>${good ? 'Смена сдана' : 'Тяжёлая смена'}</h2>
-    <p>${r.len} мин · выездов ${r.missions}, успешных ${r.okM} · звонков решено ${r.calls}${r.badCalls ? `, с ошибкой ${r.badCalls}` : ''}${r.missed ? ` · брошено вызовов ${r.missed}` : ''}</p></div>
+    <p>${r.len} мин · выездов ${r.missions}, успешных ${r.okM} · звонков решено ${r.calls}${r.badCalls ? `, с ошибкой ${r.badCalls}` : ''}${r.missed ? ` · брошено вызовов ${r.missed}` : ''}${r.loadN ? ` · обстановка: ${r.loadN.toLowerCase()}` : ''}</p></div>
+    ${(r.dayNotes || []).map(n => `<p class="syn" style="margin:0 0 6px">${esc(n)}</p>`).join('')}
     <div class="kv"><span>Касса за смену (налоги, награды, траты)</span><b>${sg(r.earned)} ₽</b></div>
     <div class="kv"><span>Бюджет от мэрии</span><b>+${fmt(r.grant)} ₽</b></div>
     <div class="kv"><span>Зарплаты</span><b class="${r.paid ? '' : 'bad'}">${r.paid ? '−' + fmt(r.pay) + ' ₽' : 'не выплачены — не хватило денег!'}</b></div>
@@ -3187,6 +3212,162 @@ function updateMode() {
     $('#modeTxt').textContent = `🚨 Смена ${S.day}`; $('#spdTxt').textContent = `${fmtT((S.shift.end - gnow()) / 1000)} · ${SPEED_LBL[S.speed]}`;
     btn.hidden = false; btn.className = 'btn sm shiftbtn'; btn.textContent = shiftEndArm ? 'Точно сдать?' : 'Сдать смену';
   }
+}
+
+/* ---------- день: обстановка, происшествие, планёрка ---------- */
+/* Обстановка выпадает случайно каждое утро; чем дальше игра и больше участок, тем чаще тяжёлые дни.
+   Происшествие дня случается не всегда и бывает трёх уровней. Планёрка — три решения на смену. */
+const LOAD = [
+  {n: 'Тихо', d: 'Звонков мало, город отдыхает', gap: 1.7, tier: -1, urg: 0},
+  {n: 'Спокойно', d: 'Звонков меньше обычного', gap: 1.3, tier: 0, urg: 0},
+  {n: 'Обычно', d: 'Привычный ритм участка', gap: 1, tier: 0, urg: 0},
+  {n: 'Оживлённо', d: 'Звонят чаще, срочных дел больше', gap: .8, tier: 0, urg: .12},
+  {n: 'Напряжённо', d: 'Звонок за звонком, дела серьёзнее', gap: .65, tier: 1, urg: .2},
+  {n: 'Аврал', d: 'Город на ушах — рук не хватает', gap: .5, tier: 1, urg: .3}
+];
+const INC = {
+  match: {icon: '⚽', lv: ['Товарищеский матч', 'Городское дерби', 'Финал кубка'], dist: () => 'Порт',
+    d: 'На стадионе в районе «{dist}» матч: драки, пьяные фанаты, карманники. После смены преступность там подрастёт.',
+    typeW: {patrol: [1.6, 2.2, 3]}, fake: [1, 1.2, 1.4], gap: [.9, .8, .65], distP: [.35, .5, .65], crime: [2, 4, 7]},
+  storm: {icon: '⛈️', lv: ['Ливень', 'Гроза', 'Ураган'],
+    d: 'Непогода: аварии, подтопления, упавшие деревья. Больше вызовов для МЧС и скорой, машины едут медленнее.',
+    service: [1.6, 2.2, 3], gap: [.95, .85, .7], dur: [1.1, 1.2, 1.35]},
+  visit: {icon: '🎩', lv: ['Делегация из области', 'Визит министра', 'Визит премьер-министра'], dist: () => pick(['Центр', 'Старый город']),
+    d: 'В районе «{dist}» важные гости. Ни одного провала или брошенного вызова там — и мэрия с прессой оценят.',
+    distP: [.2, .25, .3], bonus: [3, 5, 8], pen: [2, 4, 6]},
+  fair: {icon: '🎪', lv: ['Ярмарка', 'День города', 'Большой фестиваль'], dist: () => 'Центр',
+    d: 'Толпы на улицах района «{dist}»: карманники, потерявшиеся дети, мелкие драки. Бизнес доволен — налоги выше.',
+    typeW: {patrol: [1.3, 1.5, 1.8], invest: [1.2, 1.4, 1.6]}, gap: [.9, .8, .7], tax: [1.15, 1.3, 1.5], distP: [.3, .4, .5]},
+  heat: {icon: '🌡️', lv: ['Жара', 'Аномальная жара', 'Пекло'],
+    d: 'От жары сдают нервы и сердце: больше драк и вызовов скорой, сотрудники быстрее устают.',
+    service: [1.3, 1.6, 2], typeW: {patrol: [1.2, 1.4, 1.6]}, gap: [.95, .85, .75], fat: [1.1, 1.25, 1.4]},
+  gang: {icon: '🔫', hq: 2, lv: ['Слухи о банде', 'Разборки банд', 'Война банд'], dist: () => Object.keys(S.city.crime).sort((a, b) => S.city.crime[b] - S.city.crime[a])[0],
+    d: 'Банды делят район «{dist}»: вооружённые вызовы и штурмы. После смены преступность там вырастет.',
+    typeW: {assault: [2, 3, 4.5]}, tier: [0, 1, 1], gap: [.95, .85, .75], distP: [.35, .5, .65], crime: [3, 6, 10]},
+  moon: {icon: '🌕', lv: ['Пятница', 'Пятница, 13-е', 'Полнолуние в пятницу 13-е'],
+    d: 'Шутники и пьяные звонят чаще обычного.', fake: [1.5, 2, 2.8], gap: [.95, .9, .85]},
+  outage: {icon: '📵', lv: ['Сбои связи', 'Авария на АТС', 'Город почти без связи'],
+    d: 'Звонки обрываются: на то, чтобы взять трубку, меньше времени.', ring: [.75, .6, .45]}
+};
+const PLAN = {
+  patrol: {t: 'Где усилить патрули?', opts: () => [...Object.keys(S.city.crime).sort((a, b) => S.city.crime[b] - S.city.crime[a]).slice(0, 2)
+    .map(d => ({n: d, focus: d, d: `В районе «${d}» преступность растёт втрое медленнее, выезды туда на 8% успешнее`})), {n: 'Везде понемногу', d: 'Преступность во всех районах растёт на 15% медленнее'}]},
+  drill: {t: 'Учения для личного состава', opts: () => [{n: 'Провести учения', d: 'Все на смене получат +10 опыта, но начнут её уставшими (+15%)'}, {n: 'Не сейчас', d: 'Без изменений'}]},
+  budget: {t: 'Премиальный фонд', opts: () => [{n: 'Надбавка', d: 'Зарплаты за смену +20%, настроение всех +6'}, {n: 'Урезать', d: 'Зарплаты за смену −20%, настроение всех −6'}, {n: 'Как обычно', d: 'Без изменений'}]},
+  press: {t: 'Журналисты просятся на смену', opts: () => [{n: 'Взять с собой', d: 'Каждый успешный выезд +1 ★, каждый провал −2 ★'}, {n: 'Отказать', d: 'Без изменений'}]},
+  school: {t: 'Профилактика в школах', opts: () => [{n: 'Провести беседы', cost: 120, d: 'Шутников сегодня вдвое меньше, доверие +1'}, {n: 'Не до того', d: 'Без изменений'}]},
+  cars: {t: 'Состояние машин', def: 1, opts: () => [{n: 'Техосмотр', cost: 80, d: 'Выезды на 10% быстрее'}, {n: 'Как обычно', d: 'Без изменений'}, {n: 'Сэкономить на ремонте', d: '+60 ₽ сегодня, но каждая машина с шансом 20% сломается в пути'}]},
+  mood: {t: 'Настрой смены', opts: () => [{n: 'Жёстко', d: 'Шанс успеха +5%, ранения на 30% чаще, жалоб больше'}, {n: 'Аккуратно', d: 'Ранения на 30% реже, шанс успеха −3%'}, {n: 'Как обычно', d: 'Без изменений'}]},
+  intel: {t: 'Информаторы', opts: () => [{n: 'Заплатить', cost: 150, d: 'Опасность каждого вызова известна сразу'}, {n: 'Обойдёмся', d: 'Без изменений'}]}
+};
+const planDef = k => PLAN[k].def ?? PLAN[k].opts().length - 1;
+function rollDay() {
+  const T = {load: 0, ev: null, cards: [], plan: {}, opts: {}, failIn: {}, applied: false};
+  if (S.day > 1) {
+    const e = clamp(.4 + (S.day - 1) * .22 + (hq() - 1) * .45, 0, 3.4), noise = (Math.random() + Math.random() + Math.random() - 1.5) * 1.6;
+    T.load = clamp(Math.round(e + noise), 0, 5);
+    if (Math.random() < .45) {
+      const id = pick(Object.keys(INC).filter(k => !INC[k].hq || hq() >= INC[k].hq)), r = Math.random();
+      const lvl = r < .5 ? 0 : (r < .85 || S.day < 4) ? 1 : 2;
+      T.ev = {id, lvl, dist: INC[id].dist ? INC[id].dist() : null};
+    }
+  } else T.load = rint(0, 1);
+  T.cards = Object.keys(PLAN).sort(() => Math.random() - .5).slice(0, 3);
+  for (const k of T.cards) { T.opts[k] = PLAN[k].opts(); T.plan[k] = planDef(k); }
+  S.today = T;
+}
+/* модификатор происшествия дня (массив по уровням) */
+function dayMod(key, def = 1) {
+  const e = S && S.today && S.today.ev, v = e && INC[e.id][key];
+  return v ? v[e.lvl] : def;
+}
+function typeWeight(t) {
+  const e = S.today && S.today.ev, w = e && INC[e.id].typeW && INC[e.id].typeW[t];
+  return w ? w[e.lvl] : 1;
+}
+const planSel = k => { const T = S && S.today; return T && T.cards.includes(k) ? T.opts[k][T.plan[k]] : null; };
+const planIs = (k, n) => { const o = S && S.today && S.today.applied ? planSel(k) : null; return !!o && o.n === n; };
+const payMult = () => { const o = planSel('budget'); return !o ? 1 : o.n === 'Надбавка' ? 1.2 : o.n === 'Урезать' ? .8 : 1; };
+const callGap = (a, b) => rint(a, b) * 1000 * LOAD[S.today ? S.today.load : 2].gap * dayMod('gap');
+function wpick(arr, wf) {
+  let x = Math.random() * arr.reduce((a, v) => a + wf(v), 0);
+  for (const v of arr) { x -= wf(v); if (x <= 0) return v; }
+  return arr[arr.length - 1];
+}
+function eventLoc() {
+  const e = S.today && S.today.ev, p = e && e.dist && INC[e.id].distP;
+  return p && Math.random() < p[e.lvl] ? distLoc(e.dist) : null;
+}
+function planChance(m) {
+  let b = planIs('mood', 'Жёстко') ? .05 : planIs('mood', 'Аккуратно') ? -.03 : 0;
+  const f = S.today && S.today.applied ? planSel('patrol') : null;
+  if (f && f.focus && f.focus === m.dist) b += .08;
+  return b;
+}
+function crimeDriftMult(k) {
+  const f = S.today && S.today.applied ? planSel('patrol') : null;
+  return !f ? 1 : f.focus ? (f.focus === k ? .33 : 1) : .85;
+}
+function giveXp(o, amt) {
+  if (o.lv >= maxLv()) return 0;
+  let up = 0;
+  o.xp += amt;
+  while (o.lv < maxLv() && o.xp >= need(o.lv)) { o.xp -= need(o.lv); o.lv++; up++; }
+  o.sp = (o.sp || 0) + up * 2;
+  return up;
+}
+function applyPlan(roster) {
+  const T = S.today;
+  if (!T) return;
+  for (const k of T.cards) {
+    const o = T.opts[k][T.plan[k]];
+    if (!o.cost) continue;
+    if (S.money < o.cost) { T.plan[k] = planDef(k); toast(`Планёрка: на «${o.n}» не хватило денег`); }
+    else S.money -= o.cost;
+  }
+  T.applied = true;
+  if (planIs('drill', 'Провести учения')) roster.forEach(id => { const o = oById(id); if (o) o.fat += 15; });
+  if (planIs('budget', 'Надбавка')) S.officers.forEach(o => { o.mor += 6; });
+  if (planIs('budget', 'Урезать')) S.officers.forEach(o => { o.mor -= 6; });
+  if (planIs('school', 'Провести беседы')) S.rep += 1;
+  if (planIs('cars', 'Сэкономить на ремонте')) S.money += 60;
+  normalizeStaff();
+}
+/* итог дня по происшествию: визит гостей, рост преступности после матча или разборок */
+function settleDay(roster) {
+  const T = S.today, notes = [];
+  if (!T) return notes;
+  if (planIs('drill', 'Провести учения')) {
+    const ups = roster.map(oById).filter(Boolean).filter(o => giveXp(o, 10));
+    notes.push(`🎯 Учения: +10 опыта${ups.length ? `, новый уровень у ${ups.map(short).join(', ')}` : ''}`);
+  }
+  const e = T.ev;
+  if (e) {
+    const I = INC[e.id], nm = `${I.icon} ${I.lv[e.lvl]}`;
+    if (I.crime && e.dist) { crimeAdd(e.dist, I.crime[e.lvl]); notes.push(`${nm}: преступность в районе «${e.dist}» +${I.crime[e.lvl]}`); }
+    else if (e.id === 'visit') {
+      if (T.failIn[e.dist]) { S.rep = Math.max(0, S.rep - I.pen[e.lvl]); cityRel(-I.pen[e.lvl] * 2); notes.push(`${nm}: в районе «${e.dist}» были провалы — доверие −${I.pen[e.lvl]}, мэрия недовольна`); }
+      else { S.rep += I.bonus[e.lvl]; cityRel(I.bonus[e.lvl]); notes.push(`${nm} прошёл без происшествий — доверие +${I.bonus[e.lvl]}, мэрия довольна`); }
+    } else notes.push(`${nm}: день позади`);
+  }
+  return notes;
+}
+function dayCard() {
+  const T = S.today, L = LOAD[T.load], e = T.ev, I = e && INC[e.id];
+  return `<div class="daycard"><div class="dc"><small>Обстановка на смену</small><b>${L.n}</b>
+      <span class="lvl">${LOAD.map((x, i) => `<i class="${i <= T.load ? 'on' : ''}"></i>`).join('')}</span><span class="muted">${L.d}</span></div>
+    <div class="dc${e ? ' ev lv' + e.lvl : ''}"><small>${e ? `Происшествие · уровень ${e.lvl + 1} из 3` : 'Происшествие дня'}</small><b>${e ? `${I.icon} ${I.lv[e.lvl]}` : 'Без происшествий'}</b>
+      <span class="muted">${e ? esc(I.d.replace('{dist}', e.dist || '')) : 'Ничего особенного не ожидается.'}</span></div></div>`;
+}
+function planHtml() {
+  const T = S.today;
+  let h = '<h3 class="sub">Планёрка · три решения на день</h3><div class="list">';
+  for (const k of T.cards) {
+    const opts = T.opts[k], sel = T.plan[k];
+    h += `<div class="card plan"><b>${PLAN[k].t}</b><div class="seg">${opts.map((o, i) => `<button type="button" class="${i === sel ? 'on' : ''}" data-plan="${k}:${i}">${esc(o.n)}${o.cost ? ` · ${o.cost} ₽` : ''}</button>`).join('')}</div>
+      <small class="muted">${esc(opts[sel].d)}</small></div>`;
+  }
+  return h + '</div>';
 }
 
 /* ---------- экраны ---------- */
@@ -3283,7 +3464,8 @@ function callCard(m) {
 function vCalls() {
   const act = S.missions.filter(m => m.start), av = S.missions.filter(m => !m.start);
   const status = (astOn('op') ? '<span class="st rest">🎧 оператор на линии</span> ' : '') + (!S.call ? '<span class="st free">Линия 102 свободна</span>' : S.call.state === 'ring' ? '<span class="st hurt">Звонит телефон</span>' : '<span class="st busy">Идёт разговор</span>');
-  let h = `<div class="sec-head"><h2>Дежурная часть</h2>${status}</div>
+  const T = S.today, evI = T && T.ev && INC[T.ev.id];
+  let h = `<div class="sec-head"><h2>Дежурная часть</h2>${status}</div>${T ? `<p class="muted" style="margin:-6px 0 10px">Сегодня: ${LOAD[T.load].n.toLowerCase()}${evI ? ` · ${evI.icon} ${evI.lv[T.ev.lvl]}${T.ev.dist ? ` (${T.ev.dist})` : ''}` : ''}</p>` : ''}
     <div class="dmapwrap" id="dmapSlot"></div>
     <p class="maphint"><b style="color:${MT.patrol.color}">●</b> патруль · <b style="color:${MT.invest.color}">●</b> расследование · <b style="color:${MT.assault.color}">●</b> штурм · пунктир — примерный адрес</p>`;
   if (S.mode === 'peace') h += `<div class="card peacecard"><b>🌙 Участок между сменами</b><span class="muted">Звонки на 102 сейчас принимает соседний участок. Начни смену, чтобы работать.</span><button type="button" class="btn primary" data-shiftbtn>▶ Начать смену</button></div>`;
@@ -3489,6 +3671,7 @@ document.addEventListener('click', e => {
   else if (d.shiftlen) { S.shiftPref.len = +d.shiftlen; renderSheet(); save(); }
   else if (d.roster) { const P = S.shiftPref; P.off = P.off.includes(d.roster) ? P.off.filter(x => x !== d.roster) : [...P.off, d.roster]; renderSheet(); save(); }
   else if ('shiftgo' in d) startShift();
+  else if (d.plan && S.mode === 'peace' && S.today) { const [k, i] = d.plan.split(':'); if (S.today.cards.includes(k)) { S.today.plan[k] = +i; renderSheet(); save(); } }
   else if ('nego' in d) { sheetCtx = {kind: 'nego'}; renderSheet(); }
   else if (d.negopt !== undefined) negotiate(+d.negopt);
   else if (d.ord) {
