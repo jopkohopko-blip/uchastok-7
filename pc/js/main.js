@@ -1,11 +1,11 @@
 // Точка входа PC-версии: выбор города, загрузка, игровой цикл, мышь и клавиатура, сохранение.
-import {loadCity, geocode, PRESETS, DEMO} from './osm.js?v=5';
-import {RoadGraph} from './roads.js?v=5';
-import {World, QUALITY} from './world.js?v=5';
-import {RTSCamera} from './camera.js?v=5';
-import {Game} from './game.js?v=5';
-import {UI, UNIT_BG, esc} from './ui.js?v=5';
-import {ROLES, TYPES} from './data.js?v=5';
+import {loadCity, geocode, PRESETS, DEMO} from './osm.js?v=6';
+import {RoadGraph} from './roads.js?v=6';
+import {World, QUALITY} from './world.js?v=6';
+import {RTSCamera} from './camera.js?v=6';
+import {Game} from './game.js?v=6';
+import {UI, UNIT_BG, esc} from './ui.js?v=6';
+import {ROLES, TYPES} from './data.js?v=6';
 
 const $ = s => document.querySelector(s);
 const SAVE = 'uchastok7pc', GFX = 'uchastok7pc.gfx', GFX_AUTO = 'uchastok7pc.gfxauto';

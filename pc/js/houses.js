@@ -1,7 +1,7 @@
 // Облик домов: фасады с окнами по типу здания, парапеты и короба на плоских крышах, скатные крыши у частных домов.
 // Окна рисует шейдер по «развёртке» стены (метры вдоль стены и высота), поэтому текстуры не нужны.
 import * as THREE from 'three';
-import {inShape, ringArea} from './osm.js?v=5';
+import {inShape, ringArea} from './osm.js?v=6';
 
 const PLASTER = 0, BRICK = 1, PANEL = 2, GLASS = 3, IND = 4, CHURCH = 5, HOUSE = 6;
 const WALLS = [

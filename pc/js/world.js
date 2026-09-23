@@ -1,8 +1,8 @@
 // 3D-мир: реальные дома и улицы из OSM, машины нарядов, метки вызовов, слой преступности, день и ночь.
 // Координаты карты: x — восток, y — север (метры). В three.js: x = x, z = −y, высота — y.
 import * as THREE from 'three';
-import {inShape} from './osm.js?v=5';
-import {buildHouses, facadeMaterial, EQUIP} from './houses.js?v=5';
+import {inShape} from './osm.js?v=6';
+import {buildHouses, facadeMaterial, EQUIP} from './houses.js?v=6';
 
 const ROAD_W = {motorway: 16, trunk: 14, primary: 13, secondary: 11, tertiary: 9, unclassified: 7, residential: 7, living_street: 6, service: 4.2, pedestrian: 8};
 const ROAD_C = {motorway: '#6a7077', trunk: '#6a7077', primary: '#666c73', secondary: '#61676e', tertiary: '#5c6269', unclassified: '#565c63', residential: '#565c63', living_street: '#5b5f63', service: '#4f5459', pedestrian: '#7b7466'};
@@ -12,9 +12,9 @@ const clamp01 = v => Math.max(0, Math.min(1, v));
 
 // Качество графики: доля пикселей экрана и тени. Сглаживание включается при создании и меняется только перезагрузкой.
 export const QUALITY = {
-  high: {n: 'высокая', dpr: 2, shadow: 2048, soft: true},
-  medium: {n: 'средняя', dpr: 1, shadow: 2048, soft: false},
-  low: {n: 'низкая', dpr: .75, shadow: 0, soft: false}
+  high: {n: 'высокая', dpr: 1.5, shadow: 2048, blur: 5},
+  medium: {n: 'средняя', dpr: 1, shadow: 1024, blur: 3},
+  low: {n: 'низкая', dpr: .75, shadow: 0, blur: 0}
 };
 
 function makeTex(w, h, draw) {
@@ -67,7 +67,7 @@ export class World {
     const sun = this.sun = new THREE.DirectionalLight(0xfff1dc, 1.8);
     const s = sun.shadow.camera, R = this.R * 1.15;
     s.left = -R; s.right = R; s.top = R; s.bottom = -R; s.near = 10; s.far = this.R * 6;
-    sun.shadow.bias = -.0005; sun.shadow.normalBias = .6;
+    sun.shadow.bias = -.0002; sun.shadow.normalBias = .4;
     this.scene.add(sun, sun.target);
     this.moon = new THREE.DirectionalLight(0x8fb0ff, 0); this.moon.position.set(-300, 600, 400); this.scene.add(this.moon);
     this.ray = new THREE.Raycaster();
@@ -86,8 +86,10 @@ export class World {
     r.setPixelRatio(Math.min(devicePixelRatio, Q.dpr));
     this.shadowsOn = Q.shadow > 0;
     r.shadowMap.enabled = this.shadowsOn;
-    r.shadowMap.type = Q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+    // VSM: одна выборка тени на пиксель вместо 17 у PCF; мягкость даёт размытие, а оно считается только при обновлении теней
+    r.shadowMap.type = THREE.VSMShadowMap;
     this.sun.castShadow = this.shadowsOn;
+    this.sun.shadow.radius = Q.blur; this.sun.shadow.blurSamples = 8;
     if (this.shadowsOn && this.sun.shadow.mapSize.x !== Q.shadow) {
       this.sun.shadow.mapSize.set(Q.shadow, Q.shadow);
       if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
@@ -100,18 +102,19 @@ export class World {
 
   /* ---------- земля, вода, парки ----------
      Плоские слои не пишут глубину и рисуются строго по порядку (renderOrder): земля → парки → вода → дороги.
-     Так они никогда не рябят друг о друга, как бы далеко ни была камера. */
-  flat(geo, mat, order) {
+     Так они никогда не рябят друг о друга, как бы далеко ни была камера. Рисуются после домов и деревьев:
+     закрытые стенами места отсекаются проверкой глубины и не красятся зря. */
+  flat(geo, mat, order, shadow = true) {
     mat.depthWrite = false;
     const m = new THREE.Mesh(geo, mat);
-    m.renderOrder = order; m.receiveShadow = true;
+    m.renderOrder = order; m.receiveShadow = shadow;
     this.scene.add(m);
     return m;
   }
   buildGround() {
     // земля вокруг района — кольцом, чтобы не закрашивать экран дважды под диском района
-    const outer = this.flat(new THREE.RingGeometry(this.R * 1.05, this.R * 7, 96, 1), new THREE.MeshLambertMaterial({color: 0x1d2521}), -10);
-    const disk = this.flat(new THREE.CircleGeometry(this.R * 1.06, 96), new THREE.MeshLambertMaterial({color: 0x454a44}), -9);
+    const outer = this.flat(new THREE.RingGeometry(this.R * 1.05, this.R * 7, 96, 1), new THREE.MeshLambertMaterial({color: 0x1d2521}), 1, false);
+    const disk = this.flat(new THREE.CircleGeometry(this.R * 1.06, 96), new THREE.MeshLambertMaterial({color: 0x454a44}), 2);
     outer.rotation.x = disk.rotation.x = -Math.PI / 2;
     const edge = new THREE.Mesh(new THREE.RingGeometry(this.R * 1.06, this.R * 1.075, 128), new THREE.MeshBasicMaterial({color: 0x8fb7cc, transparent: true, opacity: .35, depthWrite: false}));
     edge.rotation.x = -Math.PI / 2; edge.position.y = .01;
@@ -132,38 +135,62 @@ export class World {
     return g;
   }
   buildAreas() {
-    this.flat(this.areaGeometry(this.map.g), new THREE.MeshLambertMaterial({color: 0x557d4c, side: THREE.DoubleSide}), -8);
-    this.flat(this.areaGeometry(this.map.w), new THREE.MeshLambertMaterial({color: 0x3f6f8f, emissive: 0x0b2233, side: THREE.DoubleSide}), -7);
+    this.flat(this.areaGeometry(this.map.g), new THREE.MeshLambertMaterial({color: 0x557d4c, side: THREE.DoubleSide}), 3);
+    this.flat(this.areaGeometry(this.map.w), new THREE.MeshLambertMaterial({color: 0x3f6f8f, emissive: 0x0b2233, side: THREE.DoubleSide}), 4);
   }
 
-  /* ---------- дороги: ленты с круглыми стыками, одна общая геометрия; крупные улицы ложатся поверх мелких ---------- */
+  /* ---------- дороги: сплошные ленты, одна общая геометрия; крупные улицы ложатся поверх мелких ----------
+     На изгибах края сходятся «в ус» (без щелей и без лишней перерисовки), круглые стыки — только на крутых поворотах и концах. */
   buildRoads() {
     const pos = [], col = [];
     const push = (x, z, c) => { pos.push(x, 0, -z); col.push(c.r, c.g, c.b); };
+    const disk = (x, z, hw, c) => {
+      for (let s = 0; s < 8; s++) {
+        const a1 = s / 8 * Math.PI * 2, a2 = (s + 1) / 8 * Math.PI * 2;
+        push(x, z, c); push(x + Math.cos(a1) * hw, z + Math.sin(a1) * hw, c); push(x + Math.cos(a2) * hw, z + Math.sin(a2) * hw, c);
+      }
+    };
     const roads = [...this.map.rd].sort((a, b) => (ROAD_ORD[a.k.replace('_link', '')] ?? 0) - (ROAD_ORD[b.k.replace('_link', '')] ?? 0));
     for (const rd of roads) {
       const base = rd.k.replace('_link', ''), link = rd.k.endsWith('_link');
-      const w = (ROAD_W[base] ?? 6) * (link ? .8 : 1), hw = w / 2;
-      const c = new THREE.Color(ROAD_C[base] ?? '#565c63'), p = rd.p;
-      for (let i = 0; i + 3 < p.length; i += 2) {
-        const x1 = p[i], y1 = p[i + 1], x2 = p[i + 2], y2 = p[i + 3], L = Math.hypot(x2 - x1, y2 - y1) || 1;
-        const nx = -(y2 - y1) / L * hw, ny = (x2 - x1) / L * hw;
-        push(x1 + nx, y1 + ny, c); push(x1 - nx, y1 - ny, c); push(x2 - nx, y2 - ny, c);
-        push(x1 + nx, y1 + ny, c); push(x2 - nx, y2 - ny, c); push(x2 + nx, y2 + ny, c);
+      const hw = (ROAD_W[base] ?? 6) * (link ? .8 : 1) / 2, c = new THREE.Color(ROAD_C[base] ?? '#565c63');
+      const p = [];
+      for (let i = 0; i < rd.p.length; i += 2) { // без повторяющихся точек — иначе лента схлопнется
+        const x = rd.p[i], y = rd.p[i + 1];
+        if (!p.length || Math.hypot(x - p[p.length - 2], y - p[p.length - 1]) > .05) p.push(x, y);
       }
-      for (let i = 0; i < p.length; i += 2) { // круглые стыки, чтобы повороты не рвались
-        const x = p[i], z = p[i + 1];
-        for (let s = 0; s < 8; s++) {
-          const a1 = s / 8 * Math.PI * 2, a2 = (s + 1) / 8 * Math.PI * 2;
-          push(x, z, c); push(x + Math.cos(a1) * hw, z + Math.sin(a1) * hw, c); push(x + Math.cos(a2) * hw, z + Math.sin(a2) * hw, c);
+      const n = p.length / 2;
+      if (n < 2) continue;
+      const sn = []; // нормали отрезков
+      for (let i = 0; i < n - 1; i++) { const dx = p[i * 2 + 2] - p[i * 2], dy = p[i * 2 + 3] - p[i * 2 + 1], L = Math.hypot(dx, dy); sn.push([-dy / L, dx / L]); }
+      const Lp = [], Rp = [];
+      for (let i = 0; i < n; i++) {
+        const x = p[i * 2], y = p[i * 2 + 1];
+        let mx, my, k = hw;
+        if (i === 0) [mx, my] = sn[0];
+        else if (i === n - 1) [mx, my] = sn[n - 2];
+        else {
+          const a = sn[i - 1], b = sn[i];
+          mx = a[0] + b[0]; my = a[1] + b[1];
+          const ml = Math.hypot(mx, my);
+          if (ml < 1e-6) { mx = a[0]; my = a[1]; } else { mx /= ml; my /= ml; }
+          k = hw / Math.max(mx * a[0] + my * a[1], .5); // длина «уса», не больше двух полуширин
+          if (a[0] * b[0] + a[1] * b[1] < .5) disk(x, y, hw, c); // поворот круче 60° — закругляем
         }
+        Lp.push(x + mx * k, y + my * k); Rp.push(x - mx * k, y - my * k);
       }
+      for (let i = 0; i < n - 1; i++) {
+        const j = i * 2, q = j + 2;
+        push(Lp[j], Lp[j + 1], c); push(Rp[j], Rp[j + 1], c); push(Rp[q], Rp[q + 1], c);
+        push(Lp[j], Lp[j + 1], c); push(Rp[q], Rp[q + 1], c); push(Lp[q], Lp[q + 1], c);
+      }
+      disk(p[0], p[1], hw, c); disk(p[n * 2 - 2], p[n * 2 - 1], hw, c); // концы — на перекрёстках
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.setAttribute('normal', new THREE.Float32BufferAttribute(new Float32Array(pos.length).map((_, i) => i % 3 === 1 ? 1 : 0), 3));
-    this.flat(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}), -6);
+    this.flat(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}), 5);
   }
 
   /* ---------- дома: фасады с окнами, парапеты, скатные крыши — см. houses.js ---------- */
