@@ -1,9 +1,9 @@
 // 3D-мир: реальные дома и улицы из OSM, машины нарядов, метки вызовов, слой преступности, день и ночь.
 // Координаты карты: x — восток, y — север (метры). В three.js: x = x, z = −y, высота — y.
 import * as THREE from 'three';
-import {inShape} from './osm.js?v=4';
+import {inShape} from './osm.js?v=5';
+import {buildHouses, facadeMaterial, EQUIP} from './houses.js?v=5';
 
-const KIND_COL = {res: '#cdbb9e', com: '#b3bcc6', ind: '#a8a08f', pub: '#dccaa6', rel: '#eadcb9', gen: '#c2b9aa'};
 const ROAD_W = {motorway: 16, trunk: 14, primary: 13, secondary: 11, tertiary: 9, unclassified: 7, residential: 7, living_street: 6, service: 4.2, pedestrian: 8};
 const ROAD_C = {motorway: '#6a7077', trunk: '#6a7077', primary: '#666c73', secondary: '#61676e', tertiary: '#5c6269', unclassified: '#565c63', residential: '#565c63', living_street: '#5b5f63', service: '#4f5459', pedestrian: '#7b7466'};
 const ROAD_ORD = {motorway: 6, trunk: 6, primary: 5, secondary: 4, tertiary: 3, unclassified: 2, residential: 2, living_street: 1, service: 0, pedestrian: 1};
@@ -50,12 +50,6 @@ function labelTex(text, bg) {
   }));
   return labelCache.get(key);
 }
-function validColour(s) {
-  if (!s) return null;
-  s = s.trim().toLowerCase();
-  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(s)) return s;
-  return THREE.Color.NAMES[s.replace(/\s+/g, '')] !== undefined ? s.replace(/\s+/g, '') : null;
-}
 const vec2 = f => { const a = []; for (let i = 0; i < f.length; i += 2) a.push(new THREE.Vector2(f[i], f[i + 1])); return a; };
 
 export class World {
@@ -68,6 +62,7 @@ export class World {
     this.camera = new THREE.PerspectiveCamera(42, 1, 5, 7000);
     this.scene.fog = new THREE.Fog(0x9fbad2, 1400, 4200);
     this.sky = new THREE.Color(); this.scene.background = this.sky;
+    this.fac = {uNight: {value: 0}, uLit: {value: 0}, uSky: {value: this.sky}}; // общие параметры шейдера фасадов
     this.hemi = new THREE.HemisphereLight(0xcfe3ff, 0x3a3326, .9); this.scene.add(this.hemi);
     const sun = this.sun = new THREE.DirectionalLight(0xfff1dc, 1.8);
     const s = sun.shadow.camera, R = this.R * 1.15;
@@ -97,6 +92,7 @@ export class World {
       this.sun.shadow.mapSize.set(Q.shadow, Q.shadow);
       if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
     }
+    this.bMat.defines = q === 'low' ? {FACADE_LOW: ''} : {}; // на низкой графике окна рисуются упрощённо
     this.scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) m.needsUpdate = true; });
     r.shadowMap.needsUpdate = true;
     if (this.w) this.resize(this.w, this.h);
@@ -170,76 +166,29 @@ export class World {
     this.flat(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}), -6);
   }
 
-  /* ---------- дома: одна общая геометрия, цвет каждого дома можно менять ----------
-     Внешние контуры — против часовой, дворы — по часовой: стены смотрят наружу и во двор, рисуем только лицевую сторону. */
+  /* ---------- дома: фасады с окнами, парапеты, скатные крыши — см. houses.js ---------- */
   buildBuildings() {
-    const B = this.map.b, n = B.length, geo = [];
-    this.bh = new Float32Array(n); this.bb = new Float32Array(n * 4);
-    let nv = 0;
-    for (let i = 0; i < n; i++) {
-      const b = B[i], outer = vec2(b.p), holes = (b.hl || []).map(vec2), rings = [b.p, ...(b.hl || [])];
-      let tri = [];
-      try { tri = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { /* кривой контур — дом без крыши */ }
-      geo.push({all: outer.concat(...holes), tri, rings});
-      for (const r of rings) nv += r.length / 2 * 6;
-      nv += tri.length * 3;
-      this.bh[i] = b.h + ((i * 37) % 101) * .004; // чуть разная высота: у соседних крыш на одном уровне не будет ряби
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      for (let k = 0; k < b.p.length; k += 2) { x0 = Math.min(x0, b.p[k]); x1 = Math.max(x1, b.p[k]); y0 = Math.min(y0, b.p[k + 1]); y1 = Math.max(y1, b.p[k + 1]); }
-      this.bb[i * 4] = x0; this.bb[i * 4 + 1] = y0; this.bb[i * 4 + 2] = x1; this.bb[i * 4 + 3] = y1;
-    }
-    const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), col = new Float32Array(nv * 3), shade = new Float32Array(nv);
-    this.bStart = new Int32Array(n); this.bWallEnd = new Int32Array(n); this.bEnd = new Int32Array(n);
-    this.wallCol = []; this.roofCol = [];
-    let v = 0;
-    const put = (x, y, z, nx, ny, nz, sh) => {
-      pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = z;
-      nor[v * 3] = nx; nor[v * 3 + 1] = ny; nor[v * 3 + 2] = nz; shade[v] = sh; v++;
-    };
-    for (let i = 0; i < n; i++) {
-      const b = B[i], {all, tri, rings} = geo[i], h = this.bh[i];
-      const wall = new THREE.Color(KIND_COL[b.k] || KIND_COL.gen), tag = validColour(b.c);
-      if (tag) wall.lerp(new THREE.Color(tag), .45);
-      wall.offsetHSL(0, 0, ((i * 2654435761) % 1000) / 1000 * .12 - .06); // лёгкий разброс оттенков соседних домов
-      this.wallCol.push(wall); this.roofCol.push(wall.clone().multiplyScalar(.72));
-      this.bStart[i] = v;
-      for (const p of rings) for (let j = 0, m = p.length; j < m; j += 2) {
-        const ax = p[j], ay = p[j + 1], cx = p[(j + 2) % m], cy = p[(j + 3) % m], L = Math.hypot(cx - ax, cy - ay) || 1;
-        const nx = (cy - ay) / L, ny = -(cx - ax) / L; // нормаль стены в координатах карты
-        put(ax, 0, -ay, nx, 0, -ny, .62); put(cx, 0, -cy, nx, 0, -ny, .62); put(cx, h, -cy, nx, 0, -ny, 1);
-        put(ax, 0, -ay, nx, 0, -ny, .62); put(cx, h, -cy, nx, 0, -ny, 1); put(ax, h, -ay, nx, 0, -ny, 1);
-      }
-      this.bWallEnd[i] = v;
-      for (const [a, b2, c] of tri) { // крыша смотрит вверх: если глядеть сверху, треугольник идёт против часовой
-        const A = all[a], Bv = all[b2], Cv = all[c], ccw = (Bv.x - A.x) * (Cv.y - A.y) - (Bv.y - A.y) * (Cv.x - A.x) >= 0;
-        for (const q of ccw ? [A, Bv, Cv] : [A, Cv, Bv]) put(q.x, h, -q.y, 0, 1, 0, 1);
-      }
-      this.bEnd[i] = v;
-    }
-    this.shade = shade;
-    const g = this.bGeo = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
-    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    g.computeBoundingSphere();
-    this.bState = B.map(() => ({role: null, gang: false}));
-    for (let i = 0; i < n; i++) this.paint(i, false);
-    const mesh = this.bMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({vertexColors: true}));
+    const H = buildHouses(this.map);
+    this.bGeo = H.geometry; this.part = H.part; this.bStart = H.bStart; this.bEnd = H.bEnd;
+    this.bh = H.bh; this.bb = H.bb; this.wallCol = H.wallCol; this.roofCol = H.roofCol;
+    this.bState = this.map.b.map(() => ({role: null, gang: false}));
+    for (let i = 0; i < this.map.b.length; i++) this.paint(i, false);
+    const mesh = this.bMesh = new THREE.Mesh(this.bGeo, this.bMat = facadeMaterial(this.fac));
     mesh.castShadow = mesh.receiveShadow = true;
     this.scene.add(mesh);
   }
   // итоговый цвет дома: базовый → роль полиции → банда на крыше → выбор/наведение
   paint(i, upload = true) {
-    const st = this.bState[i], attr = this.bGeo.attributes.color, col = attr.array, sh = this.shade;
-    const wall = this.wallCol[i].clone(), roof = this.roofCol[i].clone();
-    if (st.role) { const rc = new THREE.Color(st.role); wall.lerp(rc, .5); roof.lerp(rc, .7); }
-    if (st.gang) { roof.lerp(C.set(0xb3263a), .55); wall.lerp(C.set(0x6b2a33), .2); }
-    if (i === this.sel) { wall.lerp(C.set(0xffffff), .35); roof.lerp(C.set(0xfff3c4), .5); }
-    else if (i === this.hover) { wall.lerp(C.set(0xffffff), .2); roof.lerp(C.set(0xffffff), .25); }
-    for (let v = this.bStart[i]; v < this.bEnd[i]; v++) {
-      const c = v < this.bWallEnd[i] ? wall : roof, s = sh[v];
-      col[v * 3] = c.r * s; col[v * 3 + 1] = c.g * s; col[v * 3 + 2] = c.b * s;
+    const st = this.bState[i], attr = this.bGeo.attributes.color, col = attr.array, part = this.part;
+    const cols = [this.wallCol[i].clone(), this.roofCol[i].clone(), this.roofCol[i].clone().lerp(EQUIP, .55)]; // стены, крыша, короба
+    for (let k = 0; k < 3; k++) {
+      const c = cols[k], roof = k > 0;
+      if (st.role) c.lerp(C.set(st.role), roof ? .7 : .45);
+      if (st.gang) c.lerp(C.set(roof ? 0xb3263a : 0x6b2a33), roof ? .55 : .2);
+      if (i === this.sel) c.lerp(C.set(roof ? 0xfff3c4 : 0xffffff), roof ? .5 : .35);
+      else if (i === this.hover) c.lerp(C.set(0xffffff), roof ? .25 : .2);
     }
+    for (let v = this.bStart[i]; v < this.bEnd[i]; v++) { const c = cols[part[v]]; col[v * 3] = c.r; col[v * 3 + 1] = c.g; col[v * 3 + 2] = c.b; }
     if (upload) { attr.addUpdateRange(this.bStart[i] * 3, (this.bEnd[i] - this.bStart[i]) * 3); attr.needsUpdate = true; } // на видеокарту — только этот дом
   }
   setRole(i, color) { this.bState[i].role = color; this.paint(i); }
@@ -444,6 +393,9 @@ export class World {
     this.lamps.material.opacity = lamp; this.lamps.visible = lamp > .01;
     this.renderer.toneMappingExposure = .95 + day * .15;
     this.night = 1 - day;
+    // окна: вечером горит почти половина, к ночи всё меньше, под утро снова включают свет
+    this.fac.uNight.value = this.night;
+    this.fac.uLit.value = h >= 17 && h < 23 ? .5 : h >= 23 ? .35 : h < 5 ? .15 : h < 8 ? .28 : .1;
   }
 
   /* ---------- ввод: что под курсором ---------- */

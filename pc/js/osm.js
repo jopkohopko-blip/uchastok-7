@@ -138,6 +138,13 @@ export function parseOSM(json, lat0, lon0, R, name) {
       if (addr) o.a = addr;
       if (t.name) o.n = t.name;
       if (t['building:colour']) o.c = t['building:colour'];
+      if (t.building !== 'yes') o.t = t.building;
+      if (t['roof:shape']) o.rs = t['roof:shape'];
+      if (t['roof:colour']) o.rc = t['roof:colour'];
+      const mat = t['building:material'] || t['building:facade:material'];
+      if (mat) o.m = mat;
+      const lv = parseFloat(t['building:levels']);
+      if (lv > 0) o.lv = lv;
       b.push(o);
     }
   }
@@ -263,8 +270,8 @@ async function cachePut(key, val) {
   } catch (e) { /* без кэша тоже работаем */ }
 }
 
-// v2 — карты с дворами и островами; старый кэш без них скачается заново
-export const mapKey = (lat, lon, R) => `v2|${lat.toFixed(4)},${lon.toFixed(4)},${R}`;
+// v3 — карты с дворами, островами и тегами облика домов; старый кэш без них скачается заново
+export const mapKey = (lat, lon, R) => `v3|${lat.toFixed(4)},${lon.toFixed(4)},${R}`;
 
 export async function loadCity({lat, lon, r, name}, onStatus) {
   const key = mapKey(lat, lon, r);
@@ -280,7 +287,7 @@ export async function loadCity({lat, lon, r, name}, onStatus) {
   return map;
 }
 
-export const DEMO = {name: 'Москва, Арбат (демо)', lat: 55.7497, lon: 37.5925, r: 650, file: 'data/demo-arbat.json?v=4', key: mapKey(55.7497, 37.5925, 650)};
+export const DEMO = {name: 'Москва, Арбат (демо)', lat: 55.7497, lon: 37.5925, r: 650, file: 'data/demo-arbat.json?v=5', key: mapKey(55.7497, 37.5925, 650)};
 export async function loadDemo(onStatus) {
   onStatus('Открываю демо-город…');
   const r = await fetch(DEMO.file);
