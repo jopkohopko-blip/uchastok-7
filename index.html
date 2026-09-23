@@ -272,6 +272,21 @@ main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px}
 .q[disabled]{opacity:.35;cursor:default}
 .decide{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .decide .primary,.decide .danger{grid-column:1/-1}
+.call-clock{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;margin-bottom:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);font-size:12px;color:var(--dim)}
+.call-clock b{font:700 17px var(--disp);font-variant-numeric:tabular-nums;color:var(--gold)}
+.call-clock.hot{border-color:var(--red)}.call-clock.hot b{color:var(--red)}
+.call-hint{margin:0 0 8px;color:var(--dim);font-size:12px;line-height:1.4}
+.call-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:13px}
+.call-actions .q{border-radius:10px;white-space:normal;text-align:left;line-height:1.25}
+.call-actions .q b{display:block;margin-bottom:3px;color:var(--text)}
+.call-actions .q small{font-size:11px;color:var(--dim)}
+.call-actions .q.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--panel2));opacity:1}
+.approaches{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.approach{padding:10px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);text-align:left;cursor:pointer}
+.approach b,.approach small{display:block}.approach small{margin-top:3px;color:var(--dim);font-size:11px;line-height:1.3}
+.approach.on{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 14%,var(--panel2))}
+.approach:disabled{opacity:.45;cursor:default}
+@media(max-width:430px){.call-actions{grid-template-columns:1fr}.call-actions .q b{display:inline;margin-right:6px}}
 .ring{position:fixed;left:50%;transform:translateX(-50%);top:calc(106px + env(safe-area-inset-top,0px));z-index:15;width:min(448px,calc(100% - 32px));display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:#123a2a;border:1px solid var(--green);box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .ring-ic{font-size:22px;animation:shake .5s ease-in-out infinite}
 @keyframes shake{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
@@ -282,6 +297,125 @@ main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px}
 .toasts{position:fixed;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;padding-inline:16px}
 .toast{max-width:420px;padding:8px 14px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:up .2s ease-out}
 @media (prefers-reduced-motion:reduce){.top::after,.chip.code,.sheet,.toast{animation:none}}
+
+/* Визуальная система: ночной оперативный центр */
+[hidden]{display:none!important}
+:root{--bg:#08111e;--panel:#102033;--panel2:#192c42;--line:#31506a;--ink:#f0f8ff;--dim:#a5bace;--blue:#55caff;--red:#ff617b;--gold:#ffcf70;--green:#4be2b3}
+body{background:radial-gradient(ellipse at 50% -15%,#1b3b58 0,#08111e 55%);color:var(--ink)}
+.app{background:linear-gradient(180deg,#0c1929,#091420 42%,#08111e);border-color:#263c51;box-shadow:0 0 90px #0009}
+.top{min-height:76px;padding:13px 16px;background:radial-gradient(ellipse at 14% -10%,#285576 0,transparent 53%),linear-gradient(115deg,#142d45,#0f1f31 70%);border-color:#46647b}
+.top::after{height:3px;background:linear-gradient(90deg,var(--red),#964874 25%,var(--blue) 65%,#a6e8ff);box-shadow:0 0 14px #55caff88;animation:siren 5s ease-in-out infinite alternate}
+.shield{width:40px;height:44px;background:linear-gradient(145deg,#ffe4a4,#d99135);box-shadow:0 0 22px #ffcf7055;font-size:20px}
+.brand b{font-size:15px;text-shadow:0 1px 8px #0009}
+.brand small{color:#b6d9e9;font:700 10px var(--mono);letter-spacing:.12em}
+.pillr{background:#081a2b;border-color:#3d607b;box-shadow:inset 0 1px #ffffff12,0 4px 12px #0004}
+.pillr em{color:var(--green)}
+.speedbar{padding:8px 16px;background:#101f30;border-color:#29445d}
+.spd{min-width:36px;border-color:#35516b;background:#0b192a;color:#b2c9da;box-shadow:inset 0 1px #ffffff0a}
+.spd[aria-pressed="true"]{background:linear-gradient(150deg,#64d6ff,#3179d9);color:#061525;box-shadow:0 2px 12px #48baff55}
+main{background-image:radial-gradient(ellipse at 50% 0,#1b354a55,transparent 52%);scrollbar-color:#43617c transparent}
+.sec-head{align-items:center;margin:4px 0 15px}
+.sec-head h2{font-size:20px;letter-spacing:-.04em}
+.sub{color:#79bde0;letter-spacing:.17em;margin-top:22px}
+.muted{color:var(--dim)}
+.card,.off,.pick,.call,.evc{background:linear-gradient(150deg,#1a3046 0,#112235 64%,#101d2d 100%);border-color:#35546d;box-shadow:inset 0 1px #ffffff12,0 9px 24px #0003}
+.card{border-radius:15px;padding:14px}
+.tip{position:relative;overflow:hidden;border-color:#477fa3;background:radial-gradient(circle at 100% 0,#255978 0,transparent 55%),linear-gradient(145deg,#193b53,#10273c)}
+.tip::before{content:"07 / БРИФИНГ";display:block;margin-bottom:7px;color:var(--blue);font:700 10px var(--mono);letter-spacing:.18em}
+.tip h3{font:700 17px var(--disp)}
+.tip ol{color:#c8d9e7}
+.btn{background:linear-gradient(180deg,#26405a,#172a40);border-color:#3b5e7a;box-shadow:inset 0 1px #ffffff1c,0 4px 12px #0002;transition:transform .15s,filter .15s,border-color .15s}
+.btn:not([disabled]):active,.spd:active,.tabs button:active{transform:translateY(1px)}
+.btn:not([disabled]):hover{filter:brightness(1.16);border-color:#67a5cc}
+.btn.primary{background:linear-gradient(135deg,#72ddff,#348df0);color:#071727;box-shadow:inset 0 1px #ffffff80,0 5px 18px #39aaf051}
+.btn.danger{background:#441f32;border-color:#a84962;color:#ffb8c2}
+.mapwrap,.dmapwrap{position:relative;overflow:hidden;margin:0 -16px;border-top:1px solid #395f79;border-bottom:1px solid #395f79;background:radial-gradient(ellipse at 50% 55%,#1d455c 0,#10283d 40%,#091a2d 78%,#071524)}
+.mapwrap::before,.dmapwrap::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;border:1px solid #88ceeb1c;background:linear-gradient(90deg,#8ee5ff22 1px,transparent 1px),linear-gradient(#8ee5ff18 1px,transparent 1px);background-size:25% 25%;mix-blend-mode:screen}
+.mapwrap::after{content:"СЕКТОР 07  /  ГОРОДСКАЯ СЕТЬ";position:absolute;bottom:12px;left:16px;z-index:2;pointer-events:none;color:#d0e9fa;background:#0a1a2bc9;border:1px solid #47728e;padding:5px 7px;border-radius:5px;font:700 9px var(--mono);letter-spacing:.09em}
+.dmapwrap::after{content:"102  /  КАРТА ВЫЗОВОВ";position:absolute;bottom:10px;left:12px;z-index:2;pointer-events:none;color:#d0e9fa;background:#0a1a2bd9;border:1px solid #47728e;padding:5px 7px;border-radius:5px;font:700 9px var(--mono);letter-spacing:.09em}
+.rotbar{z-index:3}
+.rotbar button,.rotbar span{background:#0a2036e8;border-color:#5584a2;box-shadow:0 3px 12px #0006;backdrop-filter:blur(8px)}
+.rotbar button{color:#ccefff}
+.maphint{color:#97b0c3;font-size:11px;line-height:1.5;margin-top:9px}
+.summary{gap:0 16px;margin-top:16px;padding:4px 13px;background:linear-gradient(135deg,#132b42,#0e2033);border:1px solid #35546d;border-radius:14px;box-shadow:inset 0 1px #ffffff12}
+.summary .kv{border-color:#36516a;padding:11px 0}
+.summary .kv b{color:#e5f7ff;font-family:var(--mono);font-size:12px}
+.tabs{gap:4px;padding:7px 8px calc(7px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,#14293f,#0d1c2d);border-color:#3c5b73;box-shadow:0 -9px 24px #0005}
+.tabs button{border:1px solid transparent;border-radius:11px;padding:7px 2px;color:#a2b9cc;transition:background .2s,color .2s}
+.tabs button span{font-size:19px;filter:drop-shadow(0 2px 2px #0008)}
+.tabs button[aria-current="page"]{background:linear-gradient(160deg,#24465f,#17324b);border-color:#4e89a8;color:#ecfaff;box-shadow:inset 0 1px #ffffff24,0 0 16px #40bfff21}
+.tabs button[aria-current="page"]::before{display:none}
+.nbadge{background:var(--red);box-shadow:0 0 11px #ff617b88}
+.sheet-bg{background:#020b16c9;backdrop-filter:blur(5px)}
+.sheet{background:linear-gradient(180deg,#1a354d,#102238 35%,#0c1b2d);border-color:#5a839d;box-shadow:0 -18px 55px #0009,inset 0 1px #ffffff26}
+.x{background:#1e3850;border-color:#52738d}
+.call::before{width:4px;box-shadow:0 0 14px var(--c)}
+.chip{border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
+.ring{background:linear-gradient(120deg,#123c37,#105547);border-color:#63eec0;box-shadow:0 10px 35px #0009,0 0 30px #35ddad4d}
+.toast{background:#24415a;border-color:#6392ad;color:#f5fbff}
+.por{border-color:#64849a;background:#0a1b2b}
+.bar,.bigbar,.cbar,.mt,.sbar{background:#ffffff19}
+.bar i,.sbar i{box-shadow:0 0 8px currentColor}
+@media(max-width:380px){.top{gap:5px;padding-inline:10px}.brand{gap:6px}.brand b{font-size:12px}.brand small{font-size:9px}.pillr{padding:4px 6px;font-size:11px}.speedbar{padding-inline:10px}.spd{min-width:30px;padding-inline:6px}.summary{gap:0 10px;padding-inline:10px}}
+@media(prefers-reduced-motion:reduce){.btn,.tabs button{transition:none}.mapwrap::before,.dmapwrap::before{mix-blend-mode:normal}}
+
+/* Личный состав: карточки как дела оперативного архива */
+.staff-intro{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0 0 18px}
+.staff-intro>div{padding:10px 9px;border:1px solid #3a5a75;border-radius:11px;background:linear-gradient(155deg,#1b3952,#10243a);box-shadow:inset 0 1px #ffffff16}
+.staff-intro b{display:block;color:#f0f9ff;font:700 17px var(--mono)}
+.staff-intro span{display:block;color:#a4bed0;font:600 9px var(--mono);letter-spacing:.07em;text-transform:uppercase}
+.staff-card{--role:#55caff;display:block;position:relative;overflow:hidden;width:100%;padding:0;text-align:left;border:1px solid #42617b;border-radius:17px;background:radial-gradient(circle at 8% 0,color-mix(in srgb,var(--role) 23%,transparent),transparent 45%),linear-gradient(145deg,#1c344b,#102337 72%);box-shadow:inset 0 1px #ffffff23,0 12px 25px #0004;cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s}
+.staff-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--role);box-shadow:0 0 15px var(--role)}
+.staff-card:hover{transform:translateY(-2px);border-color:#8dc7e0;box-shadow:0 15px 28px #0006}
+.staff-card:active{transform:translateY(0)}
+.staff-head{display:grid;grid-template-columns:74px minmax(0,1fr);gap:12px;padding:13px 13px 10px 15px}
+.staff-photo{width:74px;height:84px;object-fit:cover;border:1px solid color-mix(in srgb,var(--role) 70%,#fff);border-radius:11px;background:#0e2234;box-shadow:0 7px 17px #0007,inset 0 0 0 1px #ffffff29}
+.staff-headtext{min-width:0}
+.staff-overline{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:20px}
+.staff-unit{color:var(--role);font:700 10px var(--mono);letter-spacing:.11em;text-transform:uppercase}
+.staff-overline .st{max-width:48%;overflow:hidden;text-overflow:ellipsis;padding:3px 7px;font-size:10px;background:#0a1a2bba}
+.staff-name{display:block;margin:4px 0 2px;font:700 17px/1.2 var(--disp);letter-spacing:-.03em;color:#fff;overflow-wrap:anywhere}
+.staff-rank{display:block;color:#b9d0dd;font-size:11px}
+.staff-id{display:block;margin-top:6px;color:#78a3bb;font:600 9px var(--mono);letter-spacing:.09em}
+.staff-metrics{display:grid;grid-template-columns:1fr 1fr;gap:13px;padding:0 14px 11px 15px}
+.staff-metric{min-width:0}
+.staff-metric-label{display:flex;justify-content:space-between;gap:4px;color:#b2c9d7;font-size:10px}
+.staff-metric-label b{color:#eaf7ff;font-family:var(--mono)}
+.staff-track{display:block;height:5px;margin-top:5px;border-radius:5px;overflow:hidden;background:#071524}
+.staff-track i{display:block;height:100%;border-radius:5px;box-shadow:0 0 10px currentColor}
+.staff-metric.morale i{background:linear-gradient(90deg,#239e86,#4ce6b4);color:#4ce6b4}
+.staff-metric.fatigue i{background:linear-gradient(90deg,#b57b35,#ffd275);color:#ffd275}
+.staff-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:43px;padding:8px 13px 9px 15px;border-top:1px solid #ffffff1b;background:#07192c66}
+.staff-focus{min-width:0;color:#b8d1df;font-size:10px;line-height:1.35}
+.staff-focus b{color:#eaf8ff;font-weight:600}
+.staff-footer .chips{margin:0;justify-content:flex-end}
+.staff-footer .tchip{max-width:110px;overflow:hidden;text-overflow:ellipsis;background:#0b2133}
+.candidate-card{--role:#55caff;position:relative;overflow:hidden;border:1px solid #3e607a;border-radius:15px;background:linear-gradient(125deg,#1b354a,#10243a);box-shadow:inset 0 1px #ffffff18,0 9px 21px #0003}
+.candidate-main{display:grid;grid-template-columns:66px minmax(0,1fr);gap:11px;align-items:start;padding:12px}
+.candidate-photo{width:66px;height:73px;object-fit:cover;border:1px solid var(--role);border-radius:10px;box-shadow:0 5px 14px #0007}
+.candidate-name{display:block;color:#fff;font:700 14px var(--disp);margin:4px 0 2px;overflow-wrap:anywhere}
+.candidate-role{display:block;color:#b6d0df;font-size:11px}
+.candidate-card .chips{margin-top:7px}
+.candidate-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;background:#091d2eb3;border-top:1px solid #ffffff1b}
+.candidate-foot small{color:#bdd3df;font-size:10px;line-height:1.3}
+.candidate-foot .btn{min-width:95px;margin:0;padding:8px 10px;font-size:11px}
+.candidate-card .unit-mark{color:var(--role);font:700 9px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.dossier-hero{--role:#55caff;display:grid;grid-template-columns:108px minmax(0,1fr);gap:13px;align-items:center;padding:13px;margin-bottom:10px;border:1px solid #4a708d;border-radius:17px;background:radial-gradient(circle at 12% 5%,color-mix(in srgb,var(--role) 27%,transparent),transparent 60%),linear-gradient(140deg,#1b354e,#10263b);box-shadow:inset 0 1px #ffffff24}
+.dossier-photo{width:108px;height:116px;object-fit:cover;border:1px solid var(--role);border-radius:12px;box-shadow:0 8px 22px #0008}
+.dossier-eyebrow{display:block;color:var(--role);font:700 9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.dossier-hero .st{display:inline-block;margin:8px 0 6px;background:#0a1d2f;font-size:10px}
+.dossier-hero strong{display:block;color:#f0f9ff;font-size:12px;line-height:1.35}
+.dossier-hero small{display:block;color:#aec6d6;font-size:10px;line-height:1.4;margin-top:4px}
+.dossier-vitals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 10px}
+.dossier-vitals>div{padding:9px 7px;border:1px solid #395972;border-radius:10px;background:#0b2033;text-align:center}
+.dossier-vitals b{display:block;color:#effaff;font:700 16px var(--mono)}
+.dossier-vitals span{display:block;color:#a5bdcd;font-size:10px}
+.bio{padding:11px 13px;border:1px solid #36556c;border-radius:11px;background:#0a1c2e;color:#c4d8e5}
+.appearance{margin:0 0 12px;color:#99b8ca;font-size:11px;line-height:1.45}
+.appearance b{color:#d6e9f3;font-weight:600}
+.sheet-bg:not([hidden])~.ring{top:calc(8px + env(safe-area-inset-top,0px))}
+@media(max-width:380px){.staff-head{grid-template-columns:64px minmax(0,1fr);gap:9px}.staff-photo{width:64px;height:76px}.staff-name{font-size:14px}.staff-overline .st{font-size:9px}.staff-footer{align-items:flex-start;flex-direction:column}.staff-footer .chips{justify-content:flex-start}.dossier-hero{grid-template-columns:88px minmax(0,1fr)}.dossier-photo{width:88px;height:100px}.candidate-main{grid-template-columns:60px minmax(0,1fr)}.candidate-photo{width:60px;height:68px}}
+@media(prefers-reduced-motion:reduce){.staff-card{transition:none}}
 </style>
 
 <div class="app">
@@ -443,6 +577,10 @@ function load() {
       if (S.v === 2) migrate3();
       if (!S.city) initCity();
       if (!S.ast) initAst();
+      if (S.call) {
+        for (const q of ['scene', 'route']) S.call.lines[q] ||= callFallback[S.call.kind]?.[q] || 'Не могу сейчас уточнить.';
+        if (S.call.state === 'talk' && !S.call.talkEnd) S.call.talkEnd = gnow() + 60000;
+      }
       return;
     }
   } catch (e) {}
@@ -502,12 +640,22 @@ function upgrade(i, quiet) {
   return true;
 }
 
+function missionApproach(m) { return APPROACH[m.approach] || APPROACH.standard; }
+function missionChance(m, sp) {
+  const ap = missionApproach(m);
+  return clamp(chance(sp.P, m.diff) * (m.vague ? .9 : 1) + sp.luck + ap.chance + Math.min(5, m.intel || 0) * .012, .03, .97);
+}
+function missionDuration(m) { return m.baseDur * durMult() * missionApproach(m).time; }
 function sendSquad(m, ids) {
   const squad = ids.map(oById).filter(o => o && avail(o));
   if (!squad.length || m.start) return false;
+  const ap = missionApproach(m);
+  if (S.money < ap.cost) { toast(`Для поддержки нужно ${ap.cost} ₽`); return false; }
   const sp = squadPower(squad.map(o => o.id), m.type), now = gnow();
-  m.start = now; m.end = now + m.baseDur * durMult() * 1000; m.esc = null;
-  m.squad = squad.map(o => o.id); m.chance = clamp(chance(sp.P, m.diff) * (m.vague ? .9 : 1) + sp.luck, .03, .97);
+  S.money -= ap.cost;
+  m.spent = (m.spent || 0) + ap.cost;
+  m.start = now; m.end = now + missionDuration(m) * 1000; m.esc = null;
+  m.squad = squad.map(o => o.id); m.chance = missionChance(m, sp);
   squad.forEach(o => o.busy = m.id);
   return true;
 }
@@ -518,13 +666,14 @@ function dispatch(m) {
 }
 
 function resolve(m) {
+  const ap = missionApproach(m);
   if (m.fake) {
     const sq = S.officers.filter(o => m.squad.includes(o.id));
     sq.forEach(o => { o.busy = null; o.fat += 5; o.mor -= 3; o.st.calls++; });
     normalizeStaff();
     const rep = m.fake === 'fake' ? -1 : 0;
     S.rep = Math.max(0, S.rep + rep);
-    S.reports.push({fake: true, ok: false, type: m.type, name: m.name, money: 0, rep,
+    S.reports.push({fake: true, ok: false, type: m.type, name: m.name, money: 0, rep, spent: m.spent || 0,
       title: m.fake === 'fake' ? 'Ложный вызов' : 'Не по профилю',
       note: m.fake === 'fake' ? `По адресу «${m.addr}» никого. Наряд катался впустую — это были шутники.` : `На месте помощь нужна была не полиции: наряд сам вызвал ${SERV_TO[m.fake]}.`,
       lines: sq.map(o => ({id: o.id, name: o.name, gain: 0, up: 0, lv: o.lv, hurt: false}))});
@@ -550,7 +699,7 @@ function resolve(m) {
     o.st.calls++; if (ok) o.st.ok++;
     o.fat += (10 + 4 * m.tier) * (hasT(o, 'tough') ? .6 : 1) * (o.gear.a === 'heavy' ? 1.2 : 1);
     o.mor += ok ? 5 : -8 * (hasT(o, 'coward') ? 1.5 : 1);
-    const hurt = Math.random() < (ok ? .1 : .5) * (gearOf(o, 'a').inj || 1) * (hasT(o, 'talker') ? .7 : 1);
+    const hurt = Math.random() < (ok ? .1 : .5) * ap.injury * (m.radioInjury || 1) * (m.safeGuide ? .82 : 1) * (gearOf(o, 'a').inj || 1) * (hasT(o, 'talker') ? .7 : 1);
     if (hurt) {
       o.hurt = now + (ok ? 15000 : 25000) * (hasT(o, 'tough') ? .6 : 1); o.st.hurt++; o.mor -= 12;
       const pr = o.partner && oById(o.partner);
@@ -563,7 +712,7 @@ function resolve(m) {
   });
   normalizeStaff();
   floatText(rc(2), rc(2), 1.2, ok ? '✔ Успех' : '✖ Провал', ok ? '#3ddc97' : '#ff4d5e');
-  S.reports.push({ok, name: m.name, type: m.type, money, rep, lines});
+  S.reports.push({ok, name: m.name, type: m.type, money, rep, spent: m.spent || 0, lines, approach: m.approach || 'standard', radioChoice: m.radioChoice || 'plan', intel: m.intel || 0, safeGuide: !!m.safeGuide});
   S.missions = S.missions.filter(x => x !== m);
   const rank1 = rankOf(S.rep);
   if (rank1 !== rank0) toast(`Новое звание: ${rank1}`);
@@ -590,6 +739,11 @@ function tick() {
     changed = true;
   });
   for (const m of [...S.missions]) {
+    if (m.start && !m.fake && !m.radioDone && !m.radioPending && now >= m.start + (m.end - m.start) * .45) {
+      m.radioPending = true; m.radioOriginalEnd = m.end; m.radioDeadline = now + 30000; m.end = Math.max(m.end, m.radioDeadline + 5000);
+      toast(`Рация: наряд на месте — «${m.name}». Нужен приказ`); changed = true;
+    }
+    if (m.radioPending && now >= m.radioDeadline) { m.radioPending = false; m.radioDone = true; m.radioChoice = 'plan'; m.end = Math.max(now + 3000, m.radioOriginalEnd || m.end); changed = true; }
     if (m.start && now >= m.end) { resolve(m); changed = true; }
     else if (!m.start && now >= m.exp) {
       S.missions = S.missions.filter(x => x !== m); changed = true;
@@ -606,6 +760,7 @@ function tick() {
       S.call = null; S.nextCall = now + rint(8, 14) * 1000; changed = true;
     } else if (now - lastRing > 2800) { lastRing = now; ringSound(); }
   }
+  if (S.call && S.call.state === 'talk' && now >= S.call.talkEnd) { expireCall(S.call); changed = true; }
   S.officers.forEach(o => { if (o.hurt && now >= o.hurt) { o.hurt = 0; changed = true; } });
 
   if (changed) { render(); if (sheetCtx && sheetCtx.kind !== 'report' && sheetCtx.kind !== 'call') renderSheet(); save(); }
@@ -673,6 +828,7 @@ function box(x, y, z, w, d, h, c) {
   poly([Pr(x, y + d, z), Pr(x + w, y + d, z), Pr(x + w, y + d, z + h), Pr(x, y + d, z + h)], c);
   poly([Pr(x + w, y + d, z), Pr(x + w, y, z), Pr(x + w, y, z + h), Pr(x + w, y + d, z + h)], shade(c, -.25));
   poly([Pr(x, y, z + h), Pr(x + w, y, z + h), Pr(x + w, y + d, z + h), Pr(x, y + d, z + h)], shade(c, .18));
+  mc.strokeStyle = '#e8f8ff33'; mc.lineWidth = .8; mc.stroke();
   return {x, y, z, w, d, h};
 }
 const FL = (b, u, v) => Pr(b.x + u * b.w, b.y + b.d, b.z + v * b.h);
@@ -736,10 +892,18 @@ for (let gx = .2; gx < WORLD; gx += .42) for (let gy = .2; gy < WORLD; gy += .42
 }
 function tree(x, y, s) {
   const g = P(x, y), top = P(x, y, .34 * s);
-  mc.fillStyle = 'rgba(0,0,0,.2)'; mc.beginPath(); mc.ellipse(g[0] + 2, g[1], MK * .18 * s, MK * .09 * s, 0, 0, 7); mc.fill();
-  line(g, P(x, y, .2 * s), '#5a3d25', Math.max(2, MK * .06));
-  dot(top, MK * .2 * s, '#3b7a37');
-  dot([top[0] - MK * .05 * s, top[1] - MK * .06 * s], MK * .12 * s, '#5aa04a');
+  mc.fillStyle = 'rgba(0,8,19,.3)'; mc.beginPath(); mc.ellipse(g[0] + 3, g[1] + 2, MK * .21 * s, MK * .11 * s, 0, 0, 7); mc.fill();
+  line(g, P(x, y, .24 * s), '#514631', Math.max(2, MK * .065));
+  dot([top[0] + MK * .065 * s, top[1] + MK * .025 * s], MK * .19 * s, '#173e4a');
+  dot(top, MK * .19 * s, '#286d65');
+  dot([top[0] - MK * .065 * s, top[1] - MK * .07 * s], MK * .115 * s, '#459c80');
+}
+function streetlamp(x, y) {
+  const base = P(x, y), lamp = P(x, y, .5);
+  mc.fillStyle = '#061426'; mc.beginPath(); mc.ellipse(base[0] + 2, base[1] + 2, MK * .14, MK * .055, 0, 0, 7); mc.fill();
+  line(base, lamp, '#6b8799', Math.max(1, MK * .045));
+  glow(lamp, MK * .5, '#ffd993', .2);
+  dot(lamp, Math.max(1.6, MK * .07), '#ffdc93');
 }
 const TRAFFIC = [
   {k: 1, axis: 'x', dir: 1, sp: .55, off: 0, c: '#e8b83a'}, {k: 3, axis: 'x', dir: -1, sp: .45, off: 2, c: '#d9534f'},
@@ -781,6 +945,9 @@ function drawHQ(x, y, lv, t) {
   wins(b, 3, 1 + Math.floor(lv / 2), '#3a5f96', '#ffe9a8', 3, .74);
   band(b, .78, .92, '#2f6fe0');
   fq(FL, b, .38, 0, .62, .32, '#1c2a44');
+  const badge = FL(b, .5, .58);
+  mc.fillStyle = '#ffdb8c'; mc.font = `700 ${Math.max(7, Math.round(MK * .3))}px JetBrains Mono,monospace`;
+  mc.textAlign = 'center'; mc.textBaseline = 'middle'; mc.fillText('07', badge[0], badge[1]);
   let top = h;
   if (lv >= 3) { const tw = box(x + .16, y + .16, h, .3, .3, .42, '#cfd6e0'); wins(tw, 1, 1, '#3a5f96', null, 0, .8); top = h + .42; }
   if (lv >= 5) {
@@ -901,18 +1068,50 @@ function drawSite(x, y, t, p) {
 const DRAW = {hq: drawHQ, biz: drawBiz, dorm: drawDorm, garage: drawGarage, armory: drawArmory, lab: drawLab, academy: drawAcademy};
 
 /* сцена */
+function drawBackdrop(t) {
+  const sky = mc.createLinearGradient(0, 0, 0, MH);
+  sky.addColorStop(0, '#10273e'); sky.addColorStop(.55, '#153e53'); sky.addColorStop(1, '#071a2c');
+  mc.fillStyle = sky; mc.fillRect(0, 0, MW, MH);
+  const aura = mc.createRadialGradient(MW * .5, MH * .5, 0, MW * .5, MH * .5, MW * .66);
+  aura.addColorStop(0, '#4397a32b'); aura.addColorStop(1, '#06142100');
+  mc.fillStyle = aura; mc.fillRect(0, 0, MW, MH);
+  for (let j = 0; j < 22; j++) {
+    const x = hash01(j * 11.3) * MW, y = hash01(j * 7.7) * MH * .85;
+    mc.globalAlpha = .16 + .12 * Math.sin(t / 1700 + j);
+    dot([x, y], j % 4 ? .65 : 1, '#d1eefd');
+  }
+  mc.globalAlpha = 1;
+}
 function drawGround(t, now) {
   const T = .45, a0 = roadS(0), a1 = roadS(4) + RW, un = unlocked();
-  box(0, 0, -T, WORLD, WORLD, T, '#5b4631');
-  quad(0, 0, 0, WORLD, WORLD, '#5d9a4f');
-  for (let k = 0; k < 5; k++) { quad(a0, roadS(k), 0, a1 - a0, RW, '#3d4452'); quad(roadS(k), a0, 0, RW, a1 - a0, '#3d4452'); }
+  box(0, 0, -T, WORLD, WORLD, T, '#233846');
+  quad(0, 0, 0, WORLD, WORLD, '#286051');
+  for (let k = 0; k < 5; k++) {
+    quad(a0, roadS(k) - .055, .001, a1 - a0, RW + .11, '#789093');
+    quad(roadS(k) - .055, a0, .001, RW + .11, a1 - a0, '#789093');
+    quad(a0, roadS(k), .003, a1 - a0, RW, '#263747');
+    quad(roadS(k), a0, .003, RW, a1 - a0, '#263747');
+    line(P(a0, roadS(k)), P(a1, roadS(k)), '#acc2be55', 1);
+    line(P(roadS(k), a0), P(roadS(k), a1), '#acc2be55', 1);
+  }
   mc.setLineDash([4, 5]);
-  for (let k = 0; k < 5; k++) { line(P(a0, rc(k)), P(a1, rc(k)), 'rgba(255,255,255,.45)', 1); line(P(rc(k), a0), P(rc(k), a1), 'rgba(255,255,255,.45)', 1); }
+  for (let k = 0; k < 5; k++) { line(P(a0, rc(k)), P(a1, rc(k)), '#d1c99299', 1); line(P(rc(k), a0), P(rc(k), a1), '#d1c99299', 1); }
   mc.setLineDash([]);
+  for (let k = 0; k < 5; k++) for (let j = 0; j < 5; j++) {
+    const xx = roadS(j), yy = roadS(k);
+    quad(xx + .06, yy + .06, .006, RW - .12, RW - .12, '#304659');
+    if ((k + j) % 2 === 0) for (let z = 0; z < 3; z++) {
+      quad(xx + .07 + z * .12, yy + RW + .04, .009, .065, .11, '#cbdcdaaa');
+    }
+  }
   for (let i = 0; i < 16; i++) {
     const [x, y] = lotXY(i), p = S.plots[i];
-    quad(x, y, 0, 1, 1, '#b7bec9');
-    quad(x + .07, y + .07, .005, .86, .86, !un.has(i) ? '#4f8a45' : !p ? '#a88d5c' : p.type === 'academy' ? '#6fae5a' : '#cfd5dd');
+    quad(x, y, .006, 1, 1, '#95aaa9');
+    quad(x + .055, y + .055, .009, .89, .89, !un.has(i) ? '#245b51' : !p ? '#967e5a' : p.type === 'academy' ? '#518977' : '#b9d0d0');
+    if (!p && un.has(i)) {
+      quad(x + .18, y + .18, .011, .64, .64, '#3b5d68');
+      for (let z = 0; z < 4; z++) line(P(x + .21 + z * .14, y + .2, .014), P(x + .21 + z * .14, y + .8, .014), '#8fc8c866', .7);
+    }
     if (sheetCtx && sheetCtx.kind === 'plot' && sheetCtx.i === i) {
       mc.beginPath(); [P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)].forEach((q, n) => n ? mc.lineTo(q[0], q[1]) : mc.moveTo(q[0], q[1]));
       mc.closePath(); mc.strokeStyle = '#f2c14e'; mc.lineWidth = 2.5; mc.stroke();
@@ -943,10 +1142,15 @@ function overlayLot(i, p, cx, cy, top, t, now) {
 function drawMap(t, now) {
   if (!MW) return;
   mc.clearRect(0, 0, MW, MH);
+  drawBackdrop(t);
   drawGround(t, now);
   const un = unlocked(), items = [], over = [];
   markersScr = [];
   for (const tr of TREES) items.push({d: depth(tr[0], tr[1]), f: () => tree(tr[0], tr[1], tr[2])});
+  for (let k = 0; k < 4; k++) for (let j = 0; j < 4; j++) if ((k + j) % 2 === 0) {
+    const x = roadS(j) + RW + .12, y = roadS(k) + RW + .12;
+    items.push({d: depth(x, y), f: () => streetlamp(x, y)});
+  }
   for (let i = 0; i < 16; i++) {
     const [x, y] = lotXY(i), p = S.plots[i], cx = x + .5, cy = y + .5;
     if (!un.has(i)) {
@@ -1047,36 +1251,44 @@ function portrait(o) {
   const gr = o.gear || {w: 'pm', a: 'none', g: 'none'}, rank = o.rank || 0;
   const key = [o.id, o.cls, rank, gr.w, gr.a, gr.g, md, tired, hurt ? 1 : 0].join('|');
   if (porCache.has(key)) return porCache.get(key);
-  const c = document.createElement('canvas'); c.width = c.height = 128;
-  const g = c.getContext('2d'); g.scale(1.28, 1.28);
+  const c = document.createElement('canvas'); c.width = c.height = 192;
+  const g = c.getContext('2d'); g.scale(1.92, 1.92);
   const cls = CLS[o.cls], fem = !!o.fem, age = o.age || 30, swat = o.cls === 'swat', heavy = gr.a === 'heavy';
   const skin = SKIN2[L.skin % 6], skinD = shade(skin, -.18);
   let hair = HAIR2[L.hairC % 7];
   if (age >= 45) hair = mixHex(hair, '#a8a8a8', Math.min(.75, (age - 42) / 20));
-  const helmet = heavy || swat, mask = swat && L.mask, cap = o.cls === 'patrol' && !helmet, hat = o.cls === 'det' && L.hat && !helmet;
+  const helmet = heavy || swat, mask = swat && L.mask;
+  const cap = o.cls === 'patrol' && !helmet && (L.cap === undefined ? hashStr(o.id) % 4 === 0 : L.cap);
+  const hat = o.cls === 'det' && L.hat && !helmet;
   const E = (x, y, rx, ry, col, a0 = 0, a1 = 7) => { g.fillStyle = col; g.beginPath(); g.ellipse(x, y, rx, ry, 0, a0, a1); g.fill(); };
   const D = (x, y, r, col) => { g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
   const Ln = (pts, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); };
   const Q = (x0, y0, cx, cy, x1, y1, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.lineCap = 'round'; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(cx, cy, x1, y1); g.stroke(); };
   const RR = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
 
-  const bg = g.createLinearGradient(0, 0, 0, 100);
-  bg.addColorStop(0, shade(cls.color, -.3)); bg.addColorStop(1, shade(cls.color, -.75));
+  const bg = g.createLinearGradient(0, 0, 100, 100);
+  bg.addColorStop(0, shade(cls.color, -.18)); bg.addColorStop(.54, shade(cls.color, -.54)); bg.addColorStop(1, '#0a1828');
   g.fillStyle = bg; g.fillRect(0, 0, 100, 100);
-  g.globalAlpha = .07; g.strokeStyle = '#fff'; g.lineWidth = 6;
-  for (let i = -20; i < 180; i += 18) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i - 60, 100); g.stroke(); }
+  g.globalAlpha = .08; g.strokeStyle = '#fff'; g.lineWidth = 4;
+  for (let i = -20; i < 180; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i - 55, 100); g.stroke(); }
   g.globalAlpha = 1;
+  g.strokeStyle = '#c7efff4a'; g.lineWidth = .65;
+  for (const x of [7, 93]) { g.beginPath(); g.moveTo(x, 10); g.lineTo(x, 26); g.stroke(); }
+  g.beginPath(); g.arc(50, 49, 38, Math.PI * 1.11, Math.PI * 1.89); g.stroke();
+  g.fillStyle = '#e8f7ff9c'; g.font = '700 5px JetBrains Mono,monospace'; g.textAlign = 'left'; g.fillText('07 / ' + CLS[o.cls].short, 6, 8);
+  g.textAlign = 'right'; g.fillText(String(hashStr(o.id) % 100).padStart(2, '0'), 94, 8);
 
-  const fw = [18, 19.5, 19][L.face % 3], fh = [22, 20.5, 21][L.face % 3];
+  const fw = [16.5, 19.5, 22][L.face % 3], fh = [23, 21, 20][L.face % 3];
   if (fem && !mask && (L.hair === 0 || L.hair === 2)) { E(50, 46, fw + 4, fh + 4, hair); g.fillStyle = hair; g.fillRect(50 - fw - 4, 46, fw * 2 + 8, L.hair === 2 ? 40 : 16); }
   g.fillStyle = skinD; g.fillRect(43, 58, 14, 20);
 
-  const jacket = o.cls === 'patrol' ? '#22345a' : swat ? '#1d2127' : ['#8a6a3e', '#4a4f58', '#2d2a28'][L.coat % 3];
+  const jacket = o.cls === 'patrol' ? ['#223e61', '#274259', '#343e57'][L.coat % 3] : swat ? '#252f32' : ['#8a6a3e', '#4a4f58', '#2d2a28'][L.coat % 3];
   g.fillStyle = jacket; g.beginPath(); g.moveTo(3, 100); g.bezierCurveTo(5, 84, 17, 78, 36, 75); g.lineTo(64, 75); g.bezierCurveTo(83, 78, 95, 84, 97, 100); g.closePath(); g.fill();
   const tie = (col) => { g.fillStyle = col; g.beginPath(); g.moveTo(48.5, 78); g.lineTo(51.5, 78); g.lineTo(52.5, 96); g.lineTo(50, 99); g.lineTo(47.5, 96); g.closePath(); g.fill(); };
   if (o.cls === 'patrol') {
     g.fillStyle = '#a9c8ec'; g.beginPath(); g.moveTo(41, 75); g.lineTo(59, 75); g.lineTo(50, 90); g.closePath(); g.fill();
     tie('#16213a'); Ln([[41, 75], [47, 100]], '#1a2946', 1.5); Ln([[59, 75], [53, 100]], '#1a2946', 1.5);
+    Ln([[25, 82], [35, 78]], '#8eb9d6', 1.2); Ln([[75, 82], [65, 78]], '#8eb9d6', 1.2);
   } else if (o.cls === 'det') {
     g.fillStyle = '#eef0f3'; g.beginPath(); g.moveTo(40, 75); g.lineTo(60, 75); g.lineTo(50, 94); g.closePath(); g.fill();
     tie(['#7a1f2b', '#1f3a7a', '#2f2f2f'][L.coat % 3]);
@@ -1105,6 +1317,7 @@ function portrait(o) {
   E(50, 46, fw, fh, skin);
   if (L.face === 2) { g.fillStyle = skin; RR(50 - fw + 1, 46, fw * 2 - 2, fh - 3, 7); g.fill(); }
   g.globalAlpha = .13; E(50 + fw * .55, 50, fw * .45, fh * .7, skinD); g.globalAlpha = 1;
+  g.globalAlpha = .14; E(50 - fw * .48, 43, fw * .38, fh * .64, '#fff6e7'); g.globalAlpha = 1;
   if (mask) { E(50, 46, fw + 1.5, fh + 1.5, '#1c1f24'); g.fillStyle = skin; RR(36, 40.5, 28, 11, 4); g.fill(); }
   if (!mask && age >= 40) {
     g.globalAlpha = .35; Ln([[42, 33], [58, 33]], skinD, .8);
@@ -1198,8 +1411,13 @@ function portrait(o) {
     if (!helmet && !cap && !hat && !mask) { g.save(); g.translate(50, 35); g.rotate(-.08); g.fillStyle = '#f2f2f2'; g.fillRect(-fw, -3, fw * 2, 6); g.restore(); D(56, 35, 1.8, '#c0392b'); }
     else { g.save(); g.translate(60, 53); g.rotate(.5); g.fillStyle = '#e8c9a0'; g.fillRect(-4, -1.8, 8, 3.6); g.restore(); }
   }
+  const vignette = g.createRadialGradient(50, 44, 18, 50, 48, 76);
+  vignette.addColorStop(0, '#06121e00'); vignette.addColorStop(1, '#06121e78');
+  g.fillStyle = vignette; g.fillRect(0, 0, 100, 100);
+  g.strokeStyle = '#ffffff59'; g.lineWidth = .8; g.strokeRect(1.5, 1.5, 97, 97);
   const url = c.toDataURL();
   porCache.set(key, url);
+  if (porCache.size > 240) porCache.delete(porCache.keys().next().value);
   return url;
 }
 function portraitOld(o) {
@@ -1273,12 +1491,12 @@ function portraitOld(o) {
 const AVE = [{x: 60, n: 'пр. Мира'}, {x: 190, n: 'ул. Лесная'}, {x: 330, n: 'ул. Школьная'}, {x: 470, n: 'ул. Центральная', major: 1}, {x: 610, n: 'ул. Садовая'}, {x: 750, n: 'ул. Заводская'}, {x: 890, n: 'ул. Портовая'}];
 const STR = [{y: 60, n: 'ул. Северная'}, {y: 180, n: 'ул. Гагарина', major: 1}, {y: 300, n: 'Верхняя набережная'}, {y: 420, n: 'Нижняя набережная'}, {y: 540, n: 'ул. Строителей'}, {y: 650, n: 'ул. Южная'}];
 const DIST = [
-  {n: 'Старый город', x0: 0, y0: 0, x1: 330, y1: 300, c: '#1a2331'},
-  {n: 'Центр', x0: 330, y0: 0, x1: 750, y1: 300, c: '#1d2738'},
-  {n: 'Северный', x0: 750, y0: 0, x1: 1000, y1: 300, c: '#19222e'},
-  {n: 'Заводской', x0: 0, y0: 420, x1: 400, y1: 700, c: '#1f2229'},
-  {n: 'Спальный', x0: 400, y0: 420, x1: 750, y1: 700, c: '#1a2331'},
-  {n: 'Порт', x0: 750, y0: 420, x1: 1000, y1: 700, c: '#1c2430'}
+  {n: 'Старый город', x0: 0, y0: 0, x1: 330, y1: 300, c: '#183b4b'},
+  {n: 'Центр', x0: 330, y0: 0, x1: 750, y1: 300, c: '#1c4054'},
+  {n: 'Северный', x0: 750, y0: 0, x1: 1000, y1: 300, c: '#173749'},
+  {n: 'Заводской', x0: 0, y0: 420, x1: 400, y1: 700, c: '#25404b'},
+  {n: 'Спальный', x0: 400, y0: 420, x1: 750, y1: 700, c: '#1a3c4b'},
+  {n: 'Порт', x0: 750, y0: 420, x1: 1000, y1: 700, c: '#1c3b4e'}
 ];
 const distAt = (x, y) => DIST.find(d => x >= d.x0 && x < d.x1 && y >= d.y0 && y < d.y1) || {n: 'Набережная', c: '#1a2331'};
 const STN = {x: 400, y: 240, ex: 470, ey: 180};
@@ -1312,41 +1530,52 @@ function buildStatic() {
   const c = document.createElement('canvas'); c.width = dCv.width; c.height = dCv.height;
   const g = c.getContext('2d'), dpr = dCv.width / DW, u = 1 / DS;
   g.setTransform(dpr * DS, 0, 0, dpr * DS, 0, 0);
-  g.fillStyle = '#0b1118'; g.fillRect(0, 0, 1000, 700);
+  const bg = g.createLinearGradient(0, 0, 1000, 700);
+  bg.addColorStop(0, '#122d42'); bg.addColorStop(1, '#071a2a');
+  g.fillStyle = bg; g.fillRect(0, 0, 1000, 700);
+  g.strokeStyle = '#bcecff0c'; g.lineWidth = 1;
+  for (let x = 0; x <= 1000; x += 25) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 700); g.stroke(); }
+  for (let y = 0; y <= 700; y += 25) { g.beginPath(); g.moveTo(0, y); g.lineTo(1000, y); g.stroke(); }
   const rrG = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
   const xs = [0, ...AVE.map(a => a.x), 1000], ys = [0, ...STR.map(s => s.y), 700];
   for (let i = 0; i < xs.length - 1; i++) for (let j = 0; j < ys.length - 1; j++) {
     const x0 = xs[i], x1 = xs[i + 1], y0 = ys[j], y1 = ys[j + 1];
     if (y0 === 300) continue;
     const park = x0 === 470 && y0 === 180, d = distAt((x0 + x1) / 2, (y0 + y1) / 2), bw = x1 - x0 - 16, bh = y1 - y0 - 16;
-    g.fillStyle = park ? '#143424' : d.c; rrG(x0 + 8, y0 + 8, bw, bh, 5); g.fill();
+    g.fillStyle = park ? '#216254' : d.c; rrG(x0 + 8, y0 + 8, bw, bh, 5); g.fill();
+    g.strokeStyle = '#9edcf028'; g.lineWidth = 1; g.stroke();
     if (park) {
-      for (let k = 0; k < 14; k++) { g.fillStyle = k % 2 ? '#1d4a31' : '#23583a'; g.beginPath(); g.arc(x0 + 20 + hash01(k * 3.1) * (bw - 24), y0 + 20 + hash01(k * 7.7) * (bh - 24), 6 + hash01(k) * 5, 0, 7); g.fill(); }
+      for (let k = 0; k < 14; k++) { g.fillStyle = k % 2 ? '#2e7865' : '#3b9479'; g.beginPath(); g.arc(x0 + 20 + hash01(k * 3.1) * (bw - 24), y0 + 20 + hash01(k * 7.7) * (bh - 24), 6 + hash01(k) * 5, 0, 7); g.fill(); }
       continue;
     }
     const n = 2 + Math.floor(hash01(i * 13 + j * 7) * 3);
     for (let k = 0; k < n; k++) {
       const hx = hash01(i * 31 + j * 17 + k * 5), hy = hash01(i * 11 + j * 29 + k * 3);
       const w = bw * (.22 + hash01(k + i + j * 3) * .25), h = bh * (.25 + hash01(k * 2 + i * 5 + j) * .3);
-      g.fillStyle = shade(d.c, .07); g.fillRect(x0 + 14 + hx * (bw - w - 12), y0 + 14 + hy * (bh - h - 12), w, h);
+      g.fillStyle = shade(d.c, .1); g.fillRect(x0 + 14 + hx * (bw - w - 12), y0 + 14 + hy * (bh - h - 12), w, h);
+      g.strokeStyle = '#8dcbd03c'; g.strokeRect(x0 + 14 + hx * (bw - w - 12), y0 + 14 + hy * (bh - h - 12), w, h);
     }
   }
-  g.fillStyle = '#0f2d45'; g.beginPath(); g.moveTo(0, 312);
+  const river = g.createLinearGradient(0, 310, 0, 410);
+  river.addColorStop(0, '#16475f'); river.addColorStop(.5, '#276c84'); river.addColorStop(1, '#143f59');
+  g.fillStyle = river; g.beginPath(); g.moveTo(0, 312);
   for (let x = 0; x <= 1000; x += 20) g.lineTo(x, 316 + Math.sin(x / 80) * 7);
   for (let x = 1000; x >= 0; x -= 20) g.lineTo(x, 404 + Math.sin(x / 100 + 1) * 7);
   g.closePath(); g.fill();
-  const road = (x0, y0, x1, y1, w) => { g.strokeStyle = '#2b3a4f'; g.lineWidth = w; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); };
+  g.strokeStyle = '#9be8ef55'; g.lineWidth = 1;
+  for (let y = 328; y < 398; y += 14) { g.beginPath(); for (let x = 0; x <= 1000; x += 20) g.lineTo(x, y + Math.sin(x / 70 + y) * 3); g.stroke(); }
+  const road = (x0, y0, x1, y1, w) => { g.strokeStyle = '#7190a3'; g.lineWidth = w + 3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); g.strokeStyle = '#233f56'; g.lineWidth = w; g.stroke(); };
   for (const s of STR) road(0, s.y, 1000, s.y, s.major ? 11 : 7);
   for (const a of AVE) road(a.x, 0, a.x, 700, a.major ? 11 : 7);
-  g.strokeStyle = '#51627a'; g.lineWidth = 1.5; g.beginPath();
+  g.strokeStyle = '#b7d8e0'; g.lineWidth = 1.5; g.beginPath();
   for (const a of AVE) { g.moveTo(a.x - 6, 306); g.lineTo(a.x - 6, 414); g.moveTo(a.x + 6, 306); g.lineTo(a.x + 6, 414); }
   g.stroke();
-  g.fillStyle = 'rgba(120,180,230,.4)'; g.font = `italic 500 ${10 * u}px Rubik,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = '#c1edeea6'; g.font = `italic 500 ${10 * u}px Rubik,sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText('р. Светлая', 540, 360);
-  g.fillStyle = 'rgba(190,205,225,.6)'; g.font = `500 ${9 * u}px Rubik,sans-serif`; g.textAlign = 'left'; g.textBaseline = 'bottom';
+  g.fillStyle = '#d0e7eda6'; g.font = `500 ${9 * u}px Rubik,sans-serif`; g.textAlign = 'left'; g.textBaseline = 'bottom';
   for (const s of STR) g.fillText(s.n, 70, s.y - 5);
   for (const a of AVE) { g.save(); g.translate(a.x - 5, 690); g.rotate(-Math.PI / 2); g.fillText(a.n, 0, 0); g.restore(); }
-  g.font = `700 ${10 * u}px Unbounded,Rubik,sans-serif`; g.fillStyle = 'rgba(242,193,78,.24)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = `700 ${10 * u}px Unbounded,Rubik,sans-serif`; g.fillStyle = '#d6f5fa80'; g.textAlign = 'center'; g.textBaseline = 'middle';
   for (const d of DIST) g.fillText(d.n.toUpperCase(), (d.x0 + d.x1) / 2, d.y0 < 300 ? 120 : 600);
   const sx = STN.x, sy = STN.y;
   g.fillStyle = '#f2c14e'; g.beginPath(); g.moveTo(sx, sy - 13 * u); g.lineTo(sx + 11 * u, sy - 9 * u); g.lineTo(sx + 11 * u, sy + 3 * u);
@@ -1439,15 +1668,37 @@ dCv.addEventListener('click', e => {
   for (let k = dMarks.length - 1; k >= 0; k--) {
     const mk = dMarks[k];
     if ((x - mk.x) ** 2 + (y - mk.y) ** 2 > mk.r ** 2) continue;
-    if (mk.active) { const m = S.missions.find(q => q.id === mk.id); if (m) toast(`${m.name}: рапорт через ${fmtT((m.end - gnow()) / 1000)}`); return; }
+    if (mk.active) {
+      const m = S.missions.find(q => q.id === mk.id);
+      if (m?.radioPending) { sheetCtx = {kind: 'radio', id: m.id}; renderSheet(); }
+      else if (m) toast(`${m.name}: рапорт через ${fmtT((m.end - gnow()) / 1000)}`);
+      return;
+    }
     return openSquad(mk.id);
   }
 });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dStatic = null; });
 
 /* ---------- звонки на 102 ---------- */
-const QKEYS = ['what', 'where', 'weapon', 'count', 'hurt', 'name'];
-const QLABEL = {what: 'Что случилось?', where: 'Назовите адрес', weapon: 'Есть оружие?', count: 'Сколько их?', hurt: 'Есть пострадавшие?', name: 'Как вас зовут?'};
+const QKEYS = ['what', 'where', 'scene', 'weapon', 'count', 'hurt', 'route', 'name'];
+const QLABEL = {what: 'Что случилось?', where: 'Назовите адрес', scene: 'Что происходит сейчас?', weapon: 'Есть оружие?', count: 'Сколько их?', hurt: 'Есть пострадавшие?', route: 'Как вас найти?', name: 'Как вас зовут?'};
+const GUIDE = {
+  safe: {name: 'Обезопасить себя', hint: 'Меньше риск для людей · −5 сек', line: 'Отойдите в безопасное место и не приближайтесь к опасности.'},
+  watch: {name: 'Наблюдать издали', hint: 'Больше сведений · риск эскалации', line: 'Если это безопасно, наблюдайте издалека и скажите, что меняется.'},
+  hold: {name: 'Остаться на линии', hint: '+12 сек разговора · срочный случай ухудшится', line: 'Оставайтесь на линии, я продолжу уточнять сведения.'}
+};
+const APPROACH = {
+  standard: {name: 'Обычный выезд', hint: 'Без изменений', time: 1, chance: 0, injury: 1, cost: 0},
+  rapid: {name: 'Срочный выезд', hint: 'Время −30% · успех −8% · риск выше', time: .7, chance: -.08, injury: 1.4, cost: 0},
+  cautious: {name: 'Осторожно', hint: 'Успех +9% · время +35% · риск ниже', time: 1.35, chance: .09, injury: .68, cost: 0},
+  backup: {name: 'С поддержкой', hint: 'Успех +15% · риск ниже · 100 ₽', time: 1.12, chance: .15, injury: .55, cost: 100}
+};
+const RADIO = {
+  plan: {name: 'Продолжать по плану', hint: 'Без дополнительных рисков', chance: 0, time: 1, injury: 1, cost: 0},
+  intercept: {name: 'Действовать немедленно', hint: 'Быстрее на 25% · шанс −5% · риск ранения выше', chance: -.05, time: .75, injury: 1.4, cost: 0},
+  perimeter: {name: 'Оцепить место', hint: 'Шанс +7% · риск ниже · время +20%', chance: .07, time: 1.2, injury: .7, cost: 0},
+  reinforce: {name: 'Вызвать поддержку', hint: 'Шанс +12% · риск ниже · 75 ₽', chance: .12, time: 1.1, injury: .6, cost: 75}
+};
 const SERV_TO = {ems: 'скорую', fire: 'МЧС'};
 const SERV_DO = {ems: 'Бригада скорой выехала на место.', fire: 'Расчёт МЧС выехал на место.'};
 const SC = [
@@ -1521,6 +1772,52 @@ const SC = [
    what: 'Ночью туда ездят машины, выносят коробки, пахнет ацетоном на весь район.',
    where: 'Гаражный кооператив на {addr}.', weapon: 'У одного под курткой видел пистолет, когда он нагнулся.',
    count: 'Человек пять постоянно.', hurt: 'Пока нет.', name: 'Лучше без имени, они меня найдут.'},
+  {k: 'police', type: 'patrol', urgent: true, g: 'f', title: 'За закрытой дверью слышны крики',
+   open: 'Из соседней квартиры крики и грохот, женщина просит вызвать полицию. Дверь закрыта!',
+   what: 'Слышала угрозы и звук разбитого стекла. Сейчас всё стихло.', where: 'Дом {addr}, четвёртый подъезд.',
+   scene: 'Слышно, как кто-то плачет. У двери стоит мужчина, заглядывает в глазок.',
+   weapon: 'Он кричал про нож, но я сама ничего не видела.', count: 'В квартире минимум двое.',
+   hurt: 'Она говорила, что ей больно. Точно не знаю.', route: 'Код домофона 47, вход со двора.', name: '{name}, я соседка.'},
+  {k: 'police', type: 'patrol', urgent: true, title: 'Ребёнок один в запертой машине',
+   open: 'На парковке в машине маленький ребёнок один, плачет и не открывает дверь!',
+   what: 'Стёкла закрыты, взрослых рядом не видно. Машина стоит давно.', where: 'Парковка возле дома {addr}.',
+   scene: 'Ребёнок реагирует на голос, но выглядит очень вялым.', weapon: 'Никакого оружия.', count: 'В машине один ребёнок.',
+   hurt: 'На вид ему нехорошо, трудно сказать.', route: 'Серебристый универсал у въезда, номер записала.', name: '{name}.'},
+  {k: 'police', type: 'invest', title: 'Подмена посылок на складе',
+   open: 'У нас на складе пропадают дорогие посылки. Сегодня заметил подмену на камере.',
+   what: 'Сотрудник вынес коробку через служебный выход, вместо неё оставил пустую.', where: 'Склад на {addr}.',
+   scene: 'Он ещё на смене. Охрана за ним следит, не задерживает.', weapon: 'Оружия не видели.', count: 'На записи он один, водитель мог ждать снаружи.',
+   hurt: 'Пострадавших нет.', route: 'Вход для персонала за шлагбаумом, охрана встретит.', name: '{name}, начальник смены.'},
+  {k: 'police', type: 'invest', urgent: true, g: 'm', title: 'Пропал ребёнок у станции',
+   open: 'Я сына потерял возле вокзала! Он только что был рядом.',
+   what: 'В толпе отпустил руку на секунду. На нём красная куртка.', where: 'Привокзальная площадь, {addr}.',
+   scene: 'Охранник проверяет камеры, последний раз видели у северного выхода.', weapon: 'Не знаю, никаких угроз не было.',
+   count: 'Мальчик один, ему семь.', hurt: 'Не знаю, поэтому и звоню!', route: 'Я жду у главного входа рядом с часами.', name: '{name}, отец.'},
+  {k: 'police', type: 'assault', hq: 2, urgent: true, title: 'Нападение на инкассаторов',
+   open: 'На перекрёстке напали на инкассаторскую машину, слышны выстрелы!',
+   what: 'Двое перекрыли дорогу фургоном, ещё один у дверей машины.', where: 'Перекрёсток на {addr}.',
+   scene: 'Один нападавший побежал к чёрному седану, остальные ещё у машины.', weapon: 'Видел короткое оружие у двоих.',
+   count: 'Не меньше троих.', hurt: 'Охранник сидит на земле, похоже, ранен.', route: 'Подъехать можно со стороны рынка, перекрёсток перекрыт.', name: '{name}.'},
+  {k: 'fire', type: 'invest', urgent: true, title: 'Дым из запертой квартиры',
+   open: 'Из-под двери идёт дым, а внутри кто-то кашляет! Это пожар!',
+   what: 'В подъезде пахнет гарью, сосед не отвечает на стук.', where: 'Дом {addr}, второй подъезд.',
+   scene: 'Дым стал гуще, люди спускаются по лестнице.', weapon: 'Оружия нет.', count: 'В квартире может быть один сосед.',
+   hurt: 'Слышала кашель за дверью.', route: 'Пожарный проезд свободен со двора.', name: '{name}, соседка.'},
+  {k: 'ems', type: 'patrol', urgent: true, title: 'Столкновение велосипедиста с автомобилем',
+   open: 'Сбили велосипедиста! Он лежит на дороге, водитель остановился.',
+   what: 'Автомобиль задел его при повороте, человек упал.', where: 'Перекрёсток у {addr}.',
+   scene: 'Водитель рядом, прохожие оградили место.', weapon: 'Оружия нет.', count: 'Пострадал один велосипедист.',
+   hurt: 'Он в сознании, но нога выглядит плохо.', route: 'Заезд со стороны парка, крайняя полоса свободна.', name: '{name}.'},
+  {k: 'fire', type: 'patrol', title: 'Искрит электрощит',
+   open: 'В коридоре торгового центра искрит щиток, пахнет пластиком!',
+   what: 'Свет мигнул, охрана отводит людей от щитка.', where: 'Торговый центр на {addr}.',
+   scene: 'Появился дым, охрана начала выводить посетителей.', weapon: 'Нет.', count: 'Рядом были несколько посетителей.',
+   hurt: 'Никто пока не пострадал.', route: 'Служебный вход слева, щиток на первом этаже.', name: '{name}, сотрудник охраны.'},
+  {k: 'fake', type: 'patrol', title: 'Несуществующая драка у школы', addrText: '{street}, 999',
+   open: 'Срочно, у школы дерутся! Присылайте всех!', what: 'Ну... там толпа и шум. *смешки рядом*',
+   where: 'На {street}, дом девятьсот девяносто девять.', scene: 'Ой, кажется, они уже исчезли. *смех*',
+   weapon: 'Какие-то палки, я не знаю.', count: 'То ли десять, то ли двое.', hurt: 'Нет, все убежали.',
+   route: 'Вы сами найдёте, я побежал.', name: 'Не скажу.'},
   {k: 'fire', type: 'patrol', title: 'Котёнок на дереве',
    open: 'Здравствуйте, у нас котёнок на дереве третий час сидит, снять не можем!',
    what: 'Забрался на тополь, высоко, пищит, соседи уже все вышли.',
@@ -1613,6 +1910,12 @@ function drunkify(t) {
 }
 const randPhone = () => `+7 9${rint(10, 99)} ${rint(100, 999)}-${rint(10, 99)}-${rint(10, 99)}`;
 const callDiff = c => Math.round(14 * c.tier ** 1.3 * MT[c.type].mult * (1 + .12 * c.escal));
+const callFallback = {
+  police: {scene: 'Пока всё происходит здесь, но я не могу подойти ближе.', route: 'Подъехать можно с главной улицы, я встречу у входа.'},
+  ems: {scene: 'Мы рядом, состояние почти не изменилось.', route: 'Я встречу бригаду у входа.'},
+  fire: {scene: 'Становится хуже, люди стараются держаться подальше.', route: 'Подъезд свободен, я встречу расчёт.'},
+  fake: {scene: 'Ну... сейчас уже ничего не видно. *смешок*', route: 'Не знаю, я не местный. *смех*'}
+};
 
 function newCall() {
   const r = Math.random(), want = r < .58 ? 'police' : r < .8 ? 'fake' : 'service';
@@ -1626,7 +1929,7 @@ function newCall() {
   const fill = t => t.replace(/\{addr\}/g, addr).replace(/\{street\}/g, loc.street).replace(/\{name\}/g, nm);
   const lines = {};
   for (const k of ['open', ...QKEYS]) {
-    let t = fill(s[k]);
+    let t = fill(s[k] || callFallback[s.k][k]);
     if (k === 'where' && drunkReal) t = `Да где-то на ${loc.street}... у ларька такого. Вы найдёте.`;
     if (persona === 'drunk') t = drunkify(t);
     if (persona === 'panic' && k === 'open') t += ' Быстрее, пожалуйста!';
@@ -1637,7 +1940,7 @@ function newCall() {
     id: uid(), state: 'ring', ringEnd: gnow() + 20000, phone: randPhone(), persona, fem, voiceIx: rint(0, 9),
     kind: s.k, type: s.type, title: s.title, tier: clamp(hq() + rint(-1, 0) + (s.tier || 0), 1, 7), urgent: !!s.urgent,
     loc, dist: distAt(loc.x, loc.y).n, vague, addrText: s.addrText ? fill(s.addrText) : drunkReal ? `где-то на ${loc.street}` : addr,
-    lines, asked: [], log: [], escal: 0, known: {}
+    lines, asked: [], log: [], escal: 0, known: {}, guide: null
   };
 }
 function callSay(text) {
@@ -1652,6 +1955,7 @@ function answerCall() {
   if (!c || c.state !== 'ring') return;
   unlockAudio(); beep(880, .08, .05);
   c.state = 'talk';
+  c.talkEnd = gnow() + (c.urgent ? 65000 : 90000);
   sheetCtx = {kind: 'call'};
   if (c.esc && S.ast.op) c.log.push({who: 's', text: `Оператор ${S.ast.op.name.split(' ')[0]}: «${c.esc}»`});
   callSay(c.lines.open);
@@ -1659,15 +1963,46 @@ function answerCall() {
 }
 function ask(q) {
   const c = S.call;
-  if (!c || c.state !== 'talk' || typing || c.asked.includes(q)) return;
+  if (!c || c.state !== 'talk' || typing || !QKEYS.includes(q) || c.asked.includes(q)) return;
+  c.talkEnd = (c.talkEnd || gnow() + 60000) - 4000;
   c.asked.push(q);
   c.log.push({who: 'd', text: QLABEL[q]});
   if (q === 'where') c.known.addr = true;
   if (q === 'what') c.known.type = true;
   if (q === 'weapon' || q === 'count') c.known.diff = true;
-  if (c.urgent && c.kind === 'police' && c.asked.length > 3) { c.escal++; c.log.push({who: 's', text: 'На фоне крики — ситуация ухудшается'}); }
+  if (q === 'scene') c.known.scene = true;
+  if (q === 'route') { c.known.route = true; if (c.kind !== 'fake' && c.persona !== 'drunk') c.vague = false; }
+  if (q === 'hurt') c.known.hurt = true;
+  if (c.urgent && c.kind === 'police' && c.asked.length > 4) { c.escal++; c.log.push({who: 's', text: 'На фоне крики — ситуация ухудшается'}); }
   callSay(c.lines[q]);
   save();
+}
+function guideCall(kind) {
+  const c = S.call;
+  if (!c || c.state !== 'talk' || typing || c.guide || !GUIDE[kind]) return;
+  c.guide = kind;
+  const instruction = kind === 'safe' && c.kind === 'ems' ? 'Если это безопасно, оставайтесь рядом с пострадавшим и ждите медиков.' :
+    kind === 'safe' && c.kind === 'fire' ? 'Отойдите от источника опасности и ждите расчёт снаружи.' : GUIDE[kind].line;
+  c.log.push({who: 'd', text: instruction});
+  if (kind === 'safe') c.talkEnd -= 5000;
+  if (kind === 'hold') { c.talkEnd += 12000; if (c.urgent) c.escal++; }
+  if (kind === 'watch') { c.known.scene = true; if (c.urgent) c.escal++; }
+  const replies = {
+    safe: c.kind === 'fake' ? 'Да я и так дома... *смех*' : 'Хорошо, отойду и подожду помощь в безопасном месте.',
+    watch: c.lines.scene || 'Сейчас посмотрю издалека, что происходит.',
+    hold: c.kind === 'fake' ? 'Ну ладно... *шёпот на фоне*' : 'Я на связи. Скажите, что ещё нужно узнать?'
+  };
+  callSay(replies[kind]); save();
+}
+function expireCall(c) {
+  if (S.call !== c || c.state !== 'talk') return;
+  endCall();
+  const rep = Math.round((c.kind === 'police' ? -2 : -1) * courseOf().rep);
+  S.rep = Math.max(0, S.rep + rep);
+  cityOnCall(c, 'drop');
+  S.reports.push({kind: 'call', ok: false, title: 'Связь оборвалась', text: `Пока уточняли детали, заявитель завершил звонок. «${c.title}» остался без решения.`, rep});
+  toast('Заявитель не дождался решения');
+  render(); save();
 }
 function endCall() {
   clearInterval(typer); typer = null; typing = null;
@@ -1682,7 +2017,9 @@ function incidentFrom(c) {
     id: uid(), type: c.type, name: c.title, tier: t, urgent: c.urgent, diff: callDiff(c),
     baseDur: (6 + 5 * t) * (c.vague ? 1.4 : 1), money: Math.round((60 + 50 * t) * (c.urgent ? 1.5 : 1) * rnd(.9, 1.1)),
     rep: Math.round(2 * t * (c.urgent ? 1.5 : 1)) + 1, xp: 8 * t, born: now, exp: now + (c.urgent ? 45 : 90) * 1000,
-    loc: c.loc, addr: c.addrText, vague: c.vague, known: !!c.known.diff, fake: c.kind === 'police' ? null : c.kind, dist: c.dist
+    loc: c.loc, addr: c.addrText, vague: c.vague, known: !!c.known.diff, fake: c.kind === 'police' ? null : c.kind, dist: c.dist,
+    intel: ['what', 'weapon', 'count', 'route'].filter(q => c.asked.includes(q)).length + (c.known.scene ? 1 : 0),
+    safeGuide: c.guide === 'safe', approach: 'standard'
   };
 }
 function decide(act) {
@@ -1714,6 +2051,11 @@ function callVerdict(c, act) {
   else if (truth === 'fake') { rep = -1; ok = false; title = 'Ложный вызов'; text = `Вы отправили ${SERV_TO[act]} к шутникам. Машина съездила впустую.`; }
   else if (truth === 'police') { rep = -2; ok = false; title = 'Не та служба'; text = `Это было дело полиции: «${c.title}». Пока разбирались, преступники скрылись.`; }
   else { rep = 0; ok = false; title = 'Не та служба'; text = `Нужна была не ${SERV_TO[act]}, а ${SERV_TO[truth]} — звонок пришлось переводить ещё раз.`; }
+  if (truth === 'fake' && act === 'drop' && c.asked.length < 2 && c.guide !== 'watch') {
+    rep = 0; text = 'Вызов оказался ложным, но решение было принято без проверки деталей.';
+  }
+  if (truth === act && c.guide === 'safe') { rep++; text += ' Заявитель выполнил рекомендации по безопасности.'; }
+  if (truth === act && c.urgent && c.escal) { rep -= Math.min(2, c.escal); text += ' Из-за промедления ситуация успела ухудшиться.'; }
   return {rep: Math.round(rep * courseOf().rep), ok, title, text};
 }
 function sheetCall(c) {
@@ -1721,6 +2063,7 @@ function sheetCall(c) {
   let h = `<div class="sh-head"><div><span class="muted">Линия 102 · ${c.phone}</span><h2>Разговор с заявителем</h2></div>
     <button type="button" class="x" data-voice aria-label="${S.voice ? 'Выключить голос' : 'Включить голос'}">${S.voice ? '🔊' : '🔇'}</button></div>`;
   if (S.voice && !ruVoices.length) h += '<p class="muted" style="margin:-6px 0 8px">Русский голос в браузере не найден — звонки идут текстом.</p>';
+  h += `<div class="call-clock${c.talkEnd - gnow() < 16000 ? ' hot' : ''}"><span>${c.urgent ? 'Срочный звонок' : 'Заявитель ждёт решения'} · вопросы отнимают время</span><b data-end="${c.talkEnd}"></b></div>`;
   h += '<div class="chat" id="chat">' + c.log.map((l, i) => `<div class="msg ${l.who}"${busy && i === c.log.length - 1 ? ' id="typing"' : ''}>${fmtMsg(l.text)}</div>`).join('') + '</div>';
   const bogus = c.kind === 'fake' && c.vague;
   h += `<div class="case">
@@ -1729,7 +2072,9 @@ function sheetCall(c) {
     <div><span>Суть</span><b>${k.type ? MT[c.type].name : '—'}</b></div>
     <div><span>Опасность</span><b>${k.diff ? 'нужна сила ≈ ' + callDiff(c) : '—'}</b></div></div>`;
   if (c.urgent) h += '<p class="why" style="margin:0 0 8px">Звонящий говорит, что всё срочно. Долгие расспросы могут дорого стоить.</p>';
+  h += `<p class="call-hint">Каждый вопрос: −4 сек. Сведения помогут наряду. Адрес нужен для отправки полиции.</p>`;
   h += '<div class="qs">' + QKEYS.map(q => `<button type="button" class="q" data-ask="${q}" ${busy || c.asked.includes(q) ? 'disabled' : ''}>${QLABEL[q]}</button>`).join('') + '</div>';
+  h += `<h3 class="sub">Что сказать заявителю</h3><div class="call-actions">${Object.entries(GUIDE).map(([id, a]) => `<button type="button" class="q${c.guide === id ? ' on' : ''}" data-guide="${id}" ${busy || c.guide ? 'disabled' : ''}><b>${a.name}</b><small>${a.hint}</small></button>`).join('')}</div>`;
   h += `<div class="decide">
     <button type="button" class="btn primary" data-decide="send" ${busy || !k.addr ? 'disabled' : ''}>🚓 Принять и отправить наряд</button>
     <button type="button" class="btn" data-decide="ems" ${busy ? 'disabled' : ''}>🚑 Передать в скорую</button>
@@ -1737,6 +2082,18 @@ function sheetCall(c) {
     <button type="button" class="btn danger" data-decide="drop" ${busy ? 'disabled' : ''}>Сбросить звонок</button></div>`;
   if (!k.addr) h += '<p class="muted" style="margin:8px 0 0">Чтобы отправить наряд, узнай адрес.</p>';
   return h;
+}
+function radioOrder(m, choice) {
+  const r = RADIO[choice];
+  if (!m || !m.start || !m.radioPending || !r || S.money < r.cost) return;
+  S.money -= r.cost;
+  m.spent = (m.spent || 0) + r.cost;
+  m.chance = clamp(m.chance + r.chance, .03, .97);
+  m.end = gnow() + Math.max(3000, (m.radioOriginalEnd || m.end) - gnow()) * r.time;
+  m.radioInjury = r.injury;
+  m.radioChoice = choice; m.radioDone = true; m.radioPending = false;
+  toast(`Приказ наряду: ${r.name.toLowerCase()}`);
+  closeSheet(); render(); save();
 }
 function afterCallRender() {
   const ch = $('#chat');
@@ -1810,6 +2167,16 @@ const bonusCost = o => 150 + 50 * o.rank;
 const short = o => o.name.split(' ')[1] || o.name;
 const traitChips = o => o.traits.map(t => `<span class="tchip ${TRAITS[t].good ? 'g' : 'b'}">${TRAITS[t].n}</span>`).join('');
 const skillSummary = o => Object.keys(SK).sort((a, b) => o.sk[b] - o.sk[a]).slice(0, 2).map(k => `${SKS[k]} ${o.sk[k]}`).join(', ');
+const bestSkill = o => Object.keys(SK).sort((a, b) => o.sk[b] - o.sk[a])[0];
+function appearanceText(o) {
+  const l = o.look || {}, hair = ['тёмные', 'каштановые', 'русые', 'светлые', 'пшеничные', 'пепельные', 'рыжие'][l.hairC % 7] || 'тёмные';
+  const details = [o.age >= 50 ? 'волосы с сединой' : `${hair} волосы`];
+  if (l.glasses) details.push('очки');
+  if (l.beard && !o.fem) details.push(l.beard === 3 ? 'борода' : 'усы или щетина');
+  if (l.freckles) details.push('веснушки');
+  if (l.scar) details.push('шрам');
+  return details.join(', ');
+}
 
 function genLook(fem, age, cls) {
   const R = Math.random;
@@ -1818,7 +2185,8 @@ function genLook(fem, age, cls) {
     hair: fem ? rint(0, 4) : (age > 50 && R() < .4 ? 5 : rint(0, 4)),
     beard: fem ? 0 : (R() < .45 ? rint(1, 4) : 0), glasses: R() < (age > 40 ? .35 : .12) ? rint(1, 2) : 0,
     scar: R() < .15 ? rint(1, 2) : 0, freckles: R() < .15, earring: fem && R() < .4,
-    hat: cls === 'det' && R() < .4, mask: cls === 'swat' && R() < .35, coat: rint(0, 2)
+    hat: cls === 'det' && R() < .25, cap: cls === 'patrol' && R() < .3,
+    mask: cls === 'swat' && R() < .35, coat: rint(0, 2)
   };
 }
 function mkBio(fem, age) {
@@ -2151,12 +2519,13 @@ function unpair(o) {
 function sheetDos(o) {
   const st = statusOf(o), c = CLS[o.cls], why = promoWhy(o), q = promoReq(o), now = gnow(), away = o.rest > now || o.hurt > now;
   let h = head(o.name, `${OR[o.rank]} · ${c.name} · ${o.age} ${plural(o.age, 'год', 'года', 'лет')}`);
-  h += `<div class="dos-top"><img class="por xl" src="${portrait(o)}" alt=""><div class="dos-kv">
-    <div class="kv"><span>Статус</span><b class="st ${st.k}">${st.text}</b></div>
-    <div class="kv"><span>Настроение</span><b>${moodWord(o)} · ${Math.round(o.mor)}</b></div>
-    <div class="kv"><span>Усталость</span><b>${Math.round(o.fat)}%</b></div>
-    <div class="kv"><span>Зарплата</span><b>${sal(o)} ₽/мин</b></div></div></div>
-    <p class="bio">${esc(o.bio)}</p><div class="traits">${o.traits.map(t => `<div class="trait ${TRAITS[t].good ? '' : 'b'}"><b>${TRAITS[t].n}</b> — ${TRAITS[t].d}</div>`).join('')}</div>`;
+  h += `<div class="dossier-hero" style="--role:${c.color}"><img class="dossier-photo" src="${portrait(o)}" alt="Портрет ${o.name}"><div>
+    <span class="dossier-eyebrow">Личное дело / ${c.short}</span><span class="st ${st.k}">${st.text}</span>
+    <strong>${OR[o.rank]} · ${c.name}</strong><small>№ ${o.id.slice(0, 5).toUpperCase()} · ${o.age} ${plural(o.age, 'год', 'года', 'лет')} · ур. ${o.lv}</small>
+    <small>Профиль: ${SK[bestSkill(o)]} ${o.sk[bestSkill(o)]}/10</small></div></div>
+    <div class="dossier-vitals"><div><b data-omor-num="${o.id}" data-suffix="">${Math.round(o.mor)}</b><span>настроение</span></div><div><b data-ofat-num="${o.id}">${Math.round(o.fat)}%</b><span>усталость</span></div><div><b>${sal(o)} ₽</b><span>зарплата/мин</span></div></div>
+    <p class="bio">${esc(o.bio)}</p><p class="appearance"><b>Приметы:</b> ${appearanceText(o)}.</p>
+    <div class="traits">${o.traits.map(t => `<div class="trait ${TRAITS[t].good ? '' : 'b'}"><b>${TRAITS[t].n}</b> — ${TRAITS[t].d}</div>`).join('')}</div>`;
   const top = o.lv >= maxLv();
   h += `<h3 class="sub">Навыки · ур. ${o.lv}${top ? ' (предел Академии)' : ''}${o.sp ? ` · очков: ${o.sp}` : ''}</h3>
     <span class="xp"><i style="width:${top ? 100 : Math.round(o.xp / need(o.lv) * 100)}%"></i></span><div class="skills">`;
@@ -2691,7 +3060,22 @@ function vCity() {
 function vStaff() {
   const cap = capOff(), pay = S.officers.reduce((a, o) => a + sal(o), 0) + astSal(), sev = S.events.filter(e => !EV[e.kind].city);
   let h = `<div class="sec-head"><h2>Личный состав</h2><span class="muted">${S.officers.length} из ${cap} мест</span></div>
-    <p class="muted" style="margin:-6px 0 10px">Зарплаты: ${fmt(pay)} ₽ через <span data-end="${S.nextPay}"></span> · касание по сотруднику открывает досье</p>`;
+    <div class="staff-intro"><div><b>${S.officers.filter(avail).length}</b><span>готовы</span></div><div><b>${S.officers.filter(o => o.busy).length}</b><span>на выезде</span></div><div><b>${fmt(pay)} ₽</b><span>зарплата/мин</span></div></div>
+    <p class="muted" style="margin:-8px 0 10px">Следующая выплата через <span data-end="${S.nextPay}"></span> · нажми на сотрудника, чтобы открыть досье</p>`;
+  h += '<h3 class="sub">Сотрудники</h3><div class="list">';
+  for (let i = 0; i < S.officers.length; i++) {
+    const o = S.officers[i], st = statusOf(o), c = CLS[o.cls], skill = bestSkill(o);
+    h += `<button type="button" class="staff-card" style="--role:${c.color}" data-dos="${o.id}">
+      <span class="staff-head"><img class="staff-photo" src="${portrait(o)}" alt=""><span class="staff-headtext">
+        <span class="staff-overline"><span class="staff-unit">${c.short} · № ${String(i + 1).padStart(2, '0')}</span><span class="st ${st.k}">${st.text}</span></span>
+        <span class="staff-name">${o.name}${o.sp ? ` <em class="spb">+${o.sp}</em>` : ''}</span>
+        <span class="staff-rank">${OR[o.rank]} · ${c.name} · ур. ${o.lv}</span>
+        <span class="staff-id">ДОСЬЕ ${o.id.slice(0, 5).toUpperCase()}</span></span></span>
+      <span class="staff-metrics"><span class="staff-metric morale"><span class="staff-metric-label"><span>Настроение</span><b data-omor-num="${o.id}">${Math.round(o.mor)}%</b></span><span class="staff-track"><i data-omor="${o.id}" style="width:${o.mor}%"></i></span></span>
+        <span class="staff-metric fatigue"><span class="staff-metric-label"><span>Усталость</span><b data-ofat-num="${o.id}">${Math.round(o.fat)}%</b></span><span class="staff-track"><i data-ofat="${o.id}" style="width:${o.fat}%"></i></span></span></span>
+      <span class="staff-footer"><span class="staff-focus">Сильный навык: <b>${SK[skill]} ${o.sk[skill]}/10</b>${o.st.calls ? ` · ${Math.round(o.st.ok / o.st.calls * 100)}% успеха` : ''}</span><span class="chips">${traitChips(o)}</span></span></button>`;
+  }
+  h += '</div>';
   if (sev.length) {
     h += '<h3 class="sub">Просят разговора</h3><div class="list">';
     for (const e of sev) {
@@ -2701,24 +3085,17 @@ function vStaff() {
     }
     h += '</div>';
   }
-  h += '<h3 class="sub">Сотрудники</h3><div class="list">';
-  for (const o of S.officers) {
-    const st = statusOf(o);
-    h += `<button type="button" class="off" data-dos="${o.id}"><img class="por" src="${portrait(o)}" alt="">
-      <span class="info"><b>${o.name}${o.sp ? ` <em class="spb">+${o.sp}</em>` : ''}</b><small>${OR[o.rank]} · ${CLS[o.cls].name} · ур. ${o.lv}</small>
-      <span class="meters" title="Настроение и усталость"><span class="mt"><i class="mor" data-omor="${o.id}" style="width:${o.mor}%"></i></span><span class="mt"><i class="fat" data-ofat="${o.id}" style="width:${o.fat}%"></i></span></span>
-      <span class="chips">${traitChips(o)}</span></span><span class="st ${st.k}">${st.text}</span></button>`;
-  }
-  h += '</div><p class="legend"><i class="lg mor"></i> настроение <i class="lg fat"></i> усталость <em class="spb">+2</em> очки навыков</p>';
   h += vHQ();
   h += '<h3 class="sub">Кадровый резерв</h3>';
   if (S.officers.length >= cap) h += '<p class="why" style="margin:0 0 8px">Нет свободных мест: построй или улучши Общежитие.</p>';
   h += '<div class="list">';
   for (const c of S.cands) {
-    const lock = hq() < CLS[c.cls].hq;
-    h += `<div class="card cand"><img class="por" src="${portrait(c)}" alt=""><div class="info"><b>${c.name}, ${c.age}</b>
-      <small>${CLS[c.cls].name} · ${skillSummary(c)}</small><span class="chips">${traitChips(c)}</span></div>
-      <button type="button" class="btn primary" data-hire="${c.id}" data-cost="${c.price}" ${lock ? 'disabled' : ''}>${lock ? `Участок ур. ${CLS[c.cls].hq}` : `<span class="cost">${fmt(c.price)} ₽</span>`}</button></div>`;
+    const lock = hq() < CLS[c.cls].hq, role = CLS[c.cls];
+    h += `<div class="candidate-card" style="--role:${role.color}"><div class="candidate-main"><img class="candidate-photo" src="${portrait(c)}" alt="Портрет ${c.name}"><div>
+      <span class="unit-mark">Кандидат / ${role.short}</span><b class="candidate-name">${c.name}, ${c.age}</b>
+      <span class="candidate-role">${role.name} · ${skillSummary(c)}</span><span class="chips">${traitChips(c)}</span></div></div>
+      <div class="candidate-foot"><small>Сильный навык: <b>${SK[bestSkill(c)]} ${c.sk[bestSkill(c)]}/10</b></small>
+      <button type="button" class="btn primary" data-hire="${c.id}" data-cost="${c.price}" ${lock ? 'disabled' : ''}>${lock ? `Участок ур. ${role.hq}` : `Нанять · <span class="cost">${fmt(c.price)} ₽</span>`}</button></div></div>`;
   }
   if (!S.cands.length) h += '<p class="muted">Кандидатов пока нет.</p>';
   h += `</div><button type="button" class="btn wide" style="margin-top:8px" data-recands data-cost="50">Позвать новых кандидатов · <span class="cost">50 ₽</span></button>
@@ -2733,7 +3110,8 @@ function callCard(m) {
     return `<article class="call" style="--c:${t.color}"><div class="call-top"><span class="chip">${t.name}</span>
       <span class="exp">рапорт через <span data-end="${m.end}"></span></span></div><h3>${m.name}</h3>
       <div class="bar big"><i data-start="${m.start}" data-end="${m.end}"></i></div>
-      <span class="muted">${names} · шанс ${Math.round(m.chance * 100)}%</span></article>`;
+      <span class="muted">${names} · шанс ${Math.round(m.chance * 100)}% · ${missionApproach(m).name}</span>
+      ${m.radioPending ? `<button type="button" class="btn primary wide" style="margin-top:9px" data-radio-open="${m.id}">📻 Ответить наряду · <span data-end="${m.radioDeadline}"></span></button>` : m.radioChoice && m.radioChoice !== 'plan' ? `<p class="syn" style="margin-top:6px">📻 Приказ: ${RADIO[m.radioChoice]?.name || 'принят'}</p>` : ''}</article>`;
   }
   return `<article class="call${m.urgent ? ' urgent' : ''}" style="--c:${t.color}">
     <div class="call-top"><span class="chip">${t.name}</span>${m.urgent ? '<span class="chip code">Код 3 · срочно</span>' : ''}
@@ -2742,6 +3120,7 @@ function callCard(m) {
     <h3>${m.name}</h3>${m.addr ? `<p class="addr">📍 ${esc(m.addr)}${m.dist ? ' · ' + m.dist : ''}</p>` : ''}${m.esc ? `<p class="why" style="margin:0 0 8px">🗺️ Диспетчер: ${m.esc}</p>` : ''}
     <dl class="meta"><div><dt>Нужна сила</dt><dd>${m.known === false ? '?' : m.diff}</dd></div><div><dt>Время</dt><dd>${fmtT(m.baseDur * durMult())}</dd></div>
     <div><dt>Награда</dt><dd>${fmt(m.money * rewMult())} ₽ · ${m.rep}★</dd></div></dl>
+    ${m.intel ? `<p class="syn">📋 Сведения из звонка: ${m.intel} · шанс +${Math.round(Math.min(5, m.intel) * 1.2)}%</p>` : ''}
     <button type="button" class="btn primary wide" data-send="${m.id}">Собрать отряд</button></article>`;
 }
 
@@ -2803,12 +3182,16 @@ function sheetPlot(i) {
 
 function sheetSquad(m) {
   const sp = squadPower([...sel], m.type), P = sp.P;
-  const ch = sel.size ? clamp(chance(P, m.diff) * (m.vague ? .9 : 1) + sp.luck, .03, .97) : 0, kn = m.known !== false;
+  const ch = sel.size ? missionChance(m, sp) : 0, kn = m.known !== false;
+  const ap = missionApproach(m);
   let h = head(m.name, MT[m.type].name + (m.urgent ? ' · Код 3' : '') + (m.addr ? ' · ' + esc(m.addr) : ''));
   h += `<div class="odds ${!kn ? 'mid' : ch >= .75 ? 'good' : ch >= .45 ? 'mid' : 'bad'}"><div><small>Сила отряда</small><b>${P} / ${kn ? m.diff : '?'}</b></div><div><small>Шанс успеха</small><b>${kn ? Math.round(ch * 100) + '%' : '?'}</b></div></div>
     ${kn ? '' : '<p class="why" style="margin:0 0 8px">Опасность неизвестна: ты не спросил про оружие и число участников.</p>'}${m.vague ? '<p class="why" style="margin:0 0 8px">Адрес примерный: наряду придётся поискать место.</p>' : ''}
+    ${m.intel ? `<p class="syn">📋 ${m.intel} уточнений из звонка: +${Math.round(Math.min(5, m.intel) * 1.2)}% к шансу</p>` : ''}${m.safeGuide ? '<p class="syn">🛡️ Заявитель предупреждён об опасности</p>' : ''}
     ${sp.notes.map(n => `<p class="syn">🤝 ${n}</p>`).join('')}${sp.luck ? '<p class="syn">🍀 В отряде везунчик: +5% к шансу</p>' : ''}
-    <p class="muted" style="margin:0 0 10px">В отряде до ${squadMax()} чел. Сила зависит от навыков, черт, снаряжения, настроения и усталости. Напарники в одном отряде работают лучше.</p><div class="list">`;
+    <p class="muted" style="margin:0 0 10px">В отряде до ${squadMax()} чел. Сила зависит от навыков, черт, снаряжения, настроения и усталости. Напарники в одном отряде работают лучше.</p>
+    <h3 class="sub">Тактика выезда</h3><div class="approaches">${Object.entries(APPROACH).map(([id, a]) => `<button type="button" class="approach${(m.approach || 'standard') === id ? ' on' : ''}" data-approach="${id}" aria-pressed="${(m.approach || 'standard') === id}" ${S.money < a.cost ? 'disabled' : ''}><b>${a.name}</b><small>${a.hint}</small></button>`).join('')}</div>
+    <p class="call-hint">Выбранная тактика: ${ap.name}. Время ${fmtT(missionDuration(m))}${ap.cost ? ` · стоимость ${ap.cost} ₽` : ''}. Шанс выше после уточнений, а осторожный выезд дольше занимает сотрудников.</p><div class="list">`;
   const list = [...S.officers].sort((a, b) => (avail(b) - avail(a)) || (eff(b, m.type) - eff(a, m.type)));
   for (const o of list) {
     const c = CLS[o.cls], a = avail(o), on = sel.has(o.id);
@@ -2818,7 +3201,15 @@ function sheetSquad(m) {
       <span class="pw">${eff(o, m.type)}${c.match === m.type ? '<em>профиль</em>' : ''}${o.partner && sel.has(o.partner) ? '<em>с напарником</em>' : ''}</span></button>`;
   }
   return h + `</div><div class="row"><button type="button" class="btn" data-auto>Лучший состав</button>
-    <button type="button" class="btn primary grow" data-go ${sel.size ? '' : 'disabled'}>Отправить · ${fmtT(m.baseDur * durMult())}</button></div>`;
+    <button type="button" class="btn primary grow" data-go ${sel.size && S.money >= ap.cost ? '' : 'disabled'}>Отправить · ${fmtT(missionDuration(m))}${ap.cost ? ` · ${ap.cost} ₽` : ''}</button></div>`;
+}
+
+function sheetRadio(m) {
+  if (!m || !m.radioPending) return head('Связь с нарядом') + '<p class="muted">Наряд продолжает работу по плану.</p>';
+  return head('Наряд запрашивает приказ', esc(m.name)) +
+    `<p class="narr">Сотрудники добрались до места и уточнили обстановку. Нужно решить, как действовать дальше. Ответить можно ещё <b data-end="${m.radioDeadline}"></b>.</p>
+    <div class="odds"><div><small>Текущий шанс</small><b>${Math.round(m.chance * 100)}%</b></div><div><small>Рапорт через</small><b data-end="${m.end}"></b></div></div>
+    <div class="list">${Object.entries(RADIO).map(([id, r]) => `<button type="button" class="approach" data-radio-order="${id}" ${S.money < r.cost ? 'disabled' : ''}><b>${r.name}</b><small>${r.hint}</small></button>`).join('')}</div>`;
 }
 
 function sheetReport(r) {
@@ -2827,8 +3218,8 @@ function sheetReport(r) {
     ${r.rep ? `<div class="kv"><span>Доверие</span><b>${sg(r.rep)} ★</b></div>` : ''}
     <button type="button" class="btn primary wide" style="margin-top:14px" data-ack>Принято</button>`;
   return `<div class="report${r.ok ? '' : ' fail'}"><small>Рапорт · ${MT[r.type].name}</small><h2>${r.fake ? r.title : r.ok ? 'Задание выполнено' : 'Провал'}</h2>
-    <p>${r.fake ? esc(r.note) : `${r.name}. ${r.ok ? 'Подозреваемые задержаны.' : 'Подозреваемым удалось скрыться.'}`}</p></div>
-    <div class="kv"><span>Бюджет</span><b>+${fmt(r.money)} ₽</b></div><div class="kv"><span>Доверие</span><b>${sg(r.rep)} ★</b></div>
+    <p>${r.fake ? esc(r.note) : `${r.name}. ${r.ok ? 'Подозреваемые задержаны.' : 'Подозреваемым удалось скрыться.'}`}</p>${r.approach ? `<small>Тактика: ${APPROACH[r.approach]?.name || APPROACH.standard.name} · рация: ${RADIO[r.radioChoice]?.name || RADIO.plan.name}${r.intel ? ` · уточнений: ${r.intel}` : ''}${r.safeGuide ? ' · заявитель предупреждён' : ''}</small>` : ''}</div>
+    <div class="kv"><span>Награда</span><b>+${fmt(r.money)} ₽</b></div>${r.spent ? `<div class="kv"><span>Поддержка</span><b>−${fmt(r.spent)} ₽</b></div>` : ''}<div class="kv"><span>Доверие</span><b>${sg(r.rep)} ★</b></div>
     <h3 class="sub">Отряд</h3><div>${r.lines.map(l => { const o = S.officers.find(x => x.id === l.id); return `<div class="rl"><span class="who">${o ? `<img class="por sm" src="${portrait(o)}" alt="">` : ''}<b>${l.name}</b></span><span>+${l.gain} опыта${l.up ? ` · <em class="up">ур. ${l.lv}!</em>` : ''}${l.hurt ? ' · <em class="hurtx">ранен</em>' : ''}</span></div>`; }).join('')}</div>
     <button type="button" class="btn primary wide" style="margin-top:14px" data-ack>Принято</button>`;
 }
@@ -2848,6 +3239,7 @@ function renderSheet() {
     h = sheetDos(o);
   }
   else if (sheetCtx.kind === 'nego') h = sheetNego();
+  else if (sheetCtx.kind === 'radio') h = sheetRadio(S.missions.find(x => x.id === sheetCtx.id));
   else if (sheetCtx.kind === 'rules') { if (!S.ast[sheetCtx.k]) { sheetCtx = null; $('#sheetBg').hidden = true; return; } h = sheetRules(sheetCtx.k); }
   else if (sheetCtx.kind === 'event') {
     const e = S.events.find(x => x.id === sheetCtx.id);
@@ -2886,7 +3278,7 @@ function updateTop() {
   $('#inc').textContent = '+' + income().toFixed(1).replace('.0', '') + '/с';
   $('#rep').textContent = fmt(S.rep);
   $('#rank').textContent = rankOf(S.rep);
-  const n = S.missions.filter(m => !m.start).length + (S.call ? 1 : 0), nb = $('#callsN');
+  const n = S.missions.filter(m => !m.start || m.radioPending).length + (S.call ? 1 : 0), nb = $('#callsN');
   nb.textContent = n; nb.hidden = !n;
   $('#spdTxt').textContent = SPEED_LBL[S.speed];
   $('#speedbar').classList.toggle('paused', !S.speed);
@@ -2906,6 +3298,8 @@ function updateDyn() {
     if (el.hasAttribute('data-start')) { const s = +el.dataset.start; el.style.width = clamp((now - s) / (e - s), 0, 1) * 100 + '%'; }
     else el.textContent = fmtT((e - now) / 1000);
   });
+  const clock = document.querySelector('.call-clock');
+  if (clock && S.call?.talkEnd) clock.classList.toggle('hot', S.call.talkEnd - now < 16000);
   document.querySelectorAll('[data-store]').forEach(el => {
     const p = S.plots[+el.dataset.store], v = Math.floor(stored(p));
     el.textContent = el.classList.contains('coin') ? '+' + fmt(v) : fmt(v);
@@ -2914,6 +3308,8 @@ function updateDyn() {
   document.querySelectorAll('[data-cost]').forEach(el => el.classList.toggle('short', S.money < +el.dataset.cost));
   document.querySelectorAll('[data-omor]').forEach(el => { const o = oById(el.dataset.omor); if (o) el.style.width = o.mor + '%'; });
   document.querySelectorAll('[data-ofat]').forEach(el => { const o = oById(el.dataset.ofat); if (o) el.style.width = o.fat + '%'; });
+  document.querySelectorAll('[data-omor-num]').forEach(el => { const o = oById(el.dataset.omorNum); if (o) el.textContent = Math.round(o.mor) + (el.dataset.suffix === '' ? '' : '%'); });
+  document.querySelectorAll('[data-ofat-num]').forEach(el => { const o = oById(el.dataset.ofatNum); if (o) el.textContent = Math.round(o.fat) + '%'; });
 }
 
 /* ---------- ввод ---------- */
@@ -2957,6 +3353,7 @@ document.addEventListener('click', e => {
   else if (d.plot !== undefined) tapPlot(+d.plot);
   else if ('answer' in d) answerCall();
   else if (d.ask) ask(d.ask);
+  else if (d.guide) guideCall(d.guide);
   else if (d.decide) decide(d.decide);
   else if ('voice' in d) { S.voice = !S.voice; if (!S.voice) { try { speechSynthesis.cancel(); } catch (err) {} } renderSheet(); save(); }
   else if ('resume' in d) { if (S.call && S.call.state === 'talk') { sheetCtx = {kind: 'call'}; renderSheet(); render(); } }
@@ -2985,6 +3382,12 @@ document.addEventListener('click', e => {
     else if ('unpair' in d) unpair(o);
   }
   else if (d.send) openSquad(d.send);
+  else if (d.radioOpen) { const m = S.missions.find(x => x.id === d.radioOpen); if (m && m.radioPending) { sheetCtx = {kind: 'radio', id: m.id}; renderSheet(); } }
+  else if (d.radioOrder && sheetCtx && sheetCtx.kind === 'radio') radioOrder(S.missions.find(x => x.id === sheetCtx.id), d.radioOrder);
+  else if (d.approach && sheetCtx && sheetCtx.kind === 'squad' && APPROACH[d.approach]) {
+    const m = S.missions.find(x => x.id === sheetCtx.id);
+    if (m && !m.start && S.money >= APPROACH[d.approach].cost) { m.approach = d.approach; renderSheet(); save(); }
+  }
   else if (d.tog) {
     if (sel.has(d.tog)) sel.delete(d.tog);
     else if (sel.size >= squadMax()) return toast(`В отряде максимум ${squadMax()} чел.`);
