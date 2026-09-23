@@ -203,15 +203,19 @@ export class UI {
     this.mk = {k, X, Y, S};
     g.fillStyle = '#0b1522'; g.fillRect(0, 0, S, S);
     g.fillStyle = '#18242a'; g.beginPath(); g.arc(S / 2, S / 2, map.r * 1.06 * k, 0, 7); g.fill();
-    const poly = (p, fill) => { g.beginPath(); for (let i = 0; i < p.length; i += 2) g[i ? 'lineTo' : 'moveTo'](X(p[i]), Y(p[i + 1])); g.closePath(); g.fillStyle = fill; g.fill(); };
-    for (const p of map.g) poly(p, '#23402b');
-    for (const p of map.w) poly(p, '#1f4a66');
+    const poly = (s, fill) => {
+      g.beginPath();
+      for (const p of [s.p, ...(s.hl || [])]) { for (let i = 0; i < p.length; i += 2) g[i ? 'lineTo' : 'moveTo'](X(p[i]), Y(p[i + 1])); g.closePath(); }
+      g.fillStyle = fill; g.fill('evenodd');
+    };
+    for (const s of map.g) poly(s, '#23402b');
+    for (const s of map.w) poly(s, '#1f4a66');
     g.strokeStyle = '#4b5966'; g.lineCap = 'round';
     for (const r of map.rd) {
       g.lineWidth = /primary|secondary|trunk|motorway/.test(r.k) ? 2.6 : r.k === 'service' ? .8 : 1.5;
       g.beginPath(); for (let i = 0; i < r.p.length; i += 2) g[i ? 'lineTo' : 'moveTo'](X(r.p[i]), Y(r.p[i + 1])); g.stroke();
     }
-    for (const b of map.b) poly(b.p, '#6d7680');
+    for (const b of map.b) poly(b, '#6d7680');
     this.miniBase = c;
   }
   drawMini() {

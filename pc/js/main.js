@@ -1,14 +1,14 @@
 // Точка входа PC-версии: выбор города, загрузка, игровой цикл, мышь и клавиатура, сохранение.
 import {loadCity, geocode, PRESETS, DEMO} from './osm.js';
 import {RoadGraph} from './roads.js';
-import {World} from './world.js';
+import {World, QUALITY} from './world.js';
 import {RTSCamera} from './camera.js';
 import {Game} from './game.js';
 import {UI, UNIT_BG, esc} from './ui.js';
 import {ROLES, TYPES} from './data.js';
 
 const $ = s => document.querySelector(s);
-const SAVE = 'uchastok7pc';
+const SAVE = 'uchastok7pc', GFX = 'uchastok7pc.gfx', GFX_AUTO = 'uchastok7pc.gfxauto';
 const app = {game: null, world: null, cam: null, ui: null, map: null, place: null, sel: {units: new Set(), b: -1, inc: null}, crimeOn: true, prevSpeed: 1};
 window.app = app; // для отладки из консоли
 
@@ -61,11 +61,65 @@ async function start(place, saved) {
   }
 }
 
+/* ---------- качество графики: авто (снижается само, если кадров мало) или выбранное вручную ---------- */
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+let gfxMode = store(GFX) || 'auto';
+const gfxLevel = () => gfxMode === 'auto' ? (QUALITY[store(GFX_AUTO)] ? store(GFX_AUTO) : 'medium') : gfxMode;
+const GFX_ORDER = ['auto', 'high', 'medium', 'low'];
+function setGfx(mode) {
+  gfxMode = mode; store(GFX, mode);
+  if (app.world) app.world.setQuality(gfxLevel());
+  fps.bad = 0; fps.skip = 2;
+  drawGfx();
+}
+function drawGfx() {
+  const q = QUALITY[gfxLevel()].n;
+  $('#gfxBtn').textContent = `⚙ ${gfxMode === 'auto' ? 'Авто · ' + q : q[0].toUpperCase() + q.slice(1)}${fps.v ? ' · ' + fps.v + ' FPS' : ''}`;
+}
+function gpuName(renderer) {
+  try {
+    const gl = renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info');
+    return String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER) || '');
+  } catch (e) { return ''; }
+}
+const fps = {n: 0, t: 0, v: 0, bad: 0, skip: 3};
+function countFps(now) {
+  fps.n++;
+  if (!fps.t) fps.t = now;
+  if (now - fps.t < 1000) return;
+  fps.v = Math.round(fps.n * 1000 / (now - fps.t)); fps.n = 0; fps.t = now;
+  drawGfx();
+  if (fps.skip > 0) { fps.skip--; return; } // первые секунды после смены — прогрев, не считаем
+  if (gfxMode !== 'auto' || document.hidden) return;
+  fps.bad = fps.v < 30 ? fps.bad + 1 : 0;
+  const lvl = gfxLevel();
+  if (fps.bad >= 3 && lvl !== 'low') {
+    const next = lvl === 'high' ? 'medium' : 'low';
+    store(GFX_AUTO, next);
+    app.world.setQuality(next);
+    fps.bad = 0; fps.skip = 2;
+    app.ui.toast(`Графика снижена до «${QUALITY[next].n}» ради плавности. G — сменить`);
+  }
+}
+
 /* ---------- запуск игры ---------- */
+// сохранение привязано к номерам домов — если карта пересобрана, старое сохранение ей не подходит
+const mapSig = map => `${map.b.length}|${map.rd.length}|${map.b.length ? map.b[0].p.slice(0, 2).join(',') : ''}`;
 function boot(map, place, saved) {
+  let stale = false;
+  if (saved && (saved.v !== 2 || saved.sig !== mapSig(map))) { saved = null; stale = true; }
   app.map = map; app.place = place;
   const graph = new RoadGraph(map.rd);
-  const world = app.world = new World($('#view'), map);
+  const world = app.world = new World($('#view'), map, gfxLevel());
+  const gpu = gpuName(world.renderer);
+  $('#gfxBtn').title = `Качество графики — G. Авто само снижает качество, если кадров мало.\nВидеокарта: ${gpu || 'неизвестно'}`;
+  if (/swiftshader|basic render|llvmpipe|software/i.test(gpu)) { // браузер рисует 3D процессором — будет тормозить при любых настройках
+    if (gfxMode === 'auto' && gfxLevel() !== 'low') { store(GFX_AUTO, 'low'); world.setQuality('low'); }
+    setTimeout(() => app.ui.modal(`<h1>Браузер рисует без видеокарты</h1>
+      <p>В браузере выключено аппаратное ускорение, поэтому 3D считает процессор и игра тормозит при любых настройках. Графика уже снижена, но лучше включить ускорение:</p>
+      <p><b>Chrome / Яндекс / Edge:</b> Настройки → Система → «Использовать аппаратное ускорение» → включить и перезапустить браузер.<br><b>Firefox:</b> Настройки → Производительность → снять «Использовать рекомендуемые» и включить «аппаратное ускорение».</p>
+      <button type="button" class="btn primary" data-act="continue">Понятно</button>`), 400);
+  }
   const cam = app.cam = new RTSCamera(world.camera, map.r);
   const ui = app.ui = new UI(app);
   const game = app.game = new Game(map, graph, {
@@ -80,13 +134,14 @@ function boot(map, place, saved) {
     end: win => showEnd(win)
   });
   if (saved) game.load(saved.game); else game.newGame();
+  if (stale) setTimeout(() => ui.toast('Карта обновилась — старое сохранение к ней не подходит, начинаем заново'), 600);
   for (const [bi, t] of Object.entries(game.s.roles)) world.setRole(+bi, ROLES[t].color);
   world.setZones(game.zones()); world.setCrime(game.grid);
   if (game.s.hq >= 0) { const b = game.B[game.s.hq]; cam.focus(b.x, -b.y, 520); } else cam.focus(0, 0, 1100);
   $('#city').textContent = map.name;
   for (const id of ['#top', '#left', '#right', '#mini', '#log', '#hint']) $(id).hidden = false;
   ui.buildMini(map);
-  onResize();
+  onResize(); drawGfx();
   updatePrompt();
   ui.renderTop(); ui.renderList(true); ui.renderRight(true);
   ui.log(saved ? `С возвращением! ${map.name}, день ${game.day}.` : `Город загружен: ${map.b.length} домов, ${map.rd.length} улиц.`, 'good');
@@ -116,6 +171,7 @@ function markers(g, t) {
 }
 function loop(now) {
   const dt = Math.min(.1, (now - last) / 1000); last = now;
+  countFps(now);
   const {game: g, world: w, cam, ui} = app, s = g.s;
   g.tick(dt);
   cam.update(dt);
@@ -134,7 +190,7 @@ function loop(now) {
 function saveGame() {
   const g = app.game;
   if (!g || g.s.hq < 0 || g.s.lost) return;
-  try { localStorage.setItem(SAVE, JSON.stringify({place: app.place, day: g.day, game: g.save()})); } catch (e) { /* место кончилось — не страшно */ }
+  try { localStorage.setItem(SAVE, JSON.stringify({v: 2, sig: mapSig(app.map), place: app.place, day: g.day, game: g.save()})); } catch (e) { /* место кончилось — не страшно */ }
 }
 addEventListener('beforeunload', saveGame);
 
@@ -185,7 +241,11 @@ cv.addEventListener('pointermove', e => {
     if (drag.btn === 0 && drag.shift) {
       const bx = $('#box'); bx.hidden = false;
       Object.assign(bx.style, {left: Math.min(drag.x0, e.clientX) + 'px', top: Math.min(drag.y0, e.clientY) + 'px', width: Math.abs(e.clientX - drag.x0) + 'px', height: Math.abs(e.clientY - drag.y0) + 'px'});
-    } else if (drag.btn === 0) app.cam.pan(-dx / innerHeight * 1.15, dy / innerHeight * 1.15);
+    } else if (drag.btn === 0) {
+      const a = app.world.pickGround(e.clientX - dx, e.clientY - dy), b = app.world.pickGround(e.clientX, e.clientY);
+      if (a && b && Math.hypot(a.x - b.x, a.y - b.y) < app.cam.d) app.cam.shift(a.x - b.x, b.y - a.y);
+      else app.cam.pan(-dx / innerHeight * 1.15, dy / innerHeight * 1.15); // у горизонта — по-старому
+    }
     else app.cam.rotate(-dx * .005, dy * .004);
     return;
   }
@@ -201,7 +261,12 @@ cv.addEventListener('pointerup', e => {
   if (d.moved) return;
   if (d.btn === 0) leftClick(e); else if (d.btn === 2) rightClick(e);
 });
-cv.addEventListener('wheel', e => { e.preventDefault(); if (app.cam) app.cam.zoom(e.deltaY > 0 ? 1.13 : 1 / 1.13); }, {passive: false});
+cv.addEventListener('wheel', e => { // зум к точке под курсором
+  e.preventDefault();
+  if (!app.cam) return;
+  const f = e.deltaY > 0 ? 1.13 : 1 / 1.13, p = app.world.pickGround(e.clientX, e.clientY);
+  if (p) app.cam.zoomAt(f, p.x, -p.y); else app.cam.zoom(f);
+}, {passive: false});
 cv.addEventListener('pointerleave', () => { if (app.ui) app.ui.tip(0, 0, ''); if (app.world) app.world.setHover(-1); });
 
 function hover(px, py) {
@@ -263,6 +328,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Space') { e.preventDefault(); if (document.activeElement !== document.body) document.activeElement.blur(); setSpeed(s.speed ? 0 : app.prevSpeed || 1); }
   else if (/^Digit[1-3]$/.test(e.code)) setSpeed(+e.code.slice(5));
   else if (e.code === 'KeyC') toggleCrime();
+  else if (e.code === 'KeyG') setGfx(GFX_ORDER[(GFX_ORDER.indexOf(gfxMode) + 1) % GFX_ORDER.length]);
   else if (e.code === 'KeyH' && s.hq >= 0) { const b = g.B[s.hq]; focusXY(b.x, b.y, 450); }
   else if (e.code === 'KeyB') for (const id of app.sel.units) g.order(g.unitById(id), {t: 'base'});
   else if (e.code === 'Escape') { if (!$('#modal').hidden) app.ui.modal(''); else select(); }
@@ -320,6 +386,7 @@ function act(a, btn) {
   app.ui.renderRight(true); app.ui.renderList(true);
 }
 $('#crimeBtn').addEventListener('click', toggleCrime);
+$('#gfxBtn').addEventListener('click', () => setGfx(GFX_ORDER[(GFX_ORDER.indexOf(gfxMode) + 1) % GFX_ORDER.length]));
 for (const id of ['#left', '#right']) $(id).addEventListener('pointerdown', () => { app.uiHold = true; });
 addEventListener('pointerup', () => { app.uiHold = false; });
 function showEnd(win) {

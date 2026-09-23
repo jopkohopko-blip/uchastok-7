@@ -17,7 +17,8 @@ export class Game {
     this.map = map; this.g = graph; this.hooks = hooks;
     this.B = map.b.map((b, i) => {
       const [x, y] = centroid(b.p);
-      return {i, x, y, area: Math.abs(ringArea(b.p)), h: b.h, node: graph.nearest(x, y), addr: b.a || '', name: b.n || '', k: b.k};
+      const area = Math.abs(ringArea(b.p)) - (b.hl || []).reduce((a, h) => a + Math.abs(ringArea(h)), 0);
+      return {i, x, y, area, h: b.h, node: graph.nearest(x, y), addr: b.a || '', name: b.n || '', k: b.k};
     });
     const cell = 50, N = Math.ceil(map.r * 2.2 / cell), o = -N * cell / 2;
     this.grid = {N, cell, o, c: new Float32Array(N * N), inside: new Uint8Array(N * N)};
@@ -108,9 +109,9 @@ export class Game {
     if (why) return this.hooks.toast(why);
     const s = this.s, R = ROLES[type];
     s.money -= R.cost; s.roles[bi] = type;
+    if (type === 'hq') s.hq = bi;
     this.hooks.role(bi, R.color);
     if (type === 'hq') {
-      s.hq = bi;
       for (let k = 0; k < 4; k++) s.officers.push(this.mkOfficer());
       for (let k = 0; k < 2; k++) s.units.push(this.mkUnit(bi));
       this.assignCrews();

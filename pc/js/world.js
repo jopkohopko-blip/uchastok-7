@@ -1,13 +1,21 @@
 // 3D-мир: реальные дома и улицы из OSM, машины нарядов, метки вызовов, слой преступности, день и ночь.
 // Координаты карты: x — восток, y — север (метры). В three.js: x = x, z = −y, высота — y.
 import * as THREE from 'three';
-import {centroid} from './osm.js';
+import {inShape} from './osm.js';
 
 const KIND_COL = {res: '#cdbb9e', com: '#b3bcc6', ind: '#a8a08f', pub: '#dccaa6', rel: '#eadcb9', gen: '#c2b9aa'};
 const ROAD_W = {motorway: 16, trunk: 14, primary: 13, secondary: 11, tertiary: 9, unclassified: 7, residential: 7, living_street: 6, service: 4.2, pedestrian: 8};
 const ROAD_C = {motorway: '#6a7077', trunk: '#6a7077', primary: '#666c73', secondary: '#61676e', tertiary: '#5c6269', unclassified: '#565c63', residential: '#565c63', living_street: '#5b5f63', service: '#4f5459', pedestrian: '#7b7466'};
 const ROAD_ORD = {motorway: 6, trunk: 6, primary: 5, secondary: 4, tertiary: 3, unclassified: 2, residential: 2, living_street: 1, service: 0, pedestrian: 1};
 const C = new THREE.Color();
+const clamp01 = v => Math.max(0, Math.min(1, v));
+
+// Качество графики: доля пикселей экрана и тени. Сглаживание включается при создании и меняется только перезагрузкой.
+export const QUALITY = {
+  high: {n: 'высокая', dpr: 2, shadow: 2048, soft: true},
+  medium: {n: 'средняя', dpr: 1, shadow: 2048, soft: false},
+  low: {n: 'низкая', dpr: .75, shadow: 0, soft: false}
+};
 
 function makeTex(w, h, draw) {
   const c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -48,23 +56,23 @@ function validColour(s) {
   if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(s)) return s;
   return THREE.Color.NAMES[s.replace(/\s+/g, '')] !== undefined ? s.replace(/\s+/g, '') : null;
 }
+const vec2 = f => { const a = []; for (let i = 0; i < f.length; i += 2) a.push(new THREE.Vector2(f[i], f[i + 1])); return a; };
 
 export class World {
-  constructor(canvas, map) {
+  constructor(canvas, map, quality = 'medium') {
     this.map = map; this.R = map.r;
-    const r = this.renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'high-performance'});
-    r.setPixelRatio(Math.min(devicePixelRatio, 2));
-    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
+    const r = this.renderer = new THREE.WebGLRenderer({canvas, antialias: quality !== 'low', powerPreference: 'high-performance'});
+    r.shadowMap.enabled = true; r.shadowMap.autoUpdate = false; // тени перерисовываем, только когда сдвинулось солнце
     r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(42, 1, 2, 9000);
+    this.camera = new THREE.PerspectiveCamera(42, 1, 5, 7000);
     this.scene.fog = new THREE.Fog(0x9fbad2, 1400, 4200);
+    this.sky = new THREE.Color(); this.scene.background = this.sky;
     this.hemi = new THREE.HemisphereLight(0xcfe3ff, 0x3a3326, .9); this.scene.add(this.hemi);
     const sun = this.sun = new THREE.DirectionalLight(0xfff1dc, 1.8);
-    sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
     const s = sun.shadow.camera, R = this.R * 1.15;
     s.left = -R; s.right = R; s.top = R; s.bottom = -R; s.near = 10; s.far = this.R * 6;
-    sun.shadow.bias = -.0004; sun.shadow.normalBias = 1.2;
+    sun.shadow.bias = -.0005; sun.shadow.normalBias = .6;
     this.scene.add(sun, sun.target);
     this.moon = new THREE.DirectionalLight(0x8fb0ff, 0); this.moon.position.set(-300, 600, 400); this.scene.add(this.moon);
     this.ray = new THREE.Raycaster();
@@ -72,56 +80,86 @@ export class World {
     this.buildGround(); this.buildAreas(); this.buildRoads(); this.buildBuildings(); this.buildTrees(); this.buildLights(); this.buildOverlay();
     this.units = new Map(); this.markers = new Map(); this.zoneGroup = new THREE.Group(); this.scene.add(this.zoneGroup);
     this.hover = -1; this.sel = -1; this.pings = [];
+    this.rect = {left: 0, top: 0, width: 1, height: 1};
+    this.setQuality(quality);
   }
 
-  /* ---------- земля, вода, парки ---------- */
-  buildGround() {
-    const outer = new THREE.Mesh(new THREE.PlaneGeometry(this.R * 10, this.R * 10), new THREE.MeshLambertMaterial({color: 0x1d2521}));
-    outer.rotation.x = -Math.PI / 2; outer.position.y = -.2; outer.receiveShadow = true;
-    const disk = new THREE.Mesh(new THREE.CircleGeometry(this.R * 1.06, 96), new THREE.MeshLambertMaterial({color: 0x454a44}));
-    disk.rotation.x = -Math.PI / 2; disk.position.y = -.05; disk.receiveShadow = true;
-    const edge = new THREE.Mesh(new THREE.RingGeometry(this.R * 1.06, this.R * 1.075, 128), new THREE.MeshBasicMaterial({color: 0x8fb7cc, transparent: true, opacity: .35}));
-    edge.rotation.x = -Math.PI / 2; edge.position.y = .01;
-    this.scene.add(outer, disk, edge);
+  /* ---------- качество графики ---------- */
+  setQuality(q) {
+    const Q = QUALITY[q] || QUALITY.medium, r = this.renderer;
+    this.quality = q;
+    r.setPixelRatio(Math.min(devicePixelRatio, Q.dpr));
+    this.shadowsOn = Q.shadow > 0;
+    r.shadowMap.enabled = this.shadowsOn;
+    r.shadowMap.type = Q.soft ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+    this.sun.castShadow = this.shadowsOn;
+    if (this.shadowsOn && this.sun.shadow.mapSize.x !== Q.shadow) {
+      this.sun.shadow.mapSize.set(Q.shadow, Q.shadow);
+      if (this.sun.shadow.map) { this.sun.shadow.map.dispose(); this.sun.shadow.map = null; }
+    }
+    this.scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) m.needsUpdate = true; });
+    r.shadowMap.needsUpdate = true;
+    if (this.w) this.resize(this.w, this.h);
   }
-  polyGeometry(list, y) {
+
+  /* ---------- земля, вода, парки ----------
+     Плоские слои не пишут глубину и рисуются строго по порядку (renderOrder): земля → парки → вода → дороги.
+     Так они никогда не рябят друг о друга, как бы далеко ни была камера. */
+  flat(geo, mat, order) {
+    mat.depthWrite = false;
+    const m = new THREE.Mesh(geo, mat);
+    m.renderOrder = order; m.receiveShadow = true;
+    this.scene.add(m);
+    return m;
+  }
+  buildGround() {
+    // земля вокруг района — кольцом, чтобы не закрашивать экран дважды под диском района
+    const outer = this.flat(new THREE.RingGeometry(this.R * 1.05, this.R * 7, 96, 1), new THREE.MeshLambertMaterial({color: 0x1d2521}), -10);
+    const disk = this.flat(new THREE.CircleGeometry(this.R * 1.06, 96), new THREE.MeshLambertMaterial({color: 0x454a44}), -9);
+    outer.rotation.x = disk.rotation.x = -Math.PI / 2;
+    const edge = new THREE.Mesh(new THREE.RingGeometry(this.R * 1.06, this.R * 1.075, 128), new THREE.MeshBasicMaterial({color: 0x8fb7cc, transparent: true, opacity: .35, depthWrite: false}));
+    edge.rotation.x = -Math.PI / 2; edge.position.y = .01;
+    this.scene.add(edge);
+  }
+  areaGeometry(list) {
     const pos = [];
-    for (const p of list) {
-      const contour = []; for (let i = 0; i < p.length; i += 2) contour.push(new THREE.Vector2(p[i], p[i + 1]));
-      const faces = THREE.ShapeUtils.triangulateShape(contour, []);
-      for (const f of faces) for (const k of f) pos.push(contour[k].x, y, -contour[k].y);
+    for (const s of list) {
+      const outer = vec2(s.p), holes = (s.hl || []).map(vec2);
+      let faces;
+      try { faces = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { continue; }
+      const all = outer.concat(...holes);
+      for (const f of faces) for (const k of f) pos.push(all[k].x, 0, -all[k].y);
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    g.computeVertexNormals();
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(new Float32Array(pos.length).map((_, i) => i % 3 === 1 ? 1 : 0), 3));
     return g;
   }
   buildAreas() {
-    const green = new THREE.Mesh(this.polyGeometry(this.map.g, .02), new THREE.MeshLambertMaterial({color: 0x557d4c}));
-    const water = new THREE.Mesh(this.polyGeometry(this.map.w, .03), new THREE.MeshLambertMaterial({color: 0x3f6f8f, emissive: 0x0b2233}));
-    green.receiveShadow = water.receiveShadow = true;
-    this.scene.add(green, water);
+    this.flat(this.areaGeometry(this.map.g), new THREE.MeshLambertMaterial({color: 0x557d4c, side: THREE.DoubleSide}), -8);
+    this.flat(this.areaGeometry(this.map.w), new THREE.MeshLambertMaterial({color: 0x3f6f8f, emissive: 0x0b2233, side: THREE.DoubleSide}), -7);
   }
 
-  /* ---------- дороги: ленты с круглыми стыками, одна общая геометрия ---------- */
+  /* ---------- дороги: ленты с круглыми стыками, одна общая геометрия; крупные улицы ложатся поверх мелких ---------- */
   buildRoads() {
     const pos = [], col = [];
-    const push = (x, y, z, c) => { pos.push(x, y, -z); col.push(c.r, c.g, c.b); };
-    for (const rd of this.map.rd) {
+    const push = (x, z, c) => { pos.push(x, 0, -z); col.push(c.r, c.g, c.b); };
+    const roads = [...this.map.rd].sort((a, b) => (ROAD_ORD[a.k.replace('_link', '')] ?? 0) - (ROAD_ORD[b.k.replace('_link', '')] ?? 0));
+    for (const rd of roads) {
       const base = rd.k.replace('_link', ''), link = rd.k.endsWith('_link');
-      const w = (ROAD_W[base] ?? 6) * (link ? .8 : 1), hw = w / 2, y = .05 + (ROAD_ORD[base] ?? 0) * .012;
+      const w = (ROAD_W[base] ?? 6) * (link ? .8 : 1), hw = w / 2;
       const c = new THREE.Color(ROAD_C[base] ?? '#565c63'), p = rd.p;
       for (let i = 0; i + 3 < p.length; i += 2) {
         const x1 = p[i], y1 = p[i + 1], x2 = p[i + 2], y2 = p[i + 3], L = Math.hypot(x2 - x1, y2 - y1) || 1;
         const nx = -(y2 - y1) / L * hw, ny = (x2 - x1) / L * hw;
-        push(x1 + nx, y, y1 + ny, c); push(x1 - nx, y, y1 - ny, c); push(x2 - nx, y, y2 - ny, c);
-        push(x1 + nx, y, y1 + ny, c); push(x2 - nx, y, y2 - ny, c); push(x2 + nx, y, y2 + ny, c);
+        push(x1 + nx, y1 + ny, c); push(x1 - nx, y1 - ny, c); push(x2 - nx, y2 - ny, c);
+        push(x1 + nx, y1 + ny, c); push(x2 - nx, y2 - ny, c); push(x2 + nx, y2 + ny, c);
       }
       for (let i = 0; i < p.length; i += 2) { // круглые стыки, чтобы повороты не рвались
         const x = p[i], z = p[i + 1];
         for (let s = 0; s < 8; s++) {
           const a1 = s / 8 * Math.PI * 2, a2 = (s + 1) / 8 * Math.PI * 2;
-          push(x, y, z, c); push(x + Math.cos(a1) * hw, y, z + Math.sin(a1) * hw, c); push(x + Math.cos(a2) * hw, y, z + Math.sin(a2) * hw, c);
+          push(x, z, c); push(x + Math.cos(a1) * hw, z + Math.sin(a1) * hw, c); push(x + Math.cos(a2) * hw, z + Math.sin(a2) * hw, c);
         }
       }
     }
@@ -129,51 +167,54 @@ export class World {
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
     g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.setAttribute('normal', new THREE.Float32BufferAttribute(new Float32Array(pos.length).map((_, i) => i % 3 === 1 ? 1 : 0), 3));
-    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}));
-    m.receiveShadow = true;
-    this.scene.add(m);
+    this.flat(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}), -6);
   }
 
-  /* ---------- дома: одна общая геометрия, цвет каждого дома можно менять ---------- */
+  /* ---------- дома: одна общая геометрия, цвет каждого дома можно менять ----------
+     Внешние контуры — против часовой, дворы — по часовой: стены смотрят наружу и во двор, рисуем только лицевую сторону. */
   buildBuildings() {
-    const B = this.map.b, n = B.length;
-    const tris = [], contours = [];
+    const B = this.map.b, n = B.length, geo = [];
+    this.bh = new Float32Array(n); this.bb = new Float32Array(n * 4);
     let nv = 0;
-    for (const b of B) {
-      const ct = []; for (let i = 0; i < b.p.length; i += 2) ct.push(new THREE.Vector2(b.p[i], b.p[i + 1]));
-      const f = THREE.ShapeUtils.triangulateShape(ct, []);
-      contours.push(ct); tris.push(f);
-      nv += ct.length * 6 + f.length * 3;
+    for (let i = 0; i < n; i++) {
+      const b = B[i], outer = vec2(b.p), holes = (b.hl || []).map(vec2), rings = [b.p, ...(b.hl || [])];
+      let tri = [];
+      try { tri = THREE.ShapeUtils.triangulateShape(outer, holes); } catch (e) { /* кривой контур — дом без крыши */ }
+      geo.push({all: outer.concat(...holes), tri, rings});
+      for (const r of rings) nv += r.length / 2 * 6;
+      nv += tri.length * 3;
+      this.bh[i] = b.h + ((i * 37) % 101) * .004; // чуть разная высота: у соседних крыш на одном уровне не будет ряби
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (let k = 0; k < b.p.length; k += 2) { x0 = Math.min(x0, b.p[k]); x1 = Math.max(x1, b.p[k]); y0 = Math.min(y0, b.p[k + 1]); y1 = Math.max(y1, b.p[k + 1]); }
+      this.bb[i * 4] = x0; this.bb[i * 4 + 1] = y0; this.bb[i * 4 + 2] = x1; this.bb[i * 4 + 3] = y1;
     }
     const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), col = new Float32Array(nv * 3), shade = new Float32Array(nv);
     this.bStart = new Int32Array(n); this.bWallEnd = new Int32Array(n); this.bEnd = new Int32Array(n);
-    this.faceB = new Int32Array(nv / 3);
-    this.wallCol = []; this.roofCol = []; this.centers = [];
+    this.wallCol = []; this.roofCol = [];
     let v = 0;
     const put = (x, y, z, nx, ny, nz, sh) => {
       pos[v * 3] = x; pos[v * 3 + 1] = y; pos[v * 3 + 2] = z;
       nor[v * 3] = nx; nor[v * 3 + 1] = ny; nor[v * 3 + 2] = nz; shade[v] = sh; v++;
     };
     for (let i = 0; i < n; i++) {
-      const b = B[i], ct = contours[i], h = b.h, m = ct.length;
+      const b = B[i], {all, tri, rings} = geo[i], h = this.bh[i];
       const wall = new THREE.Color(KIND_COL[b.k] || KIND_COL.gen), tag = validColour(b.c);
       if (tag) wall.lerp(new THREE.Color(tag), .45);
-      const jit = ((i * 2654435761) % 1000) / 1000 * .12 - .06; // лёгкий разброс оттенков соседних домов
-      wall.offsetHSL(0, 0, jit);
-      const roof = wall.clone().multiplyScalar(.72);
-      this.wallCol.push(wall); this.roofCol.push(roof);
-      this.centers.push(centroid(b.p));
+      wall.offsetHSL(0, 0, ((i * 2654435761) % 1000) / 1000 * .12 - .06); // лёгкий разброс оттенков соседних домов
+      this.wallCol.push(wall); this.roofCol.push(wall.clone().multiplyScalar(.72));
       this.bStart[i] = v;
-      for (let j = 0; j < m; j++) {
-        const a = ct[j], c = ct[(j + 1) % m], L = Math.hypot(c.x - a.x, c.y - a.y) || 1;
-        const nx = (c.y - a.y) / L, ny = -(c.x - a.x) / L; // наружная нормаль в координатах карты
-        put(a.x, 0, -a.y, nx, 0, -ny, .62); put(c.x, 0, -c.y, nx, 0, -ny, .62); put(c.x, h, -c.y, nx, 0, -ny, 1);
-        put(a.x, 0, -a.y, nx, 0, -ny, .62); put(c.x, h, -c.y, nx, 0, -ny, 1); put(a.x, h, -a.y, nx, 0, -ny, 1);
+      for (const p of rings) for (let j = 0, m = p.length; j < m; j += 2) {
+        const ax = p[j], ay = p[j + 1], cx = p[(j + 2) % m], cy = p[(j + 3) % m], L = Math.hypot(cx - ax, cy - ay) || 1;
+        const nx = (cy - ay) / L, ny = -(cx - ax) / L; // нормаль стены в координатах карты
+        put(ax, 0, -ay, nx, 0, -ny, .62); put(cx, 0, -cy, nx, 0, -ny, .62); put(cx, h, -cy, nx, 0, -ny, 1);
+        put(ax, 0, -ay, nx, 0, -ny, .62); put(cx, h, -cy, nx, 0, -ny, 1); put(ax, h, -ay, nx, 0, -ny, 1);
       }
       this.bWallEnd[i] = v;
-      for (const f of tris[i]) for (const k of f) put(ct[k].x, h, -ct[k].y, 0, 1, 0, 1);
+      for (const [a, b2, c] of tri) { // крыша смотрит вверх: если глядеть сверху, треугольник идёт против часовой
+        const A = all[a], Bv = all[b2], Cv = all[c], ccw = (Bv.x - A.x) * (Cv.y - A.y) - (Bv.y - A.y) * (Cv.x - A.x) >= 0;
+        for (const q of ccw ? [A, Bv, Cv] : [A, Cv, Bv]) put(q.x, h, -q.y, 0, 1, 0, 1);
+      }
       this.bEnd[i] = v;
-      for (let t = this.bStart[i] / 3; t < v / 3; t++) this.faceB[t] = i;
     }
     this.shade = shade;
     const g = this.bGeo = new THREE.BufferGeometry();
@@ -181,15 +222,15 @@ export class World {
     g.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
     g.setAttribute('color', new THREE.BufferAttribute(col, 3));
     g.computeBoundingSphere();
-    this.bState = B.map(() => ({role: null, gang: false, hq: false}));
+    this.bState = B.map(() => ({role: null, gang: false}));
     for (let i = 0; i < n; i++) this.paint(i, false);
-    const mesh = this.bMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({vertexColors: true, side: THREE.DoubleSide}));
+    const mesh = this.bMesh = new THREE.Mesh(g, new THREE.MeshLambertMaterial({vertexColors: true}));
     mesh.castShadow = mesh.receiveShadow = true;
     this.scene.add(mesh);
   }
   // итоговый цвет дома: базовый → роль полиции → банда на крыше → выбор/наведение
   paint(i, upload = true) {
-    const st = this.bState[i], col = this.bGeo.attributes.color.array, sh = this.shade;
+    const st = this.bState[i], attr = this.bGeo.attributes.color, col = attr.array, sh = this.shade;
     const wall = this.wallCol[i].clone(), roof = this.roofCol[i].clone();
     if (st.role) { const rc = new THREE.Color(st.role); wall.lerp(rc, .5); roof.lerp(rc, .7); }
     if (st.gang) { roof.lerp(C.set(0xb3263a), .55); wall.lerp(C.set(0x6b2a33), .2); }
@@ -199,7 +240,7 @@ export class World {
       const c = v < this.bWallEnd[i] ? wall : roof, s = sh[v];
       col[v * 3] = c.r * s; col[v * 3 + 1] = c.g * s; col[v * 3 + 2] = c.b * s;
     }
-    if (upload) this.bGeo.attributes.color.needsUpdate = true;
+    if (upload) { attr.addUpdateRange(this.bStart[i] * 3, (this.bEnd[i] - this.bStart[i]) * 3); attr.needsUpdate = true; } // на видеокарту — только этот дом
   }
   setRole(i, color) { this.bState[i].role = color; this.paint(i); }
   setGang(i, on) { if (this.bState[i].gang !== on) { this.bState[i].gang = on; this.paint(i); } }
@@ -209,20 +250,20 @@ export class World {
   /* ---------- деревья в парках ---------- */
   buildTrees() {
     const pts = [];
-    for (const p of this.map.g) {
+    for (const s of this.map.g) {
+      const p = s.p;
       let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
       for (let i = 0; i < p.length; i += 2) { minx = Math.min(minx, p[i]); maxx = Math.max(maxx, p[i]); miny = Math.min(miny, p[i + 1]); maxy = Math.max(maxy, p[i + 1]); }
       const area = (maxx - minx) * (maxy - miny), cnt = Math.min(90, Math.floor(area / 260));
       for (let k = 0, tries = 0; k < cnt && tries < cnt * 4; tries++) {
         const x = minx + Math.random() * (maxx - minx), y = miny + Math.random() * (maxy - miny);
-        if (inPoly(x, y, p)) { pts.push(x, y); k++; }
+        if (inShape(x, y, s)) { pts.push(x, y); k++; }
       }
       if (pts.length > 5000) break;
     }
     const n = pts.length / 2;
     if (!n) return;
-    const geo = new THREE.IcosahedronGeometry(1, 0);
-    const mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({color: 0xffffff}), n);
+    const mesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshLambertMaterial({color: 0xffffff}), n);
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), p3 = new THREE.Vector3();
     for (let i = 0; i < n; i++) {
       const s = 2.6 + Math.random() * 2.4;
@@ -255,7 +296,8 @@ export class World {
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    this.lamps = new THREE.Points(g, new THREE.PointsMaterial({size: 34, map: glowTex, color: 0xffcf8a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending}));
+    this.lamps = new THREE.Points(g, new THREE.PointsMaterial({size: 15, map: glowTex, color: 0xffcf8a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending}));
+    this.lamps.visible = false;
     this.scene.add(this.lamps);
   }
 
@@ -275,7 +317,7 @@ export class World {
     for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
       const v = inside[j * N + i] ? c[j * N + i] : 0, px = ((N - 1 - j) * N + i) * 4; // строки канваса идут с севера на юг
       const a = v < 35 ? 0 : v < 70 ? (v - 35) / 35 * .32 : .45 + (v - 70) / 30 * .25;
-      d[px] = v >= 70 ? 214 : 235; d[px + 1] = v >= 70 ? 40 : 150; d[px + 2] = v >= 70 ? 60 : 60; d[px + 3] = a * 255;
+      d[px] = v >= 70 ? 214 : 235; d[px + 1] = v >= 70 ? 40 : 150; d[px + 2] = 60; d[px + 3] = a * 255;
     }
     g.putImageData(img, 0, 0);
     this.ovTex.needsUpdate = true;
@@ -284,6 +326,7 @@ export class World {
 
   /* ---------- зоны контроля участка и опорных пунктов ---------- */
   setZones(zones) {
+    for (const m of this.zoneGroup.children) { m.geometry.dispose(); m.material.dispose(); }
     this.zoneGroup.clear();
     for (const z of zones) {
       const ring = new THREE.Mesh(new THREE.RingGeometry(z.r - 2.5, z.r, 128), new THREE.MeshBasicMaterial({color: z.color, transparent: true, opacity: .55, depthWrite: false}));
@@ -302,8 +345,10 @@ export class World {
     const red = new THREE.MeshBasicMaterial({color: 0x5a1a22}), blu = new THREE.MeshBasicMaterial({color: 0x17305e});
     const l1 = new THREE.Mesh(new THREE.BoxGeometry(.5, .28, .8), red); l1.position.set(-.2, 2.45, -.45);
     const l2 = new THREE.Mesh(new THREE.BoxGeometry(.5, .28, .8), blu); l2.position.set(-.2, 2.45, .45);
-    for (const m of [body, stripe, cab]) m.castShadow = true;
-    g.add(body, stripe, cab, l1, l2);
+    // своя мягкая тень под машиной: карта теней обновляется редко и за машинами бы не успевала
+    const blob = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), new THREE.MeshBasicMaterial({map: glowTex, color: 0x000000, transparent: true, opacity: .55, depthWrite: false}));
+    blob.rotation.x = -Math.PI / 2; blob.position.y = .08; blob.renderOrder = 1;
+    g.add(blob, body, stripe, cab, l1, l2);
     g.scale.setScalar(2.4);
     const glow = new THREE.Sprite(new THREE.SpriteMaterial({map: glowTex, color: 0xff3b4d, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending}));
     glow.scale.set(34, 34, 1); glow.position.y = 7;
@@ -361,7 +406,7 @@ export class World {
       o.ring.material.opacity = m.pulse ? .45 + Math.sin(t * 5) * .3 : .5;
       const rs = m.pulse ? 1 + ((t * .8) % 1) * .8 : 1; o.ring.scale.set(rs, rs, 1);
     }
-    for (const [id, o] of this.markers) if (!seen.has(id)) { this.scene.remove(o.sp, o.ring); this.markers.delete(id); }
+    for (const [id, o] of this.markers) if (!seen.has(id)) { this.scene.remove(o.sp, o.ring); o.sp.material.dispose(); o.ring.geometry.dispose(); o.ring.material.dispose(); this.markers.delete(id); }
   }
 
   /* ---------- отклик на приказ: расходящееся кольцо на земле ---------- */
@@ -382,28 +427,65 @@ export class World {
   setTime(min) {
     const h = (min / 60) % 24, u = (h - 6) / 14; // 6:00 — восход, 20:00 — закат
     const elev = u > 0 && u < 1 ? Math.sin(u * Math.PI) : -.3;
-    const day = Math.min(1, Math.max(0, elev * 3 + .1)), twi = Math.max(0, 1 - Math.abs(elev) * 4) * (elev > -.25 ? 1 : 0);
-    const sky = new THREE.Color(0x0a1322).lerp(C.set(0xa8c6e2), day);
-    sky.lerp(C.set(0xe0936a), twi * .45);
-    this.scene.background = sky; this.scene.fog.color.copy(sky);
+    const day = clamp01(elev * 3 + .1), twi = Math.max(0, 1 - Math.abs(elev) * 4) * (elev > -.25 ? 1 : 0);
+    this.sky.set(0x0a1322).lerp(C.set(0xa8c6e2), day).lerp(C.set(0xe0936a), twi * .45);
+    this.scene.fog.color.copy(this.sky);
     this.scene.fog.near = 900 + day * 700; this.scene.fog.far = 3000 + day * 1500;
     this.hemi.intensity = .42 + .53 * day; this.hemi.color.set(0x9fb6ff).lerp(C.set(0xdfeaff), day);
-    const az = Math.max(0, Math.min(1, u)) * Math.PI, R = this.R;
+    const az = clamp01(u) * Math.PI, R = this.R;
     this.sun.position.set(Math.cos(az) * R * 1.3, Math.max(.08, elev) * R * 1.8 + 60, -Math.sin(az) * R * .7 - R * .3);
-    this.sun.intensity = 1.9 * day; this.sun.color.set(0xffb070).lerp(C.set(0xfff4e2), Math.min(1, elev * 2.5));
-    this.sun.castShadow = day > .05;
+    this.sun.intensity = 1.9 * day; this.sun.color.set(0xffb070).lerp(C.set(0xfff4e2), clamp01(elev * 2.5));
+    // карту теней перерисовываем, только когда солнце заметно сдвинулось (ночью — никогда)
+    if (this.shadowsOn && day > .05 && (Math.abs(az - (this.sAz ?? -9)) > .006 || Math.abs(elev - (this.sEl ?? -9)) > .006)) {
+      this.sAz = az; this.sEl = elev; this.renderer.shadowMap.needsUpdate = true;
+    }
     this.moon.intensity = .55 * (1 - day);
-    this.lamps.material.opacity = Math.max(0, Math.min(1, 1 - day * 1.6));
+    const lamp = clamp01(1 - day * 1.6);
+    this.lamps.material.opacity = lamp; this.lamps.visible = lamp > .01;
     this.renderer.toneMappingExposure = .95 + day * .15;
     this.night = 1 - day;
   }
 
   /* ---------- ввод: что под курсором ---------- */
-  ndc(px, py) { const r = this.renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((px - r.left) / r.width * 2 - 1, -(py - r.top) / r.height * 2 + 1); }
+  ndc(px, py) { const r = this.rect; return new THREE.Vector2((px - r.left) / r.width * 2 - 1, -(py - r.top) / r.height * 2 + 1); }
+  // луч против «коробок» домов, потом точная проверка стен и крыши — в сотни раз быстрее перебора всех треугольников
   pickBuilding(px, py) {
     this.ray.setFromCamera(this.ndc(px, py), this.camera);
-    const hit = this.ray.intersectObject(this.bMesh, false)[0];
-    return hit ? this.faceB[hit.faceIndex] : -1;
+    const {origin: o, direction: d} = this.ray.ray;
+    const ox = o.x, oy = -o.z, oh = o.y, dx = d.x, dy = -d.z, dh = d.y, bb = this.bb, bh = this.bh;
+    let best = -1, bt = Infinity;
+    const slab = (org, dir, lo, hi, t) => {
+      if (Math.abs(dir) < 1e-9) return org < lo || org > hi ? null : t;
+      let a = (lo - org) / dir, b = (hi - org) / dir;
+      if (a > b) { const x = a; a = b; b = x; }
+      t[0] = Math.max(t[0], a); t[1] = Math.min(t[1], b);
+      return t[0] > t[1] ? null : t;
+    };
+    const t = [0, 0];
+    for (let i = 0; i < bh.length; i++) {
+      t[0] = 0; t[1] = bt;
+      if (!slab(ox, dx, bb[i * 4], bb[i * 4 + 2], t) || !slab(oy, dy, bb[i * 4 + 1], bb[i * 4 + 3], t) || !slab(oh, dh, 0, bh[i], t)) continue;
+      const hit = this.hitPrism(i, ox, oy, oh, dx, dy, dh, t[0], t[1]);
+      if (hit < bt) { bt = hit; best = i; }
+    }
+    return best;
+  }
+  hitPrism(i, ox, oy, oh, dx, dy, dh, t0, t1) {
+    const b = this.map.b[i], h = this.bh[i], e = 1e-6;
+    let best = Infinity;
+    if (dh < 0) { // крыша
+      const t = (h - oh) / dh;
+      if (t >= t0 - e && t <= t1 + e && inShape(ox + dx * t, oy + dy * t, b)) best = t;
+    }
+    for (const p of b.hl ? [b.p, ...b.hl] : [b.p]) for (let j = 0, m = p.length; j < m; j += 2) { // стены
+      const ax = p[j], ay = p[j + 1], ex = p[(j + 2) % m] - ax, ey = p[(j + 3) % m] - ay, den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-12) continue;
+      const t = ((ax - ox) * ey - (ay - oy) * ex) / den, s = ((ax - ox) * dy - (ay - oy) * dx) / den;
+      if (s < 0 || s > 1 || t < t0 - e || t > t1 + e || t >= best) continue;
+      const y = oh + dh * t;
+      if (y >= 0 && y <= h) best = t;
+    }
+    return best;
   }
   pickGround(px, py) {
     this.ray.setFromCamera(this.ndc(px, py), this.camera);
@@ -411,18 +493,13 @@ export class World {
     return this.ray.ray.intersectPlane(this.groundPlane, v) ? {x: v.x, y: -v.z} : null;
   }
   toScreen(x, h, y) {
-    const r = this.renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3(x, h, -y).project(this.camera);
+    const r = this.rect, v = new THREE.Vector3(x, h, -y).project(this.camera);
     return {x: r.left + (v.x + 1) / 2 * r.width, y: r.top + (1 - v.y) / 2 * r.height, vis: v.z < 1};
   }
-  resize(w, h) { this.renderer.setSize(w, h, false); this.camera.aspect = w / h; this.camera.updateProjectionMatrix(); }
-  render() { this.renderer.render(this.scene, this.camera); }
-}
-
-export function inPoly(x, y, p) {
-  let ins = false;
-  for (let i = 0, j = p.length - 2; i < p.length; j = i, i += 2) {
-    const xi = p[i], yi = p[i + 1], xj = p[j], yj = p[j + 1];
-    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins;
+  resize(w, h) {
+    this.w = w; this.h = h;
+    this.renderer.setSize(w, h, false); this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
+    this.rect = this.renderer.domElement.getBoundingClientRect();
   }
-  return ins;
+  render() { this.renderer.render(this.scene, this.camera); }
 }

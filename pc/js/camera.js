@@ -23,7 +23,21 @@ export class RTSCamera {
     this.T.z += (-sy * dx - cy * dy) * s;
     this.clampTarget();
   }
+  // перетаскивание карты: сдвиг сразу, без сглаживания — точка под курсором едет вместе с ним
+  shift(dx, dz) {
+    const ox = this.T.x, oz = this.T.z;
+    this.T.x += dx; this.T.z += dz; this.clampTarget();
+    this.t.x += this.T.x - ox; this.t.z += this.T.z - oz;
+    this.apply();
+  }
   zoom(f) { this.D = Math.min(1500, Math.max(35, this.D * f)); }
+  // приближение к точке под курсором (x, z — мировые координаты)
+  zoomAt(f, x, z) {
+    const D0 = this.D; this.zoom(f);
+    const k = 1 - this.D / D0;
+    this.T.x += (x - this.T.x) * k; this.T.z += (z - this.T.z) * k;
+    this.clampTarget();
+  }
   rotate(dyaw, dpitch) {
     this.YAW += dyaw;
     this.PITCH = Math.min(1.45, Math.max(.35, this.PITCH + dpitch));
@@ -44,8 +58,12 @@ export class RTSCamera {
     this.d += (this.D - this.d) * a;
     this.yaw += (this.YAW - this.yaw) * a;
     this.pitch += (this.PITCH - this.pitch) * a;
+    this.apply();
+  }
+  apply() {
     const h = Math.sin(this.pitch) * this.d, r = Math.cos(this.pitch) * this.d;
     this.cam.position.set(this.t.x + Math.sin(this.yaw) * r, h, this.t.z + Math.cos(this.yaw) * r);
     this.cam.lookAt(this.t.x, 0, this.t.z);
+    this.cam.updateMatrixWorld();
   }
 }
