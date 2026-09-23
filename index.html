@@ -201,6 +201,10 @@ main{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px}
 #bootfail .card{max-width:420px}
 #bootfail h2{margin:0 0 8px;font:700 18px var(--disp)}
 #bootfail pre{white-space:pre-wrap;font:12px var(--mono);color:#ffb3ba;background:var(--bg);padding:8px;border-radius:8px;max-height:120px;overflow:auto}
+.speedbar.peace{background:linear-gradient(90deg,#1c2d4c,#12213a)}
+.speedbar.peace .spd{display:none}
+.speedbar .shiftbtn{padding:6px 11px}
+.peacecard{margin-top:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .off{width:100%;cursor:pointer}
 .meters{display:flex;gap:4px;margin-top:5px;max-width:160px}
 .mt{flex:1;display:block;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}
@@ -427,12 +431,13 @@ main{background-image:radial-gradient(ellipse at 50% 0,#1b354a55,transparent 52%
     </div>
   </header>
   <div class="speedbar" id="speedbar">
-    <span class="lbl2">Темп <b id="spdTxt">×1</b></span>
+    <span class="lbl2"><span id="modeTxt">Смена</span> <b id="spdTxt">×1</b></span>
     <button type="button" class="spd" data-speed="0" aria-label="Пауза (P)" title="Пауза — P">⏸</button>
     <button type="button" class="spd" data-speed="1" aria-label="Медленно, ×½ (1)" title="×½ — клавиша 1">½</button>
     <button type="button" class="spd" data-speed="2" aria-label="Обычно, ×1 (2)" title="×1 — клавиша 2">1</button>
     <button type="button" class="spd" data-speed="3" aria-label="Быстро, ×2 (3)" title="×2 — клавиша 3">2</button>
     <button type="button" class="spd" data-speed="4" aria-label="Очень быстро, ×3 (4)" title="×3 — клавиша 4">3</button>
+    <button type="button" class="btn primary sm shiftbtn" id="shiftBtn" data-shiftbtn>▶ Начать смену</button>
   </div>
   <main id="view"></main>
   <nav class="tabs">
@@ -558,7 +563,7 @@ function fresh() {
     gt: now, speed: 2, prevSpeed: 2, lastReal: Date.now(), rot: 0};
   S.officers.push(mkOff('patrol'), mkOff('patrol'));
   S.cands = genCands();
-  initCity(); initAst();
+  initCity(); initAst(); initShifts();
 }
 function migrate3() {
   const now = gnow();
@@ -577,6 +582,7 @@ function load() {
       if (S.v === 2) migrate3();
       if (!S.city) initCity();
       if (!S.ast) initAst();
+      if (!S.mode) initShifts();
       if (S.call) {
         for (const q of ['scene', 'route']) S.call.lines[q] ||= callFallback[S.call.kind]?.[q] || 'Не могу сейчас уточнить.';
         if (S.call.state === 'talk' && !S.call.talkEnd) S.call.talkEnd = gnow() + 60000;
@@ -589,6 +595,7 @@ function load() {
 function save() { try { localStorage.setItem('uchastok7', JSON.stringify(S)); } catch (e) {} }
 
 function toast(msg) {
+  if (muteToasts) return;
   const box = $('#toasts'), el = document.createElement('div');
   el.className = 'toast'; el.textContent = msg; box.appendChild(el);
   while (box.children.length > 3) box.firstChild.remove();
@@ -674,7 +681,7 @@ function resolve(m) {
     normalizeStaff();
     const rep = m.fake === 'fake' ? -1 : 0;
     S.rep = Math.max(0, S.rep + rep);
-    S.reports.push({fake: true, ok: false, type: m.type, name: m.name, money: 0, rep, spent: m.spent || 0,
+    pushReport({fake: true, ok: false, type: m.type, name: m.name, money: 0, rep, spent: m.spent || 0,
       title: m.fake === 'fake' ? 'Ложный вызов' : 'Не по профилю',
       note: m.fake === 'fake' ? `По адресу «${m.addr}» никого. Наряд катался впустую — это были шутники.` : `На месте помощь нужна была не полиции: наряд сам вызвал ${SERV_TO[m.fake]}.`,
       lines: sq.map(o => ({id: o.id, name: o.name, gain: 0, up: 0, lv: o.lv, hurt: false}))});
@@ -713,7 +720,7 @@ function resolve(m) {
   });
   normalizeStaff();
   floatText(rc(2), rc(2), 1.2, ok ? '✔ Успех' : '✖ Провал', ok ? '#3ddc97' : '#ff4d5e');
-  S.reports.push({ok, name: m.name, type: m.type, money, rep, spent: m.spent || 0, lines, approach: m.approach || 'standard', radioChoice: m.radioChoice || 'plan', intel: m.intel || 0, safeGuide: !!m.safeGuide});
+  pushReport({ok, name: m.name, type: m.type, money, rep, spent: m.spent || 0, lines, approach: m.approach || 'standard', radioChoice: m.radioChoice || 'plan', intel: m.intel || 0, safeGuide: !!m.safeGuide});
   S.missions = S.missions.filter(x => x !== m);
   const rank1 = rankOf(S.rep);
   if (rank1 !== rank0) toast(`Новое звание: ${rank1}`);
@@ -721,9 +728,10 @@ function resolve(m) {
 
 /* ---------- такт игры ---------- */
 function tick() {
-  const rn = Date.now(), rdt = clamp(rn - (S.lastReal || rn), 0, 3600000) * SPEEDS[S.speed];
+  const rn = Date.now(), rdt = clamp(rn - (S.lastReal || rn), 0, 3600000) * (S.mode === 'peace' ? 0 : SPEEDS[S.speed]);
   S.lastReal = rn;
   S.gt += rdt;
+  if (S.call && S.call.state === 'talk' && typing && S.call.talkEnd) S.call.talkEnd += rdt;
   const now = S.gt, dt = rdt / 1000;
   let changed = false;
   S.money += hq() * dt;
@@ -740,7 +748,7 @@ function tick() {
     changed = true;
   });
   for (const m of [...S.missions]) {
-    if (m.start && !m.fake && !m.radioDone && !m.radioPending && now >= m.start + (m.end - m.start) * .45) {
+    if (m.start && !m.fake && (m.urgent || m.type === 'assault') && !m.radioDone && !m.radioPending && now >= m.start + (m.end - m.start) * .45) {
       m.radioPending = true; m.radioOriginalEnd = m.end; m.radioDeadline = now + 30000; m.end = Math.max(m.end, m.radioDeadline + 5000);
       toast(`Рация: наряд на месте — «${m.name}». Нужен приказ`); changed = true;
     }
@@ -753,7 +761,7 @@ function tick() {
       else toast(`Вызов закрыт: «${m.name}»`);
     }
   }
-  if (!S.call && now >= S.nextCall) { S.call = newCall(); changed = true; }
+  if (S.mode === 'shift' && !S.call && now >= S.nextCall) { S.call = newCall(); changed = true; }
   if (S.call && S.call.state === 'ring') {
     if (now >= S.call.ringEnd) {
       if (S.call.kind === 'police') { S.rep = Math.max(0, S.rep - 1); toast('Пропущен звонок на 102. Доверие −1'); }
@@ -763,10 +771,12 @@ function tick() {
   }
   if (S.call && S.call.state === 'talk' && now >= S.call.talkEnd) { expireCall(S.call); changed = true; }
   S.officers.forEach(o => { if (o.hurt && now >= o.hurt) { o.hurt = 0; changed = true; } });
+  if (S.mode === 'shift' && now >= S.shift.end) { closeShift(); changed = true; }
+  if (S.mode === 'closing' && !S.missions.some(m => m.start) && !(S.call && S.call.state === 'talk')) { endShift(); changed = true; }
 
   if (changed) { render(); if (sheetCtx && sheetCtx.kind !== 'report' && sheetCtx.kind !== 'call') renderSheet(); save(); }
   else { updateTop(); updateDyn(); }
-  if (S.reports.length && !sheetCtx) { sheetCtx = {kind: 'report'}; renderSheet(); }
+  if (S.mode === 'peace' && S.reports.length && !sheetCtx) { sheetCtx = {kind: 'report'}; renderSheet(); }
 }
 
 /* ---------- изометрическая карта ---------- */
@@ -2001,7 +2011,7 @@ function expireCall(c) {
   const rep = Math.round((c.kind === 'police' ? -2 : -1) * courseOf().rep);
   S.rep = Math.max(0, S.rep + rep);
   cityOnCall(c, 'drop');
-  S.reports.push({kind: 'call', ok: false, title: 'Связь оборвалась', text: `Пока уточняли детали, заявитель завершил звонок. «${c.title}» остался без решения.`, rep});
+  pushReport({kind: 'call', ok: false, title: 'Связь оборвалась', text: `Пока уточняли детали, заявитель завершил звонок. «${c.title}» остался без решения.`, rep});
   toast('Заявитель не дождался решения');
   render(); save();
 }
@@ -2038,7 +2048,7 @@ function decide(act) {
   const v = callVerdict(c, act);
   S.rep = Math.max(0, S.rep + v.rep);
   cityOnCall(c, act);
-  S.reports.push({kind: 'call', ok: v.ok, title: v.title, text: v.text, rep: v.rep});
+  pushReport({kind: 'call', ok: v.ok, title: v.title, text: v.text, rep: v.rep});
   render(); save();
 }
 function callVerdict(c, act) {
@@ -2230,7 +2240,7 @@ function genCands() {
   return [0, 1, 2].map(i => { const o = mkOff(i < cls.length ? cls[i] : pick(cls)); o.price = candPrice(o); return o; });
 }
 
-function avail(o) { const now = gnow(); return !o.busy && !(o.hurt > now) && !(o.rest > now) && !o.exh; }
+function avail(o) { const now = gnow(); return !o.busy && !o.off && !(o.hurt > now) && !(o.rest > now) && !o.exh; }
 function eff(o, type) {
   const w = SKW[type];
   let s = 0;
@@ -2379,7 +2389,7 @@ function queueEvent(kind, o, b, extra = {}) {
   const e = {id: uid(), kind, oid: o ? o.id : null, bid: b ? b.id : null, t0: gnow(), ...extra};
   e.text = EV[kind].text(o, b, e);
   S.events.push(e);
-  toast(EV[kind].narr ? `📋 ${EV[kind].title}${o ? ': ' + o.name : ''}` : `💬 ${o.name} просит разговора`);
+  if (!(onShift() && !EV[kind].city)) toast(EV[kind].narr ? `📋 ${EV[kind].title}${o ? ': ' + o.name : ''}` : `💬 ${o.name} просит разговора`);
 }
 function ambientEvent() {
   const opts = [];
@@ -2419,10 +2429,6 @@ function staffTick(now, dt) {
     if (o.mor < 15 && !S.events.some(e => e.kind === 'quit' && e.oid === o.id)) { queueEvent('quit', o); ch = true; }
   }
   normalizeStaff();
-  if (now >= S.nextPay) { payday(); S.nextPay = now + 60000; normalizeStaff(); ch = true; }
-  if (now >= S.nextEvent) { ambientEvent(); S.nextEvent = now + rint(40, 70) * 1000; ch = true; }
-  if ((S.dirty || 0) >= 2 && !S.events.some(e => e.kind === 'probe')) { queueEvent('probe', null); ch = true; }
-  if (now >= S.candT) { S.cands = genCands(); S.candT = now + 120000; ch = true; }
   return ch;
 }
 
@@ -2612,7 +2618,8 @@ const crimeAdd = (d, v) => { if (d && S.city.crime[d] !== undefined) S.city.crim
 const avgCrime = () => { const v = Object.values(S.city.crime); return v.reduce((a, x) => a + x, 0) / v.length; };
 const crimeCol = c => c >= 65 ? '#ff4d5e' : c >= 40 ? '#f2c14e' : '#3ddc97';
 const relCityWord = r => r >= 80 ? 'в фаворе' : r >= 60 ? 'хорошие' : r >= 40 ? 'рабочие' : r >= 20 ? 'натянутые' : 'враждебные';
-const grantAmount = () => Math.round((150 + 100 * hq()) * (.5 + S.city.rel / 100) * courseOf().budget / 10) * 10;
+/* бюджет платится за смену и пропорционален её длине: те же деньги в минуту, что и раньше */
+const grantAmount = (len = S.shift ? S.shift.len : (S.shiftPref || {len: 5}).len) => Math.round((150 + 100 * hq()) * (.5 + S.city.rel / 100) * courseOf().budget * len / 2 / 10) * 10;
 function succRate() { let c = 0, k = 0; for (const o of S.officers) { c += o.st.calls; k += o.st.ok; } return c ? k / c : .5; }
 function crimeLoc() {
   let l = randLoc();
@@ -2625,18 +2632,18 @@ function genOrder(now, force) {
   const k = force || pick(['crime', 'crime', 'calls', 'visit'].concat(S.officers.length < capOff() ? ['staff'] : []));
   const o = {id: uid(), kind: k, dist: d, state: 'offer', offerEnd: now + 60000, reward: Math.round((250 + 120 * hq()) / 10) * 10,
     relW: 12, relL: Math.round(10 * (C.mayor.course === 'hard' ? 1.5 : 1)), prog: 0};
-  if (k === 'crime') { o.target = Math.max(10, Math.round(C.crime[d] - 20)); o.dur = 240; o.title = `Снизить преступность: ${d}`; o.text = `Жители района «${d}» жалуются мэру. Снизить преступность до ${o.target}%.`; }
-  if (k === 'calls') { o.need = 2 + Math.floor(hq() / 2); o.dur = 210; o.title = `Раскрываемость: ${d}`; o.text = `Успешно отработать ${o.need} вызова в районе «${d}».`; }
-  if (k === 'visit') { o.dur = 150; o.title = `Визит делегации: ${d}`; o.text = `В район «${d}» приезжает делегация. Пока идёт визит — ни одного проваленного или брошенного вызова там.`; }
-  if (k === 'staff') { o.need = S.officers.length + 1; o.dur = 200; o.title = 'Больше полиции на улицах'; o.text = `Мэрия требует усилить штат участка до ${o.need} человек.`; }
+  if (k === 'crime') { o.target = Math.max(10, Math.round(C.crime[d] - 20)); o.days = 2; o.title = `Снизить преступность: ${d}`; o.text = `Жители района «${d}» жалуются мэру. Снизить преступность до ${o.target}%.`; }
+  if (k === 'calls') { o.need = 2 + Math.floor(hq() / 2); o.days = 1; o.title = `Раскрываемость: ${d}`; o.text = `Успешно отработать ${o.need} вызова в районе «${d}».`; }
+  if (k === 'visit') { o.days = 1; o.title = `Визит делегации: ${d}`; o.text = `В район «${d}» приезжает делегация. Пока идёт визит — ни одного проваленного или брошенного вызова там.`; }
+  if (k === 'staff') { o.need = S.officers.length + 1; o.days = 2; o.title = 'Больше полиции на улицах'; o.text = `Мэрия требует усилить штат участка до ${o.need} человек.`; }
   return o;
 }
-function orderAccept(o) { o.state = 'active'; o.end = gnow() + o.dur * 1000; toast(`Поручение принято: ${o.title}`); }
+function orderAccept(o) { o.state = 'active'; o.endDay = S.day + (o.days || 1) - 1; toast(`Поручение принято: ${o.title}`); }
 function orderDone(o, ok) {
   o.state = 'done';
   if (ok) { S.money += o.reward; cityRel(o.relW); S.rep += 2; }
   else { cityRel(-o.relL); S.rep = Math.max(0, S.rep - 2); }
-  S.reports.push({kind: 'info', label: 'Поручение мэрии', ok, title: ok ? 'Поручение выполнено' : 'Поручение провалено', text: o.title + (ok ? `. Мэрия довольна: +${fmt(o.reward)} ₽.` : '. Мэр недоволен работой участка.'), rep: ok ? 2 : -2});
+  pushReport({kind: 'info', label: 'Поручение мэрии', ok, title: ok ? 'Поручение выполнено' : 'Поручение провалено', text: o.title + (ok ? `. Мэрия довольна: +${fmt(o.reward)} ₽.` : '. Мэр недоволен работой участка.'), rep: ok ? 2 : -2});
 }
 function orderFailIn(d) { for (const o of S.city.orders) if (o.state === 'active' && o.kind === 'visit' && o.dist === d) orderDone(o, false); }
 function cityOnResolve(m, ok) {
@@ -2658,7 +2665,7 @@ function electionResult() {
   S.reports.push({kind: 'info', label: 'Выборы мэра', ok: E.sup === null || E.sup === win,
     title: win === 0 ? `${m.name} остаётся мэром` : `Новый мэр: ${m.name}`,
     text: `Курс мэрии — «${co.n}». ${co.d}` + (E.sup === null ? '' : E.sup === win ? ' Ваш кандидат победил: мэрия к вам благосклонна.' : ' Вы поддержали проигравшего: отношения с мэрией испорчены.'), rep: 0});
-  Object.assign(E, {phase: 'none', next: gnow() + 600000, cands: null, sup: null, push: 0});
+  Object.assign(E, {phase: 'none', day: S.day + 5, cands: null, sup: null, push: 0});
 }
 function cityTick(now, dt) {
   const C = S.city, E = C.elect;
@@ -2666,26 +2673,8 @@ function cityTick(now, dt) {
   for (const k in C.crime) C.crime[k] = clamp(C.crime[k] + dt * .01 * (C.mayor.course === 'hard' ? .8 : 1), 0, 100);
   C.heat = Math.max(0, C.heat - dt * .02);
   if (avgCrime() > 60) cityRel(-dt * .01);
-  if (now >= C.nextGrant) { const g = grantAmount(); S.money += g; C.nextGrant = now + 120000; toast(`Мэрия перечислила бюджет: +${fmt(g)} ₽`); ch = true; }
-  if (now >= C.nextOrder) {
-    if (C.orders.length < 3) { C.orders.push(genOrder(now)); toast('📜 Мэрия прислала поручение'); }
-    C.nextOrder = now + rint(120, 180) * 1000; ch = true;
-  }
-  for (const o of C.orders) {
-    if (o.state === 'offer' && now >= o.offerEnd) { o.state = 'gone'; cityRel(-4); toast('Поручение мэрии осталось без ответа. Отношения −4'); ch = true; }
-    if (o.state !== 'active') continue;
-    if ((o.kind === 'crime' && C.crime[o.dist] <= o.target) || (o.kind === 'calls' && o.prog >= o.need) || (o.kind === 'staff' && S.officers.length >= o.need)) { orderDone(o, true); ch = true; }
-    else if (now >= o.end) { orderDone(o, o.kind === 'visit'); ch = true; }
-  }
+  for (const o of C.orders) if (o.state === 'active' && ((o.kind === 'crime' && C.crime[o.dist] <= o.target) || (o.kind === 'calls' && o.prog >= o.need) || (o.kind === 'staff' && S.officers.length >= o.need))) { orderDone(o, true); ch = true; }
   C.orders = C.orders.filter(o => o.state === 'offer' || o.state === 'active');
-  if (now >= C.nextPol) { polEvent(); C.nextPol = now + rint(100, 160) * 1000; ch = true; }
-  if (C.heat >= 60 && Math.random() < dt * C.heat / 10000) { queueEvent('scandal', null); ch = true; }
-  if (E.phase === 'none' && now >= E.next - 90000) {
-    E.phase = 'campaign'; E.sup = null; E.push = 0;
-    E.cands = [C.mayor, mkMayor(pick(Object.keys(COURSE).filter(k => k !== C.mayor.course)))];
-    toast('🗳 Началась кампания по выборам мэра'); ch = true;
-  }
-  if (E.phase === 'campaign' && now >= E.next) { electionResult(); ch = true; }
   return ch;
 }
 const NEGO = [
@@ -2695,8 +2684,8 @@ const NEGO = [
 ];
 function negotiate(i) {
   const C = S.city, n = NEGO[i], now = gnow();
-  if (C.negoCd > now) return;
-  C.negoCd = now + 150000;
+  if (C.negoDay === S.day) return;
+  C.negoDay = S.day;
   const amt = Math.round((200 + 100 * hq()) * n.win / 10) * 10, ok = Math.random() < clamp(n.ch(), .05, .9);
   let text;
   if (ok) {
@@ -2783,17 +2772,17 @@ Object.assign(EV, {
 
 function vMayor() {
   const C = S.city, M = C.mayor, co = COURSE[M.course], E = C.elect, now = gnow();
-  let h = `<div class="sec-head"><h2>Мэрия</h2><span class="muted">транш через <span data-end="${C.nextGrant}"></span></span></div>
+  let h = `<div class="sec-head"><h2>Мэрия</h2><span class="muted">бюджет — после каждой смены</span></div>
     <div class="card mayor"><img class="por xl" src="${portrait(M)}" alt=""><div class="info"><small class="muted">Мэр города</small><b class="mname">${M.name}</b>
     <span class="chip" style="--c:${co.col}">${co.n}</span><small>${co.d}</small></div></div>
     <div class="kv"><span>Отношения с мэрией</span><b>${relCityWord(C.rel)} · ${Math.round(C.rel)}</b></div><span class="bigbar"><i style="width:${C.rel}%"></i></span>
-    <div class="kv"><span>Следующий транш бюджета</span><b>≈ ${fmt(grantAmount())} ₽</b></div>
+    <div class="kv"><span>Бюджет за следующую смену</span><b>≈ ${fmt(grantAmount())} ₽</b></div>
     <div class="kv"><span>Риск скандала</span><b class="${C.heat >= 60 ? 'bad' : ''}">${Math.round(C.heat)}%</b></div>
-    <button type="button" class="btn wide" style="margin-top:8px" data-nego ${C.negoCd > now ? 'disabled' : ''}>💼 Выбить доп. финансирование${C.negoCd > now ? ' · через <span data-end="' + C.negoCd + '"></span>' : ''}</button>`;
+    <button type="button" class="btn wide" style="margin-top:8px" data-nego ${C.negoDay === S.day ? 'disabled' : ''}>💼 Выбить доп. финансирование${C.negoDay === S.day ? ' · сегодня уже ходили' : ''}</button>`;
   const ce = S.events.filter(e => EV[e.kind].city);
   if (ce.length) h += '<h3 class="sub">Приёмная</h3><div class="list">' + ce.map(e => `<button type="button" class="evc" data-ev="${e.id}">${e.npc ? `<img class="por" src="${portrait(e.npc)}" alt="">` : '<span class="por evx">📰</span>'}<span class="info"><b>${EV[e.kind].title}</b><small>${esc(e.text)}</small></span><span class="st busy">Принять</span></button>`).join('') + '</div>';
   h += '<h3 class="sub">Поручения мэрии</h3>';
-  if (!C.orders.length) h += `<p class="muted">Поручений нет. Следующее придёт через <span data-end="${C.nextOrder}"></span>.</p>`;
+  if (!C.orders.length) h += `<p class="muted">Поручений нет. Новые мэрия присылает после смен.</p>`;
   h += '<div class="list">';
   for (const o of C.orders) {
     let prog = '';
@@ -2804,17 +2793,17 @@ function vMayor() {
       if (o.kind === 'staff') prog = `Штат ${S.officers.length} из ${o.need}`;
     }
     h += `<div class="card order"><div class="call-top"><span class="chip" style="--c:var(--gold)">${ORD_N[o.kind]}</span>${o.state === 'active' ? '<span class="chip" style="--c:var(--green)">в работе</span>' : ''}
-      <span class="exp">${o.state === 'offer' ? 'ответить до' : 'срок'} <span data-end="${o.state === 'offer' ? o.offerEnd : o.end}"></span></span></div>
-      <h3>${o.title}</h3><p class="muted" style="margin:0 0 6px">${o.text}${o.state === 'offer' ? ` Срок — ${fmtT(o.dur)}.` : ''}</p>${prog ? `<p class="syn">${prog}</p>` : ''}
+      <span class="exp">${o.state === 'offer' ? 'ответить до начала смены' : o.endDay <= S.day ? 'срок: до конца ближайшей смены' : `срок: до конца смены дня ${o.endDay}`}</span></div>
+      <h3>${o.title}</h3><p class="muted" style="margin:0 0 6px">${o.text}${o.state === 'offer' ? ` Срок — ${o.days === 1 ? 'одна смена' : o.days + ' смены'}.` : ''}</p>${prog ? `<p class="syn">${prog}</p>` : ''}
       <div class="kv"><span>Награда</span><b>+${fmt(o.reward)} ₽ · отношения +${o.relW} · ★ +2</b></div><div class="kv"><span>За провал</span><b class="bad">отношения −${o.relL} · ★ −2</b></div>
       ${o.state === 'offer' ? `<div class="row"><button type="button" class="btn" data-ord="no:${o.id}">Отказаться</button><button type="button" class="btn primary grow" data-ord="yes:${o.id}">Взяться</button></div>` : ''}</div>`;
   }
   h += '</div><h3 class="sub">Преступность по районам</h3><div class="dists">';
   for (const d of Object.keys(C.crime).sort((a, b) => C.crime[b] - C.crime[a])) h += `<div class="dist"><span>${d}</span><span class="cbar"><i style="width:${C.crime[d]}%;background:${crimeCol(C.crime[d])}"></i></span><b>${Math.round(C.crime[d])}%</b></div>`;
   h += '</div><p class="muted">Успешные выезды снижают преступность в районе, провалы и брошенные вызовы — повышают. Чем выше преступность, тем чаще оттуда звонят и тем хуже к вам мэрия.</p><h3 class="sub">Выборы мэра</h3>';
-  if (E.phase === 'none') h += `<p class="muted">Следующие выборы через <span data-end="${E.next}"></span>. Кампания начнётся за полторы минуты до голосования.</p>`;
+  if (E.phase === 'none') h += `<p class="muted">Следующие выборы — в день ${E.day}, через ${E.day - S.day} ${plural(E.day - S.day, 'смену', 'смены', 'смен')}. Кампания начнётся утром того дня.</p>`;
   else {
-    h += `<p class="muted">Голосование через <span data-end="${E.next}"></span>. Поддержка полиции влияет на исход — и на то, как новый мэр будет к вам относиться.</p><div class="list">`;
+    h += `<p class="muted">Голосование — в конце сегодняшней смены. Поддержка полиции влияет на исход — и на то, как новый мэр будет к вам относиться.</p><div class="list">`;
     E.cands.forEach((m, i) => {
       const c2 = COURSE[m.course];
       h += `<div class="card cand2${E.sup === i ? ' on' : ''}"><img class="por" src="${portrait(m)}" alt=""><div class="info"><b>${m.name}${i === 0 ? ' · действующий мэр' : ''}</b>
@@ -3040,13 +3029,174 @@ function vHQ() {
   return h;
 }
 
+/* ---------- смены: рабочий день и штаб ---------- */
+/* Смена — звонки, выезды, налоги, время идёт. Штаб между сменами — время стоит:
+   разговоры с сотрудниками, мэрия, стройка, найм. Ночью люди отдыхают, стройка доделывается. */
+const SHIFT_LEN = [
+  {m: 3, n: 'Короткая', d: 'Меньше вызовов и налогов, люди почти не устают'},
+  {m: 5, n: 'Обычная', d: 'Привычный ритм участка'},
+  {m: 8, n: 'Длинная', d: 'Больше налогов и вызовов, но кто работал — вымотается и загрустит'}
+];
+const onShift = () => S.mode === 'shift' || S.mode === 'closing';
+let muteToasts = false, shiftEndArm = false;
+function initShifts() {
+  S.mode = 'peace'; S.day = S.day || 1; S.shift = null; S.shiftPref = S.shiftPref || {len: 5, off: []};
+  const E = S.city.elect;
+  if (!E.day) Object.assign(E, {day: S.day + 5, phase: 'none', cands: null, sup: null, push: 0});
+  for (const o of S.city.orders) { if (o.state === 'active' && !o.endDay) o.endDay = S.day + 1; if (!o.days) o.days = 1; }
+  S.city.negoDay = S.city.negoDay || 0;
+  S.officers.forEach(o => { o.off = false; });
+  S.call = null;
+}
+function reportLine(r) {
+  if (r.kind === 'call') return `${r.ok ? '✔' : '✖'} Звонок: ${r.title}${r.rep ? ` (${r.rep > 0 ? '+' : '−'}${Math.abs(r.rep)} ★)` : ''}`;
+  if (r.kind === 'info') return `${r.ok ? '✔' : '✖'} ${r.title}`;
+  if (r.fake) return `✖ ${r.name} — ${r.title.toLowerCase()}`;
+  return `${r.ok ? '✔' : '✖'} ${r.name}${r.ok ? ` · +${fmt(r.money)} ₽` : ' · провал'}`;
+}
+/* во время смены рапорты не открываются окнами: короткое уведомление + журнал смены */
+function pushReport(r) {
+  if (onShift() && S.shift) { S.shift.log.push(r); toast(reportLine(r)); }
+  else S.reports.push(r);
+}
+const shiftPay = len => Math.round((S.officers.reduce((a, o) => a + sal(o), 0) + astSal()) * len);
+function startShift() {
+  const P = S.shiftPref, roster = S.officers.filter(o => !P.off.includes(o.id)).map(o => o.id);
+  if (!roster.length) return toast('Некому выходить на смену — отметь хотя бы одного сотрудника');
+  const now = gnow(), C = S.city;
+  for (const o of C.orders) if (o.state === 'offer') { o.state = 'gone'; cityRel(-4); toast(`Мэрия: предложение «${o.title}» осталось без ответа. Отношения −4`); }
+  C.orders = C.orders.filter(o => o.state === 'active');
+  S.mode = 'shift';
+  S.shift = {len: P.len, start: now, end: now + P.len * 60000, roster, money0: S.money, rep0: S.rep, crime0: avgCrime(), log: [], missed: 0};
+  S.officers.forEach(o => { o.off = !roster.includes(o.id); });
+  S.nextCall = now + 4000;
+  if (!S.speed) S.speed = S.prevSpeed || 2;
+  sheetCtx = null; $('#sheetBg').hidden = true;
+  toast(`🚨 Смена ${S.day} началась`);
+  render(); save();
+}
+function closeShift() {
+  S.mode = 'closing'; shiftEndArm = false;
+  if (S.call && S.call.state === 'ring') S.call = null;
+  for (const m of [...S.missions]) if (!m.start) {
+    S.missions = S.missions.filter(x => x !== m);
+    if (!m.fake) { S.shift.missed++; S.rep = Math.max(0, S.rep - 1); cityOnExpire(m); }
+  }
+  toast(S.shift.missed ? `Смена закончилась. Брошено вызовов: ${S.shift.missed}, доверие −${S.shift.missed}` : 'Смена закончилась — ждём возвращения нарядов');
+}
+function endShift() {
+  const now = gnow(), sh = S.shift, C = S.city, E = C.elect;
+  muteToasts = true;
+  for (const o of C.orders) if (o.state === 'active' && o.endDay <= S.day) {
+    orderDone(o, o.kind === 'crime' ? C.crime[o.dist] <= o.target : o.kind === 'calls' ? o.prog >= o.need : o.kind === 'staff' ? S.officers.length >= o.need : !o.failed);
+  }
+  C.orders = C.orders.filter(o => o.state === 'active');
+  const earned = Math.round(S.money - sh.money0), repD = S.rep - sh.rep0, pay = shiftPay(sh.len), paid = S.money >= pay;
+  if (paid) S.money -= pay; else S.officers.forEach(o => { o.mor -= 15; });
+  const grant = grantAmount(sh.len);
+  S.money += grant;
+  const log = sh.log, mis = log.filter(r => !r.kind), calls = log.filter(r => r.kind === 'call'), ups = [], hurts = [];
+  for (const r of mis) for (const l of r.lines || []) { if (l.up) ups.push(`${l.name} → ур. ${l.lv}`); if (l.hurt) hurts.push(l.name); }
+  S.reports.push({kind: 'shift', day: S.day, len: sh.len, earned, grant, pay, paid, repD, crime0: sh.crime0, crime1: avgCrime(),
+    missions: mis.length, okM: mis.filter(r => r.ok).length, calls: calls.length, badCalls: calls.filter(r => !r.ok).length, missed: sh.missed,
+    lines: log.slice(-12).map(reportLine), ups, hurts});
+  if (E.phase === 'campaign' && S.day >= E.day) electionResult();
+  // ночь: стройка доделывается, люди отдыхают и выздоравливают
+  S.plots.forEach(p => { if (p && p.build) { const wasNew = p.lv === 0; p.lv = p.build.to; delete p.build; if (wasNew) p.t = now; } });
+  for (const o of S.officers) {
+    const worked = sh.roster.includes(o.id);
+    o.fat -= worked ? 45 : 80; o.exh = false; o.off = false; o.hurt = 0; o.busy = null;
+    o.mor += worked ? (sh.len >= 8 ? -4 : 0) : 5;
+    if (o.rest) o.rest = now - 1;
+  }
+  staffTick(now, 0);
+  C.heat = Math.max(0, C.heat - 8);
+  // утро следующего дня
+  S.day++;
+  S.mode = 'peace'; S.shift = null; S.call = null; S.missions = [];
+  if (E.phase === 'none' && S.day >= E.day) { E.phase = 'campaign'; E.sup = null; E.push = 0; E.cands = [C.mayor, mkMayor(pick(Object.keys(COURSE).filter(k => k !== C.mayor.course)))]; }
+  const nEv = rint(1, 2) + (S.officers.length >= 5 ? 1 : 0);
+  for (let i = 0; i < nEv; i++) ambientEvent();
+  if (astOn('hr')) for (const e of [...S.events]) if (HR_KINDS.includes(e.kind)) hrHandle(e);
+  if ((S.dirty || 0) >= 2) queueEvent('probe', null);
+  if (Math.random() < .65) polEvent();
+  if (C.heat >= 60 && Math.random() < C.heat / 120) queueEvent('scandal', null);
+  if (C.orders.length < 2 && Math.random() < .7) C.orders.push(genOrder(now));
+  S.cands = genCands();
+  normalizeStaff();
+  muteToasts = false;
+  $('#toasts').innerHTML = '';
+  sheetCtx = null; $('#sheetBg').hidden = true;
+  render(); save();
+}
+function sheetBrief() {
+  const P = S.shiftPref, C = S.city, L = SHIFT_LEN.find(x => x.m === P.len) || SHIFT_LEN[1];
+  const hot = Object.keys(C.crime).sort((a, b) => C.crime[b] - C.crime[a]).slice(0, 2);
+  const act = C.orders.filter(o => o.state === 'active'), offers = C.orders.filter(o => o.state === 'offer');
+  const onDuty = S.officers.filter(o => !P.off.includes(o.id)), staffEv = S.events.filter(e => !EV[e.kind].city).length;
+  let h = head(`Смена · день ${S.day}`, 'Брифинг перед сменой');
+  h += `<div class="kv"><span>Горячие районы</span><b>${hot.map(d => `${d} ${Math.round(C.crime[d])}%`).join(' · ')}</b></div>`;
+  if (act.length) h += `<div class="kv"><span>Поручения мэрии</span><b>${act.map(o => esc(o.title)).join('; ')}</b></div>`;
+  if (offers.length) h += '<p class="why">📜 Предложение мэрии без ответа: если начать смену, это будет отказом (отношения −4).</p>';
+  if (C.elect.phase === 'campaign') h += '<p class="why">🗳 Сегодня выборы мэра — голосование в конце смены.</p>';
+  if (staffEv) h += `<p class="muted" style="margin:6px 0 0">💬 Сотрудники ждут разговора (${staffEv}) — можно и после смены.</p>`;
+  h += `<h3 class="sub">Длительность</h3><div class="seg">${SHIFT_LEN.map(x => `<button type="button" class="${P.len === x.m ? 'on' : ''}" data-shiftlen="${x.m}">${x.n} · ${x.m} мин</button>`).join('')}</div>
+    <p class="muted" style="margin:6px 0 0">${L.d}. Минуты игровые — темп можно менять во время смены.</p>
+    <h3 class="sub">На смену выходят · ${onDuty.length} из ${S.officers.length}</h3><p class="muted" style="margin:-4px 0 8px">Кто остаётся дома, лучше отдохнёт и поднимет настроение. Зарплату получают все.</p><div class="list">`;
+  for (const o of S.officers) {
+    const on = !P.off.includes(o.id);
+    h += `<button type="button" class="pick${on ? ' on' : ''}" data-roster="${o.id}" aria-pressed="${on}"><img class="por" src="${portrait(o)}" alt="">
+      <span class="info"><b>${o.name}</b><small>${OR[o.rank]} · ${CLS[o.cls].name} · усталость ${Math.round(o.fat)}% · настроение ${Math.round(o.mor)}</small>
+      <span class="meters"><span class="mt"><i class="mor" style="width:${o.mor}%"></i></span><span class="mt"><i class="fat" style="width:${o.fat}%"></i></span></span></span>
+      <span class="st ${on ? 'free' : 'rest'}">${on ? 'на смене' : 'выходной'}</span></button>`;
+  }
+  h += `</div><div class="kv" style="margin-top:8px"><span>Зарплаты после смены</span><b>≈ ${fmt(shiftPay(P.len))} ₽</b></div>
+    <div class="kv"><span>Бюджет мэрии после смены</span><b>≈ ${fmt(grantAmount())} ₽</b></div>
+    <button type="button" class="btn primary wide" style="margin-top:12px" data-shiftgo ${onDuty.length ? '' : 'disabled'}>▶ Заступить на смену</button>`;
+  return h;
+}
+function sheetShift(r) {
+  const sg = v => (v < 0 ? '−' : '+') + fmt(Math.abs(v)), net = r.earned + r.grant - (r.paid ? r.pay : 0);
+  const staffEv = S.events.filter(e => !EV[e.kind].city).length, cityEv = S.events.filter(e => EV[e.kind].city).length, offers = S.city.orders.filter(o => o.state === 'offer').length;
+  const good = r.okM * 2 >= r.missions && r.repD >= 0;
+  const morning = [staffEv ? `💬 ${staffEv} ${plural(staffEv, 'разговор', 'разговора', 'разговоров')} с сотрудниками` : '', cityEv ? `🏛️ приёмная мэрии: ${cityEv}` : '', offers ? '📜 новое предложение мэрии' : '', S.city.elect.phase === 'campaign' ? '🗳 сегодня выборы мэра' : ''].filter(Boolean);
+  return `<div class="report${good ? '' : ' fail'}"><small>Итоги смены · день ${r.day}</small><h2>${good ? 'Смена сдана' : 'Тяжёлая смена'}</h2>
+    <p>${r.len} мин · выездов ${r.missions}, успешных ${r.okM} · звонков решено ${r.calls}${r.badCalls ? `, с ошибкой ${r.badCalls}` : ''}${r.missed ? ` · брошено вызовов ${r.missed}` : ''}</p></div>
+    <div class="kv"><span>Касса за смену (налоги, награды, траты)</span><b>${sg(r.earned)} ₽</b></div>
+    <div class="kv"><span>Бюджет от мэрии</span><b>+${fmt(r.grant)} ₽</b></div>
+    <div class="kv"><span>Зарплаты</span><b class="${r.paid ? '' : 'bad'}">${r.paid ? '−' + fmt(r.pay) + ' ₽' : 'не выплачены — не хватило денег!'}</b></div>
+    <div class="kv"><span>Итого за день</span><b class="${net >= 0 ? 'good' : 'bad'}">${sg(net)} ₽</b></div>
+    <div class="kv"><span>Доверие горожан</span><b>${r.repD < 0 ? '−' : '+'}${Math.abs(r.repD)} ★</b></div>
+    <div class="kv"><span>Преступность в городе</span><b>${Math.round(r.crime1)}% (${r.crime1 >= r.crime0 ? '+' : '−'}${Math.abs(Math.round(r.crime1 - r.crime0))})</b></div>
+    ${r.lines.length ? `<h3 class="sub">Журнал смены</h3><div class="alog">${r.lines.map(l => `<div class="al ${l.startsWith('✔') ? 'ok' : l.startsWith('✖') ? 'bad' : ''}"><span>${esc(l)}</span></div>`).join('')}</div>` : ''}
+    ${r.ups.length ? `<p class="syn" style="margin-top:8px">⬆ Новые уровни: ${esc(r.ups.join(', '))}</p>` : ''}${r.hurts.length ? `<p class="why">🩹 Ранены: ${esc(r.hurts.join(', '))} — за ночь подлечились</p>` : ''}
+    <h3 class="sub">Утро в штабе</h3><p class="muted" style="margin:0">${morning.join(' · ') || 'Всё спокойно. Можно готовиться к следующей смене.'}</p>
+    <button type="button" class="btn primary wide" style="margin-top:14px" data-ack>В штаб</button>`;
+}
+function updateMode() {
+  const sb = $('#speedbar'), btn = $('#shiftBtn'), peace = S.mode === 'peace';
+  sb.classList.toggle('peace', peace);
+  sb.classList.toggle('paused', !peace && !S.speed);
+  if (peace) {
+    $('#modeTxt').textContent = `🌙 Штаб · день ${S.day}`; $('#spdTxt').textContent = 'время стоит';
+    btn.hidden = false; btn.className = 'btn primary sm shiftbtn'; btn.textContent = '▶ Начать смену';
+  } else if (S.mode === 'closing') {
+    $('#modeTxt').textContent = `🌆 Сдача смены ${S.day}`; $('#spdTxt').textContent = `наряды в пути: ${S.missions.filter(m => m.start).length}`;
+    btn.hidden = true;
+  } else {
+    $('#modeTxt').textContent = `🚨 Смена ${S.day}`; $('#spdTxt').textContent = `${fmtT((S.shift.end - gnow()) / 1000)} · ${SPEED_LBL[S.speed]}`;
+    btn.hidden = false; btn.className = 'btn sm shiftbtn'; btn.textContent = shiftEndArm ? 'Точно сдать?' : 'Сдать смену';
+  }
+}
+
 /* ---------- экраны ---------- */
 function vCity() {
   const un = unlocked(), bp = S.plots.find(p => p && p.build);
   let h = '';
   if (S.tip) h += `<div class="card tip"><h3>Добро пожаловать, начальник</h3><ol>
-    <li>Забирай налоги: коснись бизнес-квартала с монеткой.</li>
-    <li>Отвечай на звонки 102: расспроси человека и реши — наряд, скорая, МЧС или это шутник.</li>
+    <li>Нажми «▶ Начать смену» наверху — пойдут звонки на 102 и налоги.</li>
+    <li>На смене отвечай на звонки: расспроси человека и реши — наряд, скорая, МЧС или это шутник.</li>
+    <li>После смены — итоги и штаб: время стоит, можно поговорить с сотрудниками, заглянуть в мэрию, строить и нанимать.</li>
     <li>Копи доверие ★ и улучшай Участок: откроются новые здания и спецназ.</li>
     <li>Дел станет много — найми помощников в штаб (вкладка «Состав») и держи хорошие отношения с мэрией.</li></ol>
     <button class="btn" data-tipoff>Понятно</button></div>`;
@@ -3067,7 +3217,7 @@ function vStaff() {
   const cap = capOff(), pay = S.officers.reduce((a, o) => a + sal(o), 0) + astSal(), sev = S.events.filter(e => !EV[e.kind].city);
   let h = `<div class="sec-head"><h2>Личный состав</h2><span class="muted">${S.officers.length} из ${cap} мест</span></div>
     <div class="staff-intro"><div><b>${S.officers.filter(avail).length}</b><span>готовы</span></div><div><b>${S.officers.filter(o => o.busy).length}</b><span>на выезде</span></div><div><b>${fmt(pay)} ₽</b><span>зарплата/мин</span></div></div>
-    <p class="muted" style="margin:-8px 0 10px">Следующая выплата через <span data-end="${S.nextPay}"></span> · нажми на сотрудника, чтобы открыть досье</p>`;
+    <p class="muted" style="margin:-8px 0 10px">Зарплаты выплачиваются после каждой смены · нажми на сотрудника, чтобы открыть досье</p>`;
   h += '<h3 class="sub">Сотрудники</h3><div class="list">';
   for (let i = 0; i < S.officers.length; i++) {
     const o = S.officers[i], st = statusOf(o), c = CLS[o.cls], skill = bestSkill(o);
@@ -3136,6 +3286,7 @@ function vCalls() {
   let h = `<div class="sec-head"><h2>Дежурная часть</h2>${status}</div>
     <div class="dmapwrap" id="dmapSlot"></div>
     <p class="maphint"><b style="color:${MT.patrol.color}">●</b> патруль · <b style="color:${MT.invest.color}">●</b> расследование · <b style="color:${MT.assault.color}">●</b> штурм · пунктир — примерный адрес</p>`;
+  if (S.mode === 'peace') h += `<div class="card peacecard"><b>🌙 Участок между сменами</b><span class="muted">Звонки на 102 сейчас принимает соседний участок. Начни смену, чтобы работать.</span><button type="button" class="btn primary" data-shiftbtn>▶ Начать смену</button></div>`;
   if (S.call && S.call.state === 'talk' && !sheetCtx) h += '<button type="button" class="btn primary wide" style="margin-top:10px" data-resume>Вернуться к звонку</button>';
   h += `<h3 class="sub">Ждут наряда · свободно ${S.officers.filter(avail).length} сотр.</h3>`;
   h += av.length ? '<div class="list">' + av.map(callCard).join('') + '</div>'
@@ -3220,6 +3371,7 @@ function sheetRadio(m) {
 
 function sheetReport(r) {
   const sg = v => (v < 0 ? '−' : '+') + Math.abs(v);
+  if (r.kind === 'shift') return sheetShift(r);
   if (r.kind === 'call' || r.kind === 'info') return `<div class="report${r.ok ? '' : ' fail'}"><small>${r.label || 'Итог звонка'}</small><h2>${r.title}</h2><p>${esc(r.text)}</p></div>
     ${r.rep ? `<div class="kv"><span>Доверие</span><b>${sg(r.rep)} ★</b></div>` : ''}
     <button type="button" class="btn primary wide" style="margin-top:14px" data-ack>Принято</button>`;
@@ -3245,6 +3397,7 @@ function renderSheet() {
     h = sheetDos(o);
   }
   else if (sheetCtx.kind === 'nego') h = sheetNego();
+  else if (sheetCtx.kind === 'brief') { if (S.mode !== 'peace') { sheetCtx = null; $('#sheetBg').hidden = true; return; } h = sheetBrief(); }
   else if (sheetCtx.kind === 'radio') h = sheetRadio(S.missions.find(x => x.id === sheetCtx.id));
   else if (sheetCtx.kind === 'rules') { if (!S.ast[sheetCtx.k]) { sheetCtx = null; $('#sheetBg').hidden = true; return; } h = sheetRules(sheetCtx.k); }
   else if (sheetCtx.kind === 'event') {
@@ -3286,8 +3439,7 @@ function updateTop() {
   $('#rank').textContent = rankOf(S.rep);
   const n = S.missions.filter(m => !m.start || m.radioPending).length + (S.call ? 1 : 0), nb = $('#callsN');
   nb.textContent = n; nb.hidden = !n;
-  $('#spdTxt').textContent = SPEED_LBL[S.speed];
-  $('#speedbar').classList.toggle('paused', !S.speed);
+  updateMode();
   document.querySelectorAll('[data-speed]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.speed === S.speed));
   const sn = $('#staffN'), ne = S.events.filter(e => !EV[e.kind].city).length;
   sn.textContent = ne; sn.hidden = !ne;
@@ -3327,6 +3479,16 @@ document.addEventListener('click', e => {
   if (d.tab) { S.tab = d.tab; render(); save(); }
   else if (d.speed !== undefined) setSpeed(+d.speed);
   else if (d.rot) rotateCity(+d.rot);
+  else if ('shiftbtn' in d) {
+    if (S.mode === 'peace') { sheetCtx = {kind: 'brief'}; renderSheet(); }
+    else if (S.mode === 'shift') {
+      if (!shiftEndArm) { shiftEndArm = true; updateMode(); setTimeout(() => { shiftEndArm = false; if (S.mode === 'shift') updateMode(); }, 3000); return; }
+      S.shift.end = gnow(); tick();
+    }
+  }
+  else if (d.shiftlen) { S.shiftPref.len = +d.shiftlen; renderSheet(); save(); }
+  else if (d.roster) { const P = S.shiftPref; P.off = P.off.includes(d.roster) ? P.off.filter(x => x !== d.roster) : [...P.off, d.roster]; renderSheet(); save(); }
+  else if ('shiftgo' in d) startShift();
   else if ('nego' in d) { sheetCtx = {kind: 'nego'}; renderSheet(); }
   else if (d.negopt !== undefined) negotiate(+d.negopt);
   else if (d.ord) {
@@ -3414,6 +3576,7 @@ document.addEventListener('click', e => {
   }
 });
 function setSpeed(i) {
+  if (S.mode === 'peace') return;
   const was = S.speed;
   S.speed = clamp(i, 0, SPEEDS.length - 1);
   if (S.speed) S.prevSpeed = S.speed;
