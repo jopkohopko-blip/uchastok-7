@@ -1,7 +1,7 @@
 // 3D-мир: реальные дома и улицы из OSM, машины нарядов, метки вызовов, слой преступности, день и ночь.
 // Координаты карты: x — восток, y — север (метры). В three.js: x = x, z = −y, высота — y.
 import * as THREE from 'three';
-import {inShape} from './osm.js?v=3';
+import {inShape} from './osm.js?v=4';
 
 const KIND_COL = {res: '#cdbb9e', com: '#b3bcc6', ind: '#a8a08f', pub: '#dccaa6', rel: '#eadcb9', gen: '#c2b9aa'};
 const ROAD_W = {motorway: 16, trunk: 14, primary: 13, secondary: 11, tertiary: 9, unclassified: 7, residential: 7, living_street: 6, service: 4.2, pedestrian: 8};
