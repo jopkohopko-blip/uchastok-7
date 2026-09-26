@@ -38,7 +38,7 @@ export async function createViewer(canvas, opts = {}) {
 
   // ---------------------------------------------------------------- рендер
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', preserveDrawingBuffer: !!opts.preserve });
-  const maxDpr = opts.maxDpr || 2;
+  const maxDpr = opts.maxDpr || 1.5;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr));
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
