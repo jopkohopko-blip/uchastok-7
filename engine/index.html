@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Анатомия гоночного V8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Roboto+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Unbounded:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#0a0c0f;--panel:rgba(15,18,23,.82);--panel-solid:#13171d;--row:rgba(255,255,255,.045);--row-hi:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.09);--line-2:rgba(255,255,255,.17);
+  --ink:#e9ecf0;--ink-2:#a4adb9;--ink-3:#6f7986;
+  --accent:#3b9cff;--accent-2:rgba(59,156,255,.16);--accent-ink:#04111f;
+  --ti:#d4bb8a;--warn:#ff9a3c;--cmp:#9d8cff;
+  --shadow:0 18px 40px rgba(0,0,0,.45);
+  --disp:"Unbounded","Roboto Condensed",system-ui,sans-serif;
+  --cond:"Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --gap:16px;--r:12px;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#e8ebef;--panel:rgba(255,255,255,.86);--panel-solid:#ffffff;--row:rgba(10,25,45,.04);--row-hi:rgba(10,25,45,.08);
+  --line:rgba(10,20,35,.1);--line-2:rgba(10,20,35,.2);
+  --ink:#11151a;--ink-2:#4b5563;--ink-3:#7a8491;
+  --accent:#0b66d6;--accent-2:rgba(11,102,214,.12);--accent-ink:#ffffff;
+  --ti:#8a6a2a;--warn:#d4600a;--cmp:#5b45d6;
+  --shadow:0 18px 40px rgba(40,55,80,.18);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#e8ebef;--panel:rgba(255,255,255,.86);--panel-solid:#ffffff;--row:rgba(10,25,45,.04);--row-hi:rgba(10,25,45,.08);
+    --line:rgba(10,20,35,.1);--line-2:rgba(10,20,35,.2);
+    --ink:#11151a;--ink-2:#4b5563;--ink-3:#7a8491;
+    --accent:#0b66d6;--accent-2:rgba(11,102,214,.12);--accent-ink:#ffffff;
+    --ti:#8a6a2a;--warn:#d4600a;--cmp:#5b45d6;
+    --shadow:0 18px 40px rgba(40,55,80,.18);
+    color-scheme:light;
+  }
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 14px/1.5 var(--body);overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+.glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
+
+/* ---- шапка */
+#head{position:fixed;left:var(--gap);top:calc(var(--gap) + env(safe-area-inset-top,0px));display:flex;align-items:flex-start;gap:14px;z-index:5;pointer-events:none}
+#head .brand{pointer-events:auto}
+.eyebrow{font:600 11px/1.2 var(--cond);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.brand h1{margin:4px 0 0;font:700 30px/1 var(--disp);letter-spacing:-.01em;text-wrap:balance}
+.brand p{margin:6px 0 0;color:var(--ink-2);font-size:13px}
+#modes{display:flex;gap:6px;margin-top:10px}
+.btn.sm{height:30px;padding:0 10px;font-size:12.5px;gap:6px;background:var(--panel);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn.sm.primary{background:var(--accent)}
+#treeBtn{pointer-events:auto;display:none}
+
+/* ---- состав */
+#tree{position:fixed;left:var(--gap);top:150px;bottom:84px;width:300px;display:flex;flex-direction:column;overflow:hidden;z-index:4}
+#tree .top{padding:12px 12px 8px;border-bottom:1px solid var(--line);display:grid;gap:8px}
+.search{display:flex;align-items:center;gap:8px;padding:0 10px;height:34px;border-radius:8px;background:var(--row);border:1px solid var(--line)}
+.search input{flex:1;min-width:0;border:0;background:none;color:var(--ink);font:400 13px var(--body);outline:none}
+.search input::placeholder{color:var(--ink-3)}
+.search svg{flex:none;color:var(--ink-3)}
+#asmList{flex:1;overflow-y:auto;padding:6px 6px 10px;scrollbar-width:thin}
+.asm{border-radius:8px}
+.asm>button{display:grid;grid-template-columns:28px 1fr auto 14px;align-items:center;gap:8px;width:100%;padding:8px 8px;border-radius:8px;text-align:left}
+.asm>button:hover{background:var(--row)}
+.asm.on>button{background:var(--accent-2)}
+.asm .n{font:500 12px var(--mono);color:var(--ti)}
+.asm .t{font:600 14px/1.25 var(--cond);letter-spacing:.01em}
+.asm .c{font:500 11px var(--mono);color:var(--ink-3)}
+.asm .chev{color:var(--ink-3);transition:transform .2s}
+.asm.open .chev{transform:rotate(90deg)}
+.parts{margin:2px 0 8px 36px;display:grid;gap:1px}
+.part{display:grid;grid-template-columns:40px 1fr;gap:6px;align-items:baseline;padding:5px 8px;border-radius:6px;text-align:left;color:var(--ink-2);font-size:13px;line-height:1.3}
+.part:hover{background:var(--row);color:var(--ink)}
+.part.on{background:var(--accent);color:var(--accent-ink)}
+.part.on .n{color:inherit;opacity:.8}
+.part .n{font:500 11px var(--mono);color:var(--ti)}
+.part mark{background:none;color:var(--accent);font-weight:600}
+.part.on mark{color:inherit}
+
+/* ---- карточка */
+#info{position:fixed;right:var(--gap);top:calc(var(--gap) + env(safe-area-inset-top,0px));bottom:88px;width:380px;display:flex;flex-direction:column;overflow:hidden;z-index:4}
+#info .scroll{flex:1;overflow-y:auto;padding:18px 20px 22px;scrollbar-width:thin}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0 0 12px;font-size:12px;color:var(--ink-3)}
+.crumbs button{color:var(--ink-2);border-bottom:1px dotted var(--line-2);line-height:1.2}
+.crumbs button:hover{color:var(--accent);border-color:var(--accent)}
+.crumbs .sep{opacity:.6}
+.card h2{margin:6px 0 4px;font:700 25px/1.12 var(--cond);letter-spacing:-.005em;text-wrap:balance}
+.card h2.big{font:700 34px/1 var(--disp);letter-spacing:-.02em;margin-top:8px}
+.card .kind{color:var(--ink-2);font-size:14px;margin:0 0 12px}
+.card .lead{font-size:14.5px;line-height:1.55;margin:0 0 14px;max-width:62ch}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 16px}
+.chip{display:inline-flex;gap:6px;align-items:baseline;padding:5px 9px;border-radius:999px;border:1px solid var(--line-2);font-size:12px;color:var(--ink-2);max-width:100%}
+.chip b{font-weight:600;color:var(--ink)}
+.sec{margin:18px 0 6px;font:600 11px/1.2 var(--cond);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.card p.body{margin:0 0 4px;line-height:1.58;max-width:64ch}
+dl.spec{display:grid;grid-template-columns:minmax(124px,42%) 1fr;margin:6px 0 0;border-top:1px solid var(--line)}
+dl.spec dt,dl.spec dd{margin:0;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+dl.spec dt{color:var(--ink-2);padding-right:12px;overflow-wrap:anywhere;hyphens:auto}
+dl.spec dd{font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.plist{display:grid;gap:2px;margin:6px 0 0;padding:0;list-style:none}
+.plist button{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:baseline;width:100%;padding:7px 8px;border-radius:7px;text-align:left}
+.plist button:hover{background:var(--row)}
+.plist .n{font:500 12px var(--mono);color:var(--ti)}
+.plist .q{font:500 11px var(--mono);color:var(--ink-3)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line-2);font:500 13px var(--body);color:var(--ink)}
+.btn:hover{background:var(--row-hi)}
+.btn.primary{background:var(--accent);border-color:transparent;color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.note{margin-top:16px;padding:10px 12px;border-radius:8px;background:var(--row);color:var(--ink-3);font-size:12px;line-height:1.5}
+.howto{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.howto li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:13px;color:var(--ink-2);line-height:1.45}
+.howto svg{color:var(--accent);margin-top:2px}
+.pager{display:flex;justify-content:space-between;gap:8px;margin-top:18px}
+.pager .btn{max-width:48%;overflow:hidden}
+.pager .btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---- работа двигателя */
+.cyc{display:grid;gap:10px;margin-top:10px}
+.bank{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bank .lbl{grid-column:1/-1;font:600 11px var(--cond);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.cyl{border-radius:8px;padding:7px 8px;background:var(--row);border:1px solid var(--line);display:grid;gap:3px;min-width:0}
+.cyl b{font:600 13px var(--mono)}
+.cyl span{font-size:11px;line-height:1.2;color:var(--ink-2);min-height:2.4em}
+.cyl i{display:block;height:4px;border-radius:2px;background:var(--line-2)}
+.cyl[data-k="0"] i{background:var(--warn)}.cyl[data-k="1"] i{background:var(--ti)}.cyl[data-k="2"] i{background:var(--accent)}.cyl[data-k="3"] i{background:var(--cmp)}
+.cyl.fire{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn) inset}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:4px;border-radius:2px;display:inline-block}
+.gauge{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font-size:12px;color:var(--ink-2)}
+.gauge b{font:600 20px var(--mono);color:var(--ink)}
+.rpmrow{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--ink-2)}
+.rpmrow span:first-child{margin-right:auto}
+.rpmrow .seg button{font-family:var(--mono);padding:0 8px}
+.rpmrow small{color:var(--ink-3);font:500 11px var(--mono);white-space:nowrap}
+
+/* ---- панель режимов */
+#bar{position:fixed;bottom:calc(var(--gap) + env(safe-area-inset-bottom,0px));left:332px;right:412px;display:flex;justify-content:center;z-index:4;pointer-events:none}
+#bar .glass{pointer-events:auto;display:flex;align-items:center;gap:2px;padding:5px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+#bar .glass::-webkit-scrollbar{display:none}
+.tb{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 9px;border-radius:8px;white-space:nowrap;color:var(--ink-2);font:500 13px var(--body)}
+.tb:hover{background:var(--row-hi);color:var(--ink)}
+.tb[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tb svg{flex:none}
+.sepv{width:1px;height:22px;background:var(--line-2);margin:0 4px;flex:none}
+.views{display:flex;gap:2px}
+.views .tb{padding:0 9px}
+.slider{display:flex;align-items:center;gap:8px;padding:0 6px 0 2px}
+.slider input{width:110px;accent-color:var(--accent)}
+select.sp{height:30px;border-radius:7px;border:1px solid var(--line-2);background:var(--panel-solid);color:var(--ink);font:500 12px var(--mono);padding:0 6px}
+
+#side{position:fixed;right:412px;top:calc(var(--gap) + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:8px;z-index:4}
+#views{display:flex;flex-direction:column;gap:2px;padding:5px}
+.vb{height:30px;padding:0 12px;border-radius:7px;text-align:left;font:500 12.5px var(--body);color:var(--ink-2);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.vb:hover{background:var(--row-hi);color:var(--ink)}
+.vb.on{color:var(--accent)}
+.vb.photo{color:var(--ink)}
+.seph{height:1px;background:var(--line);margin:3px 6px}
+#tools{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:5px}
+.ib{display:grid;place-items:center;height:32px;min-width:32px;border-radius:7px;color:var(--ink-2)}
+.ib:hover{background:var(--row-hi);color:var(--ink)}
+.ib[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.ib.lang{font:600 12px var(--mono);letter-spacing:.04em}
+.seg{display:inline-flex;padding:2px;border-radius:8px;background:var(--row);border:1px solid var(--line)}
+.seg button{height:28px;padding:0 10px;border-radius:6px;font:500 12.5px var(--body);color:var(--ink-2);white-space:nowrap}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--panel-solid);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+#cutPanel{position:fixed;left:332px;right:412px;bottom:calc(var(--gap) + 62px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;z-index:4;pointer-events:none}
+#cutPanel .glass{pointer-events:auto;display:flex;align-items:center;gap:8px;padding:6px 8px}
+#cutPanel input{width:150px}
+
+/* ---- презентация */
+#tour{position:fixed;left:var(--gap);right:412px;bottom:calc(var(--gap) + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;z-index:6;pointer-events:none}
+#tour .glass{pointer-events:auto;width:min(640px,100%);overflow:hidden}
+.tprog{height:3px;background:var(--line)}
+.tprog i{display:block;height:100%;width:0;background:var(--accent)}
+.tbody{padding:14px 18px 4px}
+#tour h3{margin:6px 0 4px;font:700 22px/1.15 var(--cond);text-wrap:balance}
+#tour p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.5;min-height:3em}
+.tctl{display:flex;gap:6px;padding:10px 14px 14px;justify-content:flex-end;flex-wrap:wrap}
+.tctl #tourPrev{margin-right:auto}
+body.touring #tree,body.touring #bar,body.touring #hint,body.touring #modes,body.touring #cutPanel,body.touring #treeBtn{display:none!important}
+
+/* ---- сравнение с фото */
+#photo{position:fixed;left:var(--gap);bottom:calc(var(--gap) + env(safe-area-inset-bottom,0px));width:340px;z-index:7;padding:10px 12px 12px}
+.phead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+#photoImg{display:block;width:100%;height:auto;border-radius:8px;background:#000}
+.pctl{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pctl input{width:110px}
+body.touring #photo{top:calc(var(--gap) + 96px);bottom:auto}
+.pnote{margin:8px 0 0;color:var(--ink-3);font-size:12px;line-height:1.45}
+#photoOver{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:2;opacity:.5}
+body.photo-over #photoOver{display:block}
+
+/* ---- викторина */
+body.quiz #tree,body.quiz #bar,body.quiz #hot,body.quiz #modes,body.quiz #cutPanel,body.quiz #treeBtn{display:none!important}
+.quiz .qname{margin:10px 0 6px;padding:14px 16px;border-radius:10px;background:var(--accent-2);border:1px solid var(--accent);font:700 22px/1.2 var(--cond)}
+.quiz .qrole{color:var(--ink-2);font-size:13.5px;line-height:1.5;margin:0}
+.quiz .qres{margin-top:14px;padding:10px 12px;border-radius:8px;font-size:13.5px;line-height:1.45}
+.quiz .qres.ok{background:rgba(47,191,113,.14);color:var(--ink);border:1px solid rgba(47,191,113,.5)}
+.quiz .qres.bad{background:rgba(255,90,74,.12);color:var(--ink);border:1px solid rgba(255,90,74,.5)}
+.quiz .score{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--ink-3);margin-top:4px}
+.quiz .dots{display:flex;gap:4px;margin:12px 0 0}
+.quiz .dots i{flex:1;height:4px;border-radius:2px;background:var(--line-2)}
+.quiz .dots i.ok{background:#2fbf71}.quiz .dots i.bad{background:#ff5a4a}.quiz .dots i.cur{background:var(--accent)}
+.quiz .big{font:700 44px/1 var(--disp);margin:14px 0 6px}
+
+/* ---- материалы и потоки */
+.dl{display:grid;gap:6px;margin-top:8px}
+.dl .btn{justify-content:flex-start;height:38px}
+.dl .btn small{margin-left:auto;color:var(--ink-3);font:500 11px var(--mono)}
+.flows{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 12px;margin:8px 0 0;font-size:12.5px;color:var(--ink-2)}
+.flows span{display:inline-flex;align-items:center;gap:7px}
+.flows i{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px currentColor}
+.check{display:inline-flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.check input{accent-color:var(--accent);width:15px;height:15px}
+#toast{position:fixed;left:50%;top:calc(var(--gap) + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:30;padding:8px 14px;border-radius:8px;background:var(--panel-solid);border:1px solid var(--line-2);box-shadow:var(--shadow);font-size:13px}
+/* ---- выноски, подсказка, загрузка */
+#hot{position:fixed;inset:0;pointer-events:none;z-index:3}
+.hs{position:absolute;left:0;top:0;transform:translate(-50%,-50%);pointer-events:auto;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.hs .d{display:grid;place-items:center;min-width:24px;height:24px;padding:0 5px;border-radius:12px;background:var(--panel-solid);border:1px solid var(--line-2);font:600 11px var(--mono);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.hs:hover .d,.hs.on .d{background:var(--accent);border-color:transparent;color:var(--accent-ink)}
+.hs .lb{display:none;padding:3px 8px;border-radius:6px;background:var(--panel-solid);border:1px solid var(--line);font:600 12px var(--cond);color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.hs:hover .lb,.hs.on .lb{display:block}
+#tip{position:fixed;left:0;top:0;z-index:6;pointer-events:none;padding:7px 10px;border-radius:8px;background:var(--panel-solid);border:1px solid var(--line-2);box-shadow:var(--shadow);max-width:260px}
+#tip b{display:block;font:600 13px/1.25 var(--cond)}
+#tip small{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px}
+#hint{position:fixed;left:332px;right:412px;bottom:78px;text-align:center;color:var(--ink-3);font-size:12px;z-index:2;pointer-events:none;transition:opacity .4s}
+#hint kbd{font:500 11px var(--mono);padding:1px 5px;border-radius:4px;border:1px solid var(--line-2);color:var(--ink-2)}
+#loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:var(--bg);transition:opacity .6s}
+#loading .box{width:min(360px,80vw)}
+#loading h2{margin:6px 0 14px;font:700 26px var(--disp)}
+#loading .bar{height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+#loading .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+#loading p{margin:10px 0 0;color:var(--ink-3);font-size:12.5px;min-height:1.5em}
+#loading .err{color:var(--warn)}
+
+/* ---- адаптив */
+@media (max-width:1180px){
+  #tree{top:132px;width:280px}
+  #bar,#hint,#cutPanel{left:var(--gap)}
+  #treeBtn{display:inline-flex}
+  body:not(.tree-open) #tree{display:none}
+  body.tree-open #tree{z-index:8}
+}
+@media (max-width:760px){
+  :root{--gap:10px}
+  .brand h1{font-size:22px}
+  .brand p{display:none}
+  #info{left:var(--gap);right:var(--gap);top:auto;bottom:calc(var(--gap) + env(safe-area-inset-bottom,0px));width:auto;height:min(46vh,420px)}
+  body.sheet-min #info{height:52px}
+  #info .grab{display:flex}
+  #bar{left:var(--gap);right:var(--gap);bottom:calc(min(46vh,420px) + var(--gap) * 2 + env(safe-area-inset-bottom,0px));justify-content:flex-start}
+  body.sheet-min #bar{bottom:calc(52px + var(--gap) * 2 + env(safe-area-inset-bottom,0px))}
+  #tree{left:var(--gap);right:var(--gap);width:auto;top:76px;bottom:var(--gap)}
+  #hint{display:none}
+  .tb .lbl{display:none}
+  .tb{padding:0 10px}
+  #side{right:auto;left:var(--gap);top:auto;bottom:calc(min(46vh,420px) + var(--gap) * 3 + 48px + env(safe-area-inset-bottom,0px));flex-direction:row;max-width:calc(100% - var(--gap) * 2);overflow-x:auto;scrollbar-width:none}
+  body.sheet-min #side{bottom:calc(52px + var(--gap) * 3 + 48px + env(safe-area-inset-bottom,0px))}
+  #views{flex-direction:row;flex:none}
+  #tools{display:flex;position:fixed;right:var(--gap);bottom:calc(min(46vh,420px) + var(--gap) * 2 + env(safe-area-inset-bottom,0px))}
+  body.sheet-min #tools{bottom:calc(52px + var(--gap) * 2 + env(safe-area-inset-bottom,0px))}
+  body.touring #tools{display:none}
+  .seph{width:1px;height:auto;margin:6px 3px}
+  .vb{padding:0 10px}
+  #modes{margin-top:8px}
+  #modes .btn span{display:none}
+  #tree{top:76px}
+  #cutPanel{right:var(--gap);bottom:calc(min(46vh,420px) + var(--gap) * 4 + 88px + env(safe-area-inset-bottom,0px))}
+  #tour{right:var(--gap)}
+  #photo{left:var(--gap);right:var(--gap);width:auto;top:calc(64px + env(safe-area-inset-top,0px));bottom:auto}
+  #photo .pnote{display:none}
+  body.touring #info{display:none}
+}
+#info .grab{display:none;justify-content:center;padding:8px 0 0;flex:none}
+#info .grab button{width:44px;height:5px;border-radius:3px;background:var(--line-2)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+</head>
+<body>
+<canvas id="stage" tabindex="0" data-i18n-aria="stageAria" aria-label="Трёхмерная модель двигателя: перетаскивайте, чтобы вращать, нажмите на узел, чтобы разобрать"></canvas>
+<img id="photoOver" alt="" hidden>
+
+<header id="head">
+  <div class="brand">
+    <div class="eyebrow" data-i18n="eyebrow">Интерактивная 3D-модель</div>
+    <h1>V8 5.0</h1>
+    <p id="sub">Гоночный атмосферный двигатель</p>
+    <div id="modes" role="group" data-i18n-aria="modesAria" aria-label="Презентация и викторина">
+      <button class="btn sm" id="bTour" data-i18n-title="titles.tour" title="Автоматический показ для презентации"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="9" rx="1.5"/><path d="M6.5 5.2v3.6L9.6 7Z" fill="currentColor"/><path d="M5 14.5h6"/></svg><span data-i18n="tour">Презентация</span></button>
+      <button class="btn sm" id="bQuiz" data-i18n-title="titles.quiz" title="Проверить себя: найдите деталь на модели"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4"/><circle cx="8" cy="11.6" r=".4" fill="currentColor"/></svg><span data-i18n="quiz">Викторина</span></button>
+    </div>
+  </div>
+  <button class="btn" id="treeBtn" aria-controls="tree" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h12M2 12h8"/></svg><span data-i18n="treeBtn">Состав</span>
+  </button>
+</header>
+
+<nav id="tree" class="glass" data-i18n-aria="tree" aria-label="Состав двигателя">
+  <div class="top">
+    <div class="eyebrow" data-i18n="tree">Состав двигателя</div>
+    <label class="search"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3.5 3.5"/></svg>
+      <input id="q" type="search" data-i18n-ph="search" placeholder="Найти деталь: клапан, цепь, форсунка…" autocomplete="off" data-i18n-aria="searchAria" aria-label="Поиск детали"></label>
+  </div>
+  <div id="asmList"></div>
+</nav>
+
+<aside id="info" class="glass" aria-live="polite">
+  <div class="grab"><button id="grab" data-i18n-aria="grabAria" aria-label="Свернуть или развернуть описание"></button></div>
+  <div class="scroll" id="card"></div>
+</aside>
+
+<div id="side">
+  <div id="views" class="glass" role="group" data-i18n-aria="viewsAria" aria-label="Вид на двигатель">
+    <button class="vb" data-view="iso" data-i18n="views.iso" title="1">3/4</button>
+    <button class="vb" data-view="front" data-i18n="views.front" title="2">Спереди</button>
+    <button class="vb" data-view="rear" data-i18n="views.rear" title="3">Сзади</button>
+    <button class="vb" data-view="left" data-i18n="views.left" title="4">Слева</button>
+    <button class="vb" data-view="right" data-i18n="views.right" title="5">Справа</button>
+    <button class="vb" data-view="top" data-i18n="views.top" title="6">Сверху</button>
+    <button class="vb" data-view="bottom" data-i18n="views.bottom" title="7">Снизу</button>
+    <span class="seph"></span>
+    <button class="vb photo" data-view="photo" title="8"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3.5" width="13" height="10" rx="1.5"/><circle cx="8" cy="8.5" r="2.6"/><path d="M5.5 3.5 6.5 2h3l1 1.5"/></svg><span data-i18n="views.photo">Как на фото</span></button>
+  </div>
+  <div id="tools" class="glass" role="toolbar" data-i18n-aria="toolsAria" aria-label="Инструменты">
+    <button class="ib" id="bSpin" aria-pressed="false" data-i18n-title="titles.spin" title="Автоповорот (R)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 8A5.5 5.5 0 1 1 11 3.4"/><path d="M11 1v2.6H8.4"/></svg></button>
+    <button class="ib" id="bTheme" data-i18n-title="titles.theme" title="Светлый или тёмный фон (T)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11A5.5 5.5 0 0 0 8 2.5Z" fill="currentColor"/></svg></button>
+    <button class="ib" id="bShot" data-i18n-title="titles.shot" title="Сохранить снимок в PNG (P)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v7.5M4.8 6.6 8 9.8l3.2-3.2"/><path d="M2.5 10.5v2a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-2"/></svg></button>
+    <button class="ib lang" id="bLang" data-i18n-title="titles.lang" title="English version"><span data-i18n="lang">EN</span></button>
+  </div>
+</div>
+
+<div id="bar">
+  <div class="glass" role="toolbar" data-i18n-aria="barAria" aria-label="Режимы просмотра">
+    <button class="tb" id="bExplode" aria-pressed="false" data-i18n-title="titles.explode" title="Разнести все узлы (E)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5.5" y="5.5" width="5" height="5" rx="1"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></svg><span class="lbl" data-i18n="explode">Разобрать всё</span></button>
+    <label class="slider" id="amtWrap" hidden><input id="amt" type="range" min="0.2" max="1" step="0.01" value="0.7" data-i18n-aria="titles.amt" aria-label="Степень разноса"></label>
+    <button class="tb" id="bXray" aria-pressed="false" data-i18n-title="titles.xray" title="Рентген: видны только движущиеся детали (X)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2" stroke-dasharray="2 2"/><circle cx="8" cy="8" r="2.5"/></svg><span class="lbl" data-i18n="xray">Рентген</span></button>
+    <button class="tb" id="bRun" aria-pressed="false" data-i18n-title="titles.run" title="Запустить двигатель (пробел)"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4.5 2.8v10.4L13 8Z"/></svg><span class="lbl">Запустить</span></button>
+    <button class="tb" id="bCut" aria-pressed="false" data-i18n-title="titles.section" title="Разрез двигателя плоскостью (C)"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 13.5 13.5 2.5"/><path d="M3 6.5V3h3.5M13 9.5V13H9.5" stroke-dasharray="1.6 1.6"/></svg><span class="lbl" data-i18n="section">Разрез</span></button>
+  </div>
+</div>
+<div id="cutPanel" hidden>
+  <div class="glass">
+    <span class="seg"><button data-cut="x" data-i18n="cutX">Поперёк</button><button data-cut="bank" data-i18n="cutBank">Вдоль ряда</button></span>
+    <label class="slider"><input id="cutPos" type="range" min="0" max="1" step="0.005" value="0.5" data-i18n-aria="titles.cut" aria-label="Положение плоскости разреза"></label>
+  </div>
+</div>
+
+<div id="tour" hidden><div class="glass" aria-live="polite">
+  <div class="tprog"><i id="tourBar"></i></div>
+  <div class="tbody">
+    <div class="eyebrow"><span data-i18n="tour">Презентация</span> · <span id="tourNo" class="num">1 / 13</span></div>
+    <h3 id="tourTitle"></h3>
+    <p id="tourText"></p>
+  </div>
+  <div class="tctl">
+    <button class="btn sm" id="tourPrev"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3 5 8l5 5"/></svg><span data-i18n="tourPrev">Назад</span></button>
+    <button class="btn sm" id="tourPause"><span id="tourPauseLbl" data-i18n="tourPause">Пауза</span></button>
+    <button class="btn sm primary" id="tourNext"><span data-i18n="tourNext">Далее</span><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m6 3 5 5-5 5"/></svg></button>
+    <button class="btn sm" id="tourEnd" data-i18n="tourEnd">Завершить</button>
+  </div>
+</div></div>
+
+<section id="photo" class="glass" hidden aria-labelledby="photoTitle">
+  <div class="phead">
+    <div class="eyebrow" id="photoTitle" data-i18n="photoTitle">Сравнение с фотографией</div>
+    <button class="ib" id="photoClose" data-i18n-aria="photoClose" aria-label="Закрыть"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m4 4 8 8M12 4l-8 8"/></svg></button>
+  </div>
+  <img id="photoImg" alt="" width="1280" height="960">
+  <div class="pctl">
+    <span class="seg"><button data-pm="side" data-i18n="photoSide">Рядом</button><button data-pm="over" data-i18n="photoOver">Наложить</button></span>
+    <label class="slider" id="photoOpWrap" hidden><input id="photoOp" type="range" min="0.1" max="0.9" step="0.01" value="0.5" data-i18n-aria="photoOpacity" aria-label="Прозрачность фото"></label>
+  </div>
+  <p class="pnote" data-i18n="photoNote"></p>
+</section>
+
+<div id="hot"></div>
+<div id="tip" hidden></div>
+<div id="toast" role="status" hidden></div>
+<div id="hint" data-i18n-html="hint">Перетаскивайте — вращение · колесо — масштаб · правая кнопка — сдвиг · нажмите на узел, чтобы разобрать · <kbd>Esc</kbd> — назад</div>
+
+<div id="loading" role="status">
+  <div class="box">
+    <div class="eyebrow" data-i18n="loadEyebrow">Сборка модели</div>
+    <h2>V8 5.0</h2>
+    <div class="bar"><i id="lbar"></i></div>
+    <p id="lmsg">Загрузка графики…</p>
+  </div>
+</div>
+
+<script>setTimeout(function(){if(!window.__v8ready){var m=document.getElementById('lmsg'),en=document.documentElement.lang==='en';if(m)m.innerHTML='<span class="err">'+(en?'Graphics are taking longer than usual to load. Check the internet connection: three.js is loaded from cdn.jsdelivr.net.':'Графика загружается дольше обычного. Проверьте подключение к интернету: библиотека three.js подгружается с cdn.jsdelivr.net.')+'</span>';}},25000);</script>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
