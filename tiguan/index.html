@@ -84,10 +84,10 @@ p{margin:0}
 
 .main{display:grid;grid-template-columns:318px minmax(0,1fr) 384px;min-height:0}
 .panel{background:var(--panel);min-height:0;overflow:auto;overscroll-behavior:contain}
-#left{border-right:1px solid var(--line);display:flex;flex-direction:column}
+#left{border-right:1px solid var(--line);display:flex;flex-direction:column;overflow-x:hidden}
 #right{border-left:1px solid var(--line)}
 .tabs{display:flex;gap:2px;padding:8px 10px 0;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2}
-.tab{flex:1;padding:8px 6px 9px;border:0;background:none;border-bottom:2px solid transparent;color:var(--muted);font:600 13px var(--f-disp);letter-spacing:.04em;text-transform:uppercase}
+.tab{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:8px 2px 9px;border:0;background:none;border-bottom:2px solid transparent;color:var(--muted);font:600 11.5px var(--f-disp);letter-spacing:.02em;text-transform:uppercase}
 .tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .tabpane{padding:14px 16px 24px;display:flex;flex-direction:column;gap:14px}
 .eyebrow{font:600 11px var(--f-disp);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -139,6 +139,7 @@ p{margin:0}
 .stat .v small{font:500 12px var(--f-body);color:var(--muted);margin-left:3px}
 .stat.delta .v{color:var(--crit)}
 .stat.delta.ok .v{color:var(--good)}
+.has-sel .boost .note{display:none}
 .boost .note{grid-column:1/-1;font-size:12px;color:var(--ink-2);border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
 .mini-seg{display:flex;gap:2px;background:var(--panel-3);border-radius:7px;padding:2px}
 .mini-seg button{border:0;background:none;padding:3px 8px;border-radius:5px;font:500 11.5px var(--f-body);color:var(--ink-2)}
@@ -232,6 +233,30 @@ table.spec td:last-child{text-align:right;font-family:var(--f-mono);white-space:
 .step .st.ok{background:var(--good-bg);color:var(--good)}
 .step .st.bad{background:var(--crit-bg);color:var(--crit)}
 
+/* data pane */
+.pp{display:flex;flex-direction:column;gap:0}
+.pp-row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.4}
+.pp-row .g{grid-column:1/-1;font:600 10.5px var(--f-disp);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pill.vw,.pill.you{background:var(--good-bg);color:var(--good)}
+.pill.cat{background:var(--warn-bg);color:var(--warn)}
+.pill.model{background:var(--crit-bg);color:var(--crit)}
+.pp-row .pill{align-self:start;white-space:nowrap;font-size:10px}
+table.fast{width:100%;border-collapse:collapse;font-size:12.5px}
+table.fast td{padding:5px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+table.fast td.v{font-family:var(--f-mono);white-space:nowrap;text-align:right}
+table.fast tr[data-ref]{cursor:pointer}
+table.fast tr[data-ref]:hover td{background:var(--panel-2)}
+table.fast .n{color:var(--muted);font-size:11.5px}
+.todo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.todo label{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.4;padding:4px 0;cursor:pointer}
+.todo input{margin-top:3px;accent-color:var(--good)}
+.todo input:checked+span{color:var(--muted);text-decoration:line-through}
+.filebtn{align-self:flex-start}
+.ctlgrid{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;align-items:center;font-size:12px}
+.ctlgrid input[type=range]{width:100%}
+.ctlgrid .val{font:500 11.5px var(--f-mono);min-width:48px;text-align:right}
+.mapgrid{display:grid;grid-template-columns:auto 1fr;gap:6px 8px;align-items:center;font-size:12px}
+.mapgrid select{width:100%;min-width:0;font-size:12px;padding:3px;border:1px solid var(--line);border-radius:6px;background:var(--panel-2)}
 /* scenarios */
 .scen{display:flex;flex-direction:column;gap:4px}
 .scen label{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:8px;border:1px solid transparent;cursor:pointer;font-size:13px;line-height:1.35}
@@ -288,6 +313,7 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
   body.m-right #left{display:none}
   body:not(.m-right) #right{display:none}
   #left .tabs{display:none}
+  .mtabs button{font-size:11px;letter-spacing:.02em;padding:9px 2px}
   .viewbar{top:8px;left:8px;right:8px;gap:6px;flex-direction:column;align-items:stretch}
   .seg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
   .seg::-webkit-scrollbar{display:none}
@@ -342,8 +368,9 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
     <aside id="left" class="panel" aria-label="Навигация по модели">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" id="t-parts" aria-selected="true" data-pane="parts">Детали</button>
-        <button class="tab" role="tab" id="t-diag" aria-selected="false" data-pane="diag">Диагностика</button>
-        <button class="tab" role="tab" id="t-scen" aria-selected="false" data-pane="scen">Сценарии</button>
+        <button class="tab" role="tab" id="t-diag" aria-selected="false" data-pane="diag">План P0299</button>
+        <button class="tab" role="tab" id="t-scen" aria-selected="false" data-pane="scen">Графики</button>
+        <button class="tab" role="tab" id="t-data" aria-selected="false" data-pane="data">Данные</button>
       </div>
 
       <div class="tabpane" id="pane-parts" role="tabpanel" aria-labelledby="t-parts"></div>
@@ -372,7 +399,8 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
         <div class="legend" id="legend">
           <span><i style="background:var(--s1)"></i>Задано</span>
           <span><i style="background:var(--s2)"></i>Факт</span>
-          <span><i class="dotk" style="background:var(--s3)"></i>Ваш лог</span>
+          <span><i class="dotk" style="background:var(--s3)"></i>Ваш лог: факт</span>
+          <span><i class="dotk" style="background:transparent;box-shadow:inset 0 0 0 1.6px var(--s1)"></i>Ваш лог: задано</span>
         </div>
         <div class="chart" id="ch-boost"><div class="ttl"><b>Давление наддува</b><span>гПа абс. по оборотам</span></div><canvas></canvas></div>
         <div class="chart" id="ch-act"><div class="ttl"><b>Положение актуатора (G581)</b><span>% закрытия лопаток</span></div><canvas></canvas></div>
@@ -382,6 +410,24 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
           <p class="src">Впишите обороты и давление «задано / факт» из замеров — точки появятся на графике. Сохраняется только в этом браузере.</p>
           <table class="log" id="log"><thead><tr><th>об/мин</th><th>задано, гПа</th><th>факт, гПа</th><th></th></tr></thead><tbody></tbody></table>
           <div class="row"><button class="btn sm" id="log-add">+ строка</button><button class="btn sm" id="log-reset">Вернуть исходный замер</button></div>
+        </div>
+        <div class="sec" id="csv-sec">
+          <h3>Лог VCDS целиком (CSV)</h3>
+          <p class="src">Выберите файл CSV из VCDS или ODIS. Колонки подберутся по названиям; проверьте их и поправьте при необходимости. Файл не покидает этот браузер.</p>
+          <label class="btn sm filebtn" for="csv-file">Выбрать CSV…</label><input type="file" id="csv-file" accept=".csv,.txt,text/csv" hidden>
+          <div id="csv-map" hidden></div>
+        </div>
+      </div>
+
+      <div class="tabpane" id="pane-data" role="tabpanel" aria-labelledby="t-data" hidden>
+        <div class="callout key"><h4>Насколько модель совпадает с реальной</h4><p>Моменты затяжки, типы соединений, состав вакуумной схемы и порядок проверок взяты из руководства по ремонту Tiguan 2.0 TDI CR. Номера деталей — из каталогов, их надо сверить по VIN. Точная форма деталей и трассы шлангов требуют фото или 3D-скана вашего автомобиля.</p></div>
+        <div class="sec"><h3>Паспорт данных</h3><div id="passport"></div></div>
+        <div class="sec"><h3>Крепёж и моменты затяжки</h3><p class="src">Нажмите на строку — модель покажет этот крепёж. Кнопка «Крепёж» на сцене подсвечивает весь крепёж жёлтым.</p><div id="fast-table"></div></div>
+        <div class="sec"><h3>Что собрать завтра</h3><p class="src">Отметки сохраняются в этом браузере.</p><ul class="todo" id="todo"></ul></div>
+        <div class="sec" id="scan-sec"><h3>3D-скан вашего автомобиля</h3>
+          <p class="src">Загрузите скан моторного отсека (GLB, OBJ, STL или PLY) — он встанет в сцену рядом с моделью. Подгоните масштаб и положение, затем сравните.</p>
+          <label class="btn sm filebtn" for="scan-file">Загрузить скан…</label><input type="file" id="scan-file" accept=".glb,.gltf,.obj,.stl,.ply" hidden>
+          <div id="scan-ctl" hidden></div>
         </div>
       </div>
     </aside>
@@ -406,6 +452,7 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
           <button data-tg="sig" aria-pressed="false">Сигналы ЭБУ</button>
           <button data-tg="cut" aria-pressed="false">Разрез турбины</button>
           <button data-tg="joints" aria-pressed="false">Соединения</button>
+          <button data-tg="fast" aria-pressed="false">Крепёж</button>
           <button data-tg="xray" aria-pressed="false">Мотор прозрачный</button>
           <button data-tg="labels" aria-pressed="true">Подписи</button>
           <button data-tg="spin" aria-pressed="false">Облёт</button>
@@ -447,8 +494,9 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
 
     <nav class="mtabs" id="mtabs" aria-label="Разделы">
       <button data-m="parts" aria-selected="true">Детали</button>
-      <button data-m="diag" aria-selected="false">Диагностика</button>
-      <button data-m="scen" aria-selected="false">Сценарии</button>
+      <button data-m="diag" aria-selected="false">Шаги</button>
+      <button data-m="scen" aria-selected="false">Графики</button>
+      <button data-m="data" aria-selected="false">Данные</button>
       <button data-m="info" aria-selected="false">Описание</button>
       <button data-m="min" aria-selected="false" aria-label="Свернуть панель">▾</button>
     </nav>
@@ -694,6 +742,18 @@ function clampObj(r, w = 0.09) {
 }
 /* уплотнительное кольцо вокруг оси Y */
 function oringObj(r, tube = 0.022) { return mesh(new THREE.TorusGeometry(r, tube, 12, 48).rotateX(Math.PI / 2), 'oring'); }
+/* крепёж: ось Y — наружу (головкой к мастеру); s — масштаб */
+function fastenerObj(kind, p, dir, s = 1) {
+  const g = new THREE.Group();
+  if (kind === 'nut') { g.add(mesh(hexGeo(0.045 * s, 0.05 * s), 'steel')); g.add(mesh(cylY(0.021 * s, 0.07 * s, 10).translate(0, 0.045 * s, 0), 'steelDark')); }
+  else if (kind === 'bolt') { g.add(mesh(hexGeo(0.04 * s, 0.035 * s), 'steel')); g.add(mesh(cylY(0.052 * s, 0.01 * s, 18).translate(0, -0.022 * s, 0), 'steel')); }
+  else if (kind === 'torx') { g.add(mesh(cylY(0.04 * s, 0.03 * s, 18), 'steelDark')); g.add(mesh(cylY(0.018 * s, 0.012 * s, 6).translate(0, 0.02 * s, 0), 'steel')); }
+  else if (kind === 'screw') { g.add(mesh(cylY(0.03 * s, 0.028 * s, 16), 'steelDark')); }
+  else if (kind === 'banjo') { g.add(mesh(hexGeo(0.058 * s, 0.05 * s), 'brass')); g.add(mesh(cylY(0.05 * s, 0.012 * s, 18).translate(0, -0.035 * s, 0), 'copper')); }
+  else if (kind === 'union') { g.add(mesh(hexGeo(0.055 * s, 0.075 * s), 'brass')); }
+  alignY(g, dir.clone().normalize()); g.position.copy(p);
+  return g;
+}
 /* ориентировать объект так, чтобы его ось Y смотрела вдоль dir */
 function alignY(obj, dir) { obj.quaternion.setFromUnitVectors(V3(0, 1, 0), dir.clone().normalize()); return obj; }
 
@@ -862,18 +922,18 @@ function roundedRectShape(w, h, r) {
 {
   const a = new Asm('accessories', 'engine');
   a.anchor.set(2.2, 2.0, 2.3);
-  const alt = group(mesh(cylX(0.55, 1.2, 40), 'alu', V3(1.95, 1.3, 2.12)));
-  for (let i = 0; i < 12; i++) { const t = i / 12 * TAU; alt.add(mesh(rbox(1.0, 0.05, 0.06, 0.01), 'alu', V3(1.95, 1.3 + 0.56 * Math.cos(t), 2.12 + 0.56 * Math.sin(t)))); }
-  alt.add(mesh(cylX(0.25, 0.14, 24), 'steelDark', V3(2.66, 1.3, 2.12)));
-  alt.add(mesh(rbox(0.22, 0.18, 0.2, 0.03), 'plastic', V3(1.3, 1.62, 2.4)));
+  const alt = group(mesh(cylX(0.55, 1.2, 40), 'alu', V3(1.95, 1.0, 1.95)));
+  for (let i = 0; i < 12; i++) { const t = i / 12 * TAU; alt.add(mesh(rbox(1.0, 0.05, 0.06, 0.01), 'alu', V3(1.95, 1.0 + 0.56 * Math.cos(t), 1.95 + 0.56 * Math.sin(t)))); }
+  alt.add(mesh(cylX(0.25, 0.14, 24), 'steelDark', V3(2.66, 1.0, 1.95)));
+  alt.add(mesh(rbox(0.22, 0.18, 0.2, 0.03), 'plastic', V3(1.3, 1.3, 2.2)));
   a.part('alternator', alt, [0, 0.3, 1.3]);
   const ac = group(mesh(cylX(0.48, 1.25, 40), 'alu', V3(1.95, -0.85, 1.98)));
   ac.add(mesh(cylX(0.5, 0.14, 40), 'steelDark', V3(2.66, -0.85, 1.98)));
   ac.add(mesh(cylY(0.09, 0.3, 16), 'alu', V3(1.6, -0.3, 1.98)));
   a.part('ac', ac, [0, -0.4, 1.3]);
-  const belt = mesh(tubeGeo(curveOf([[2.72, 0.8, 0.05], [2.72, 0.6, 0.7], [2.72, 1.3, 1.78], [2.72, 1.56, 2.2], [2.72, 1.2, 2.4], [2.72, -0.5, 2.5], [2.72, -1.34, 2.05], [2.72, -1.1, 1.45], [2.72, -0.7, 0.55], [2.72, -0.1, -0.78], [2.72, 0.55, -0.55]], true), 0.035, 140, 6), 'rubber');
+  const belt = mesh(tubeGeo(curveOf([[2.72, 0.8, 0.05], [2.72, 0.95, 0.75], [2.72, 1.24, 1.75], [2.72, 1.25, 2.02], [2.72, 1.0, 2.24], [2.72, -0.5, 2.5], [2.72, -1.34, 2.05], [2.72, -1.1, 1.45], [2.72, -0.7, 0.55], [2.72, -0.1, -0.78], [2.72, 0.55, -0.55]], true), 0.035, 140, 6), 'rubber');
   a.part('belt', belt, [0.9, 0, 0.3]);
-  a.part('tensioner', group(mesh(cylX(0.22, 0.14, 24), 'steel', V3(2.72, 0.75, 1.0)), mesh(rbox(0.1, 0.5, 0.18, 0.03), 'alu', V3(2.6, 0.5, 1.1))), [0.9, 0.3, 0.6]);
+  a.part('tensioner', group(mesh(cylX(0.2, 0.14, 24), 'steel', V3(2.72, 0.72, 0.95)), mesh(rbox(0.1, 0.5, 0.18, 0.03), 'alu', V3(2.6, 0.48, 1.05))), [0.9, 0.3, 0.6]);
 }
 
 /* ---------------- Common Rail (для контекста) ---------------- */
@@ -918,11 +978,33 @@ const VANES = 11, VANE_R = 0.33;
   a.part('comp_housing', cuttable(ch), [-1.5, 0, 0]);
   W.anim.compOut = {p: cOutEnd, d: cDir};
 
+  /* --- гаситель пульсаций на выходе компрессора (стопорное кольцо, O-ring, винт 9 Н·м) --- */
+  const pd = new THREE.Group();
+  const pdGeo = new THREE.LatheGeometry([[0.155, -0.56], [0.172, -0.52], [0.16, -0.5], [0.172, -0.47], [0.16, -0.45], [0.172, -0.42], [0.172, -0.4], [0.22, -0.36], [0.235, -0.3], [0.235, -0.1], [0.2, -0.05], [0.172, -0.03], [0.172, 0.02]].map(([r, y]) => new THREE.Vector2(r, y)), 40);
+  pd.add(mesh(pdGeo, 'alu', cOutEnd.clone()));
+  pd.add(mesh(new THREE.TorusGeometry(0.178, 0.012, 8, 36).rotateX(Math.PI / 2), 'steel', cOutEnd.clone().add(V3(0, -0.01, 0))));
+  pd.add(mesh(rbox(0.1, 0.05, 0.12, 0.02), 'alu', cOutEnd.clone().add(V3(0.22, -0.06, 0))));
+  pd.children[0].material.side = THREE.DoubleSide;
+  a.part('puls', pd, [0, -0.7, -0.25]);
+  a.part('puls_oring', at(oringObj(0.166, 0.014), cOutEnd.x, cOutEnd.y + 0.01, cOutEnd.z), [0.25, -0.45, -0.25]);
+  a.part('f_puls', fastenerObj('bolt', cOutEnd.clone().add(V3(0.22, -0.03, 0)), V3(0, 1, 0)), [0.35, -0.3, -0.25]);
+  W.anim.pulsEnd = cOutEnd.clone().add(V3(0, -0.56, 0));
+
+  /* --- впускной патрубок турбины (Ansaugstutzen): вставляется в корпус компрессора через O-ring, 2 винта 9 Н·м --- */
+  const st = new THREE.Group();
+  st.add(mesh(latheX([[-2.36, 0.24], [-2.34, 0.255], [-2.3, 0.245], [-2.27, 0.255], [-2.23, 0.245], [-2.02, 0.25], [-2.02, 0.33], [-1.99, 0.33], [-1.99, 0.21], [-1.9, 0.2]], 48), 'plasticGrey'));
+  st.children[0].material.side = THREE.DoubleSide;
+  st.add(mesh(rbox(0.04, 0.16, 0.1, 0.02), 'plasticGrey', V3(-2.0, 0.36, 0.0)), mesh(rbox(0.04, 0.16, 0.1, 0.02), 'plasticGrey', V3(-2.0, -0.36, 0.0)));
+  a.part('intake_stub', st, [-1.1, 0, 0]);
+  a.part('stub_oring', at(oringObj(0.205, 0.014).rotateZ(Math.PI / 2), -1.95, 0, 0), [-0.75, 0.3, 0]);
+  a.part('f_stub', group(fastenerObj('screw', V3(-2.03, 0.4, 0), V3(-1, 0, 0)), fastenerObj('screw', V3(-2.03, -0.4, 0), V3(-1, 0, 0))), [-1.35, 0.25, 0]);
+  W.anim.stubPart = a.partObj('intake_stub'); W.anim.stubScrews = a.partObj('f_stub');
+
   /* --- колесо компрессора --- */
   const cw = wheelObj({
-    hubProfile: [[-1.66, 0.0], [-1.66, 0.03], [-1.6, 0.058], [-1.46, 0.088], [-1.33, 0.15], [-1.25, 0.215], [-1.2, 0.245], [-1.17, 0.245], [-1.16, 0.03]],
-    hub: m => [-1.6 + 0.4 * Math.sin(m * Math.PI / 2), 0.06 + 0.185 * (1 - Math.cos(m * Math.PI / 2))],
-    shr: m => [-1.63 + 0.37 * Math.sin(m * Math.PI / 2), 0.175 + 0.07 * (1 - Math.cos(m * Math.PI / 2))],
+    hubProfile: [[-1.66, 0.0], [-1.66, 0.03], [-1.6, 0.058], [-1.46, 0.085], [-1.33, 0.145], [-1.25, 0.205], [-1.2, 0.23], [-1.17, 0.23], [-1.16, 0.03]],
+    hub: m => [-1.6 + 0.4 * Math.sin(m * Math.PI / 2), 0.06 + 0.17 * (1 - Math.cos(m * Math.PI / 2))],
+    shr: m => [-1.63 + 0.37 * Math.sin(m * Math.PI / 2), 0.172 + 0.058 * (1 - Math.cos(m * Math.PI / 2))],
     n: 6, splitters: true, twist: 1.0, thick: 0.01, material: 'aluBright',
   });
   cw.add(mesh(hexGeo(0.04, 0.05).rotateZ(Math.PI / 2), 'steel', V3(-1.69, 0, 0)));
@@ -943,10 +1025,10 @@ const VANES = 11, VANE_R = 0.33;
 
   /* --- колесо турбины --- */
   const tw = wheelObj({
-    hubProfile: [[-0.49, 0.0], [-0.49, 0.232], [-0.455, 0.232], [-0.39, 0.165], [-0.28, 0.105], [-0.16, 0.07], [-0.09, 0.055], [-0.07, 0.0]],
-    hub: m => [-0.09 - 0.36 * Math.sin(m * Math.PI / 2), 0.06 + 0.17 * (1 - Math.cos(m * Math.PI / 2))],
-    shr: m => [-0.09 - 0.3 * Math.sin(m * Math.PI / 2), 0.19 + 0.042 * (1 - Math.cos(m * Math.PI / 2))],
-    n: 11, splitters: false, twist: 0.7, thick: 0.013, material: 'inconel', wrapPow: 1.6,
+    hubProfile: [[-0.49, 0.0], [-0.49, 0.2], [-0.455, 0.2], [-0.39, 0.145], [-0.28, 0.095], [-0.16, 0.065], [-0.09, 0.052], [-0.07, 0.0]],
+    hub: m => [-0.09 - 0.36 * Math.sin(m * Math.PI / 2), 0.055 + 0.145 * (1 - Math.cos(m * Math.PI / 2))],
+    shr: m => [-0.09 - 0.3 * Math.sin(m * Math.PI / 2), 0.178 + 0.022 * (1 - Math.cos(m * Math.PI / 2))],
+    n: 9, splitters: false, twist: 0.7, thick: 0.014, material: 'inconel', wrapPow: 1.6,
   });
   a.part('turb_wheel', tw, [0.95, 0, 0]);
   W.anim.turbWheel = tw;
@@ -1009,12 +1091,27 @@ const VANES = 11, VANE_R = 0.33;
 
   /* --- маслоподвод и маслослив --- */
   const feed = group(mesh(tubeGeo([[-0.2, -0.35, 1.33], [-0.24, 0.55, 0.95], [-0.62, 0.62, 0.3], [-0.86, 0.6, 0.12], [-0.86, 0.44, 0]], 0.032, 40, 10), 'steel'));
-  feed.add(mesh(hexGeo(0.06, 0.08), 'brass', V3(-0.86, 0.47, 0)));
-  feed.add(mesh(hexGeo(0.06, 0.08).rotateX(Math.PI / 2), 'brass', V3(-0.2, -0.35, 1.36)));
   a.part('oil_feed', feed, [0, 0.65, 0.2]);
   const drain = group(mesh(tubeGeo([[-0.86, -0.35, 0], [-0.86, -0.75, 0.25], [-0.86, -1.1, 0.9], [-0.86, -1.35, 1.34]], 0.058, 30, 14), 'steel'));
   drain.add(mesh(cylY(0.075, 0.22, 16), 'rubber', V3(-0.86, -0.95, 0.52)));
   a.part('oil_drain', drain, [0, -0.7, -0.2]);
+
+  /* --- крепёж коллектора: самоконтрящиеся гайки 24 Н·м (заменять) --- */
+  const mn = new THREE.Group();
+  for (const x of [-1.62, -0.88, 0, 0.88, 1.62]) for (const y of [0.86, 0.36]) mn.add(fastenerObj('nut', V3(x, y, 1.28), V3(0, 0, -1)));
+  a.part('f_mani', mn, [0, 0.35, -0.9]);
+  a.part('mani_gasket', mesh(rbox(3.3, 0.44, 0.012, 0.01), 'steelDark', V3(0, 0.61, 1.385)), [0, 0.2, 0.55]);
+  /* --- теплозащитный экран над коллектором --- */
+  const hs = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 2.9, 24, 1, true, -Math.PI * 0.05, Math.PI * 0.55), MATS.heat());
+  hs.material.side = THREE.DoubleSide; hs.rotation.z = Math.PI / 2; hs.position.set(0.1, 0.42, 1.0);
+  a.part('heat_shield', group(hs), [0, 1.0, 0]);
+  /* --- опора турбины (Stütze) 9 Н·м --- */
+  const sup = group(mesh(rbox(0.1, 1.12, 0.12, 0.03), 'steelDark', V3(-0.45, -1.02, 0.65), [0.72, 0, 0]));
+  sup.add(fastenerObj('bolt', V3(-0.45, -0.5, 0.2), V3(-1, 0, 0)), fastenerObj('bolt', V3(-0.45, -1.52, 1.25), V3(-1, 0, 0)));
+  a.part('support', sup, [0.35, -0.6, 0]);
+  /* --- штуцеры маслоподвода: накидная гайка 22 Н·м, полые болты 40 и 30 Н·м --- */
+  a.part('f_union', fastenerObj('union', V3(-0.86, 0.47, 0), V3(0, 1, 0)), [0, 0.9, 0.15]);
+  a.part('f_banjo', group(fastenerObj('banjo', V3(-0.2, -0.35, 1.37), V3(0, 0, -1)), fastenerObj('banjo', V3(-0.45, -0.98, 0.62), V3(-1, 0, 0))), [0, -0.3, 0.6]);
 
   /* --- датчик температуры ОГ перед турбиной G235 --- */
   const g235 = group(mesh(hexGeo(0.06, 0.07), 'steel', V3(-0.1, 0.84, 0.74)), mesh(cylY(0.022, 0.3, 10), 'stainless', V3(-0.1, 0.99, 0.74)));
@@ -1079,23 +1176,24 @@ function setVNT(c) {
 }
 setVNT(0);
 
-/* ================== ВАКУУМНАЯ СИСТЕМА ================== */
+/* ================== ВАКУУМНАЯ СИСТЕМА (по схеме руководства VW) ================== */
 const ACT_NIP = TA(0).add(V3(L.tx.lever, 1.37, -0.78 - 0.4)); // конец штуцера на крышке актуатора (мир)
 const VAC = {
   pumpSmall: V3(-2.7, 3.38, -0.3), pumpBig: V3(-2.6, 3.36, -0.8),
-  check: V3(-2.45, 4.1, -2.15), tee: V3(-2.2, 4.05, -3.05),
+  check: V3(-2.45, 4.1, -2.15), res: V3(-2.33, 4.08, -2.62), tee: V3(-2.2, 4.05, -3.05),
   n75: V3(-1.95, 3.35, -3.78),
-  n345: V3(-1.5, 3.42, 2.4), egrCan: V3(-2.47, 1.38, 2.72),
+  n345: V3(-0.9, 2.93, 2.66), egrCan: V3(-1.18, 0.86, -1.68),
 };
-const N75P = {in: V3(-2.04, 3.47, -3.5), atm: V3(-1.95, 3.47, -3.5), out: V3(-1.86, 3.47, -3.5)};
+/* N75: нижний штуцер — подвод разрежения, средний — к актуатору (руководство VW), верхний — атмосфера через глушитель и фильтр */
+const N75P = {in: V3(-1.95, 3.23, -3.5), out: V3(-1.95, 3.35, -3.5), atm: V3(-1.95, 3.47, -3.5)};
 const VACP = {
   pump_check: [VAC.pumpSmall, [-2.72, 3.9, -0.55], [-2.6, 4.12, -1.45], VAC.check.clone().add(V3(0, 0, 0.16))],
-  check_tee: [VAC.check.clone().add(V3(0, 0, -0.16)), [-2.34, 4.08, -2.65], VAC.tee],
-  tee_n75: [VAC.tee, [-2.08, 3.85, -3.25], [-2.04, 3.62, -3.35], N75P.in],
-  n75_act: [N75P.out, [-1.78, 3.66, -3.36], [-1.25, 3.95, -3.5], [-0.8, 3.9, -3.95], ACT_NIP],
-  n75_vent: [N75P.atm, [-1.95, 3.6, -3.38], [-2.25, 3.55, -3.3], [-2.4, 3.2, -3.3]],
-  tee_n345: [VAC.tee, [-2.42, 4.22, -2.1], [-2.52, 4.24, -0.4], [-2.35, 4.15, 1.0], [-1.8, 3.85, 2.05], VAC.n345.clone().add(V3(-0.06, 0.18, -0.02))],
-  n345_can: [VAC.n345.clone().add(V3(-0.1, 0.05, 0.1)), [-1.85, 3.3, 2.78], [-1.95, 2.35, 2.72], [-2.3, 1.62, 2.74], VAC.egrCan.clone().add(V3(0.02, 0.05, 0.12))],
+  check_tee: [VAC.check.clone().add(V3(0, 0, -0.16)), [-2.36, 4.09, -2.42], VAC.res.clone(), [-2.28, 4.07, -2.86], VAC.tee],
+  tee_n75: [VAC.tee, [-2.08, 3.85, -3.25], [-2.02, 3.4, -3.38], N75P.in],
+  n75_act: [N75P.out, [-1.8, 3.6, -3.38], [-1.25, 3.95, -3.5], [-0.8, 3.9, -3.95], ACT_NIP],
+  n75_vent: [N75P.atm, [-2.1, 3.6, -3.4], [-2.3, 3.5, -3.3], [-2.4, 3.2, -3.3]],
+  tee_n345: [VAC.tee, [-2.42, 4.22, -2.1], [-2.52, 4.24, -0.4], [-2.3, 4.12, 1.0], [-1.4, 3.55, 2.3], [-0.96, 3.2, 2.64]],
+  n345_can: [[-0.9, 2.74, 2.66], [-1.3, 2.45, 2.85], [-2.5, 2.1, 2.55], [-2.98, 1.35, 1.2], [-3.0, 1.0, -0.6], [-2.2, 0.8, -1.3], [-1.16, 0.9, -1.34]],
   brake: [VAC.pumpBig, [-2.62, 3.78, -0.98], [-2.9, 4.06, -2.25], [-3.15, 4.0, -3.7], [-3.25, 3.9, -4.35]],
 };
 {
@@ -1108,7 +1206,7 @@ const VACP = {
   const rotor = group(mesh(cylX(0.22, 0.26, 32), 'steelDark', V3(-2.5, 2.95, -0.62)), mesh(rbox(0.24, 0.5, 0.04, 0.01), 'plasticWhite', V3(-2.5, 2.95, -0.62)));
   a.part('vp_rotor', rotor, [-1.1, -0.45, 0]);
   const cover = group(mesh(cylX(0.37, 0.05, 40), 'alu', V3(-2.7, 2.95, -0.55)));
-  for (let i = 0; i < 5; i++) { const t = i / 5 * TAU; cover.add(mesh(hexGeo(0.035, 0.04).rotateZ(Math.PI / 2), 'steelDark', V3(-2.74, 2.95 + 0.3 * Math.cos(t), -0.55 + 0.3 * Math.sin(t)))); }
+  for (let i = 0; i < 5; i++) { const t = i / 5 * TAU; cover.add(fastenerObj('bolt', V3(-2.74, 2.95 + 0.3 * Math.cos(t), -0.55 + 0.3 * Math.sin(t)), V3(-1, 0, 0), 0.8)); }
   a.part('vp_cover', cover, [-1.6, 0, 0]);
   const ports = group(mesh(cylY(0.07, 0.22, 16), 'plasticGrey', VAC.pumpBig.clone().add(V3(0, -0.08, 0))), mesh(cylY(0.035, 0.2, 12), 'plasticGrey', VAC.pumpSmall.clone().add(V3(0, -0.08, 0))));
   a.part('vp_ports', ports, [-0.6, 0.55, 0]);
@@ -1124,8 +1222,7 @@ const VACP = {
   const pB = group(mesh(cylY(0.075, 0.17, 20, 0.04), 'plasticWhite'));
   alignY(pB, dir); pB.position.copy(VAC.check).add(V3(0, 0, -0.08));
   a.part('cv_cons', pB, [0, 0, -0.35]);
-  const disc = mesh(cylZ(0.06, 0.01, 20), 'rubber', VAC.check.clone());
-  a.part('cv_disc', disc, [0, 0.25, 0]);
+  a.part('cv_disc', mesh(cylZ(0.06, 0.01, 20), 'rubber', VAC.check.clone()), [0, 0.25, 0]);
 }
 {
   /* --- клапан N75 --- */
@@ -1133,38 +1230,37 @@ const VACP = {
   a.anchor.copy(VAC.n75).add(V3(0, 0.35, 0));
   const c = VAC.n75;
   const body = group(mesh(cylY(0.17, 0.2, 32), 'plastic', c.clone().add(V3(0, 0.08, 0))), mesh(rbox(0.36, 0.08, 0.3, 0.04), 'plastic', c.clone().add(V3(0, 0.16, 0.06))));
-  for (const k of ['in', 'atm', 'out']) body.add(mesh(cylZ(0.03, 0.2, 12), k === 'atm' ? 'plasticGrey' : 'plastic', N75P[k].clone().add(V3(0, 0, -0.08))));
+  for (const k of ['in', 'out', 'atm']) body.add(mesh(cylZ(0.03, 0.2, 12), k === 'atm' ? 'plasticGrey' : 'plastic', N75P[k].clone().add(V3(0, 0, -0.08))));
+  body.add(mesh(rbox(0.06, 0.34, 0.16, 0.02), 'plastic', c.clone().add(V3(0, 0.0, 0.2))));
   body.add(mesh(new THREE.PlaneGeometry(0.22, 0.07), new THREE.MeshBasicMaterial({map: textTex('N75', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), c.clone().add(V3(0, 0.08, -0.172)), [0, Math.PI, 0]));
   a.part('n75_body', body, [0, 0.55, 0.25]);
   const coil = group(mesh(cylY(0.13, 0.18, 28), 'coil', c.clone().add(V3(0, -0.1, 0))), mesh(cylY(0.15, 0.2, 28), 'plasticGrey', c.clone().add(V3(0, -0.1, 0))));
   coil.children[1].material.transparent = true; coil.children[1].material.opacity = 0.35;
   a.part('n75_coil', coil, [0, -0.25, 0]);
-  const arm = group(mesh(cylY(0.04, 0.3, 14), 'steel', c.clone().add(V3(0, 0.0, 0))), mesh(cylY(0.07, 0.02, 20), 'rubber', c.clone().add(V3(0, 0.16, 0))));
+  const arm = group(mesh(cylY(0.04, 0.3, 14), 'steel', c.clone()), mesh(cylY(0.07, 0.02, 20), 'rubber', c.clone().add(V3(0, 0.16, 0))));
   a.part('n75_armature', arm, [0, 0.2, -0.45]);
   const conn = group(mesh(rbox(0.16, 0.14, 0.2, 0.03), 'plastic', c.clone().add(V3(0.23, -0.08, 0))), mesh(rbox(0.12, 0.1, 0.24, 0.02), 'plasticGrey', c.clone().add(V3(0.38, -0.08, 0))));
   a.part('n75_conn', conn, [0.5, 0, 0]);
-  const br = mesh(rbox(0.06, 0.5, 0.36, 0.02), 'steelDark', c.clone().add(V3(0, -0.1, -0.25)));
-  a.part('n75_bracket', br, [0, -0.3, -0.4]);
-  const sil = group(mesh(cylY(0.07, 0.22, 18), 'plastic', V3(-2.4, 3.05, -3.3)));
-  a.part('n75_silencer', sil, [-0.35, -0.2, 0]);
-  const flt = group(mesh(cylY(0.12, 0.08, 24), 'plasticGrey', V3(-2.4, 2.9, -3.3)), mesh(cylY(0.1, 0.085, 24), 'paper', V3(-2.4, 2.9, -3.3)));
-  a.part('n75_filter', flt, [-0.55, -0.45, 0]);
+  a.part('n75_bracket', group(mesh(rbox(0.06, 0.5, 0.36, 0.02), 'steelDark', c.clone().add(V3(0, -0.1, -0.25))), fastenerObj('bolt', c.clone().add(V3(0.04, -0.25, -0.25)), V3(1, 0, 0), 0.8)), [0, -0.3, -0.4]);
+  a.part('n75_silencer', group(mesh(cylY(0.07, 0.22, 18), 'plastic', V3(-2.4, 3.05, -3.3))), [-0.35, -0.2, 0]);
+  a.part('n75_filter', group(mesh(cylY(0.12, 0.08, 24), 'plasticGrey', V3(-2.4, 2.9, -3.3)), mesh(cylY(0.1, 0.085, 24), 'paper', V3(-2.4, 2.9, -3.3))), [-0.55, -0.45, 0]);
 }
 {
-  /* --- клапан N345 (переключение охладителя EGR) --- */
+  /* --- клапан N345 (переключение охладителя EGR): в держателе спереди на впускном коллекторе --- */
   const a = new Asm('n345', 'vac');
-  a.anchor.copy(VAC.n345).add(V3(0, 0.3, 0));
+  a.anchor.copy(VAC.n345).add(V3(0, 0.35, 0.1));
   const c = VAC.n345;
-  const body = group(mesh(cylY(0.12, 0.24, 24), 'plastic', c.clone()), mesh(cylY(0.025, 0.14, 10), 'plastic', c.clone().add(V3(-0.06, 0.16, -0.02))), mesh(cylZ(0.025, 0.14, 10), 'plastic', c.clone().add(V3(-0.1, 0.05, 0.14))));
-  a.part('n345_body', body, [0, 0.4, 0]);
-  a.part('n345_conn', mesh(rbox(0.13, 0.12, 0.16, 0.03), 'plasticGrey', c.clone().add(V3(0.17, -0.02, 0))), [0.4, 0, 0]);
+  const body = group(mesh(cylY(0.12, 0.24, 24), 'plastic', c.clone()), mesh(cylY(0.025, 0.14, 10), 'plastic', c.clone().add(V3(-0.06, 0.19, -0.02))), mesh(cylY(0.025, 0.14, 10), 'plastic', c.clone().add(V3(0, -0.19, 0))));
+  a.part('n345_body', body, [0, 0.4, 0.3]);
+  a.part('n345_conn', mesh(rbox(0.13, 0.12, 0.16, 0.03), 'plasticGrey', c.clone().add(V3(0.17, -0.02, 0))), [0.4, 0, 0.2]);
+  a.part('n345_holder', group(mesh(rbox(0.3, 0.3, 0.05, 0.02), 'plasticGrey', c.clone().add(V3(0, 0, -0.14))), fastenerObj('bolt', c.clone().add(V3(0.1, 0.1, -0.1)), V3(0, 0, 1), 0.8)), [0, 0, -0.35]);
 }
 {
-  /* --- вакуумные трубки --- */
+  /* --- вакуумные трубки, ресивер разрежения, теплозащитные рукава --- */
   const a = new Asm('vlines', 'vac');
   a.anchor.copy(VAC.tee).add(V3(0, 0.25, 0));
   const R = {pump_check: .036, check_tee: .036, tee_n75: .034, n75_act: .034, n75_vent: .034, tee_n345: .032, n345_can: .03, brake: .06};
-  const EX = {pump_check: [0, .35, 0], check_tee: [0, .45, 0], tee_n75: [0, .5, -.3], n75_act: [0, .7, -.3], n75_vent: [-.3, -.2, -.2], tee_n345: [0, .6, 0], n345_can: [0, 0, .5], brake: [-.4, .3, 0]};
+  const EX = {pump_check: [0, .35, 0], check_tee: [0, .45, 0], tee_n75: [0, .5, -.3], n75_act: [0, .7, -.3], n75_vent: [-.3, -.2, -.2], tee_n345: [0, .6, 0], n345_can: [0, -.4, .3], brake: [-.4, .3, 0]};
   W.vlines = {};
   for (const k in VACP) {
     const m = mesh(tubeGeo(VACP[k], R[k], 60, 10), 'vacHose');
@@ -1172,9 +1268,17 @@ const VACP = {
     W.vlines[k] = m;
   }
   a.part('tee', mesh(new THREE.SphereGeometry(0.06, 16, 12), 'plasticGrey', VAC.tee.clone()), [0, .45, -.2]);
+  a.part('reservoir', mesh(cylZ(0.11, 0.3, 24), 'plastic', VAC.res.clone()), [0, .55, 0]);
+  const sleeve = (key, t0, t1, ex) => {
+    const c = curveOf(toArr(VACP[key])); const pts = []; for (let i = 0; i <= 12; i++) pts.push(c.getPointAt(lerp(t0, t1, i / 12)));
+    a.part('sleeve_' + key, mesh(tubeGeo(pts, 0.062, 24, 12), 'heat'), ex);
+  };
+  sleeve('n75_act', 0.66, 0.97, [0, .8, -.4]);
+  sleeve('n345_can', 0.78, 0.97, [0, -.45, .45]);
   const booster = mesh(cylZ(0.95, 0.5, 48), new THREE.MeshStandardMaterial({color: 0x2a2e33, roughness: .5, metalness: .4, transparent: true, opacity: .35}), V3(-3.3, 3.85, -4.65));
   a.part('booster', booster, [0, 0, -.5]);
 }
+function toArr(pts) { return pts.map(p => Array.isArray(p) ? V3(...p) : p.clone()); }
 
 /* ================== ВПУСК И ТРАКТ НАДДУВА ================== */
 /* гибкий патрубок: концы можно сдвигать (снятие со штуцера), геометрия перестраивается */
@@ -1188,7 +1292,7 @@ class Flex {
   rFn(t) {
     let r = this.r;
     if (this.bell) for (const b of this.bell) r += bellow(t, ...b);
-    const e = 0.035; if (t < e || t > 1 - e) r *= 1.08; // утолщение манжеты
+    const e = 0.035; if (t < e || t > 1 - e) r *= 1.08;
     return r;
   }
   build() {
@@ -1200,28 +1304,32 @@ class Flex {
   update() { const g = this.build(); this.mesh.geometry.dispose(); this.mesh.geometry = g; }
   endDir(i) { const p = this.pts, n = p.length; return i ? V3().subVectors(p[n - 1], p[n - 2]).normalize() : V3().subVectors(p[0], p[1]).normalize(); }
 }
-/* штуцер трубы с буртиком (ось Y), для соединений */
+/* рифлёный штуцер (Riffelstutzen) вдоль оси Y: на него надевается патрубок под винтовой хомут */
 function spigot(r, len, material = 'alu') {
-  const g = group(mesh(cylY(r, len, 28), material), mesh(new THREE.TorusGeometry(r, 0.014, 8, 32).rotateX(Math.PI / 2), material, V3(0, len / 2 - 0.1, 0)));
+  const g = group(mesh(cylY(r, len, 28), material));
+  for (let i = 0; i < 3; i++) g.add(mesh(new THREE.TorusGeometry(r, 0.011, 8, 32).rotateX(Math.PI / 2), material, V3(0, len / 2 - 0.035 - i * 0.045, 0)));
   return g;
 }
 function placeAlong(obj, p, dir) { obj.position.copy(p); alignY(obj, dir); return obj; }
+const exv = (d, k, extra = [0, 0, 0]) => [d.x * k + extra[0], d.y * k + extra[1], d.z * k + extra[2]];
 
 const AIR = {
-  duct: [[-3.4, 3.8, -1.42], [-3.4, 3.76, -1.9], [-3.26, 3.32, -2.55], [-2.78, 2.56, -2.85], [-2.3, 2.26, -2.85], [-1.9, 2.25, -2.85]],
+  duct: [[-3.4, 3.8, -1.42], [-3.4, 3.76, -1.9], [-3.26, 3.32, -2.55], [-2.85, 2.6, -2.85], [-2.55, 2.27, -2.85], [-2.27, 2.25, -2.85]],
   pcv: [[-1.65, 3.93, -1.05], [-2.2, 3.98, -1.35], [-2.9, 3.62, -2.2], [-3.1, 3.36, -2.55]],
-  hotUp: null,
-  pipeHot: [[-1.45, 0.85, -3.38], [-1.5, 0.3, -3.38], [-1.78, -0.36, -3.28], [-2.42, -0.74, -2.98], [-3.02, -0.84, -2.35], [-3.1, -0.86, -1.0], [-3.1, -0.86, 1.6], [-3.1, -0.8, 3.55], [-3.08, -0.7, 4.2]],
+  pipeHot: [[-1.45, 0.45, -3.38], [-1.55, 0.0, -3.36], [-1.85, -0.42, -3.25], [-2.42, -0.74, -2.98], [-3.02, -0.84, -2.35], [-3.1, -0.86, -1.0], [-3.1, -0.86, 1.6], [-3.1, -0.8, 3.55], [-3.08, -0.7, 4.2]],
   hotLo: [[-3.08, -0.71, 4.07], [-3.08, -0.62, 4.45], [-3.05, -0.4, 4.78], [-3.05, -0.32, 5.0]],
-  coldLo: [[2.65, -0.32, 5.0], [2.66, -0.38, 4.62], [2.7, -0.15, 4.28], [2.72, 0.12, 4.13]],
-  pipeCold: [[2.72, 0.02, 4.18], [2.72, 0.9, 3.86], [2.5, 1.45, 3.66], [1.6, 1.62, 3.56], [-0.2, 1.65, 3.55], [-1.3, 1.7, 3.6], [-1.85, 1.85, 3.66], [-2.12, 2.0, 3.68]],
-  coldUp: [[-2.0, 1.94, 3.68], [-2.3, 2.3, 3.64], [-2.36, 2.8, 3.47], [-2.35, 2.95, 3.2]],
-  g31: V3(-1.3, 1.87, 3.6),
-  thr: V3(-2.35, 2.95, 2.95),
+  coldLo: [[2.65, -0.32, 5.0], [2.66, -0.36, 4.62], [2.6, -0.1, 4.25], [2.52, 0.08, 4.05]],
+  pipeCold: [[2.5, 0.16, 3.98], [2.35, 0.5, 3.62], [2.05, 0.85, 3.22], [1.7, 1.12, 2.92], [1.5, 1.38, 2.7], [1.46, 1.64, 2.58]],
+  coldUp: [[1.46, 1.54, 2.61], [1.45, 1.8, 2.56], [1.45, 1.98, 2.53], [1.45, 2.2, 2.52]],
+  thr: V3(1.45, 2.47, 2.52),
 };
 {
-  const co = W.anim.compOut; const p = TA(0).add(co.p), d = co.d;
-  AIR.hotUp = [p.clone().addScaledVector(d, -0.14), p.clone().addScaledVector(d, 0.28), V3(-1.36, 1.14, -3.38), V3(-1.45, 0.72, -3.38)];
+  const p = TA(0).add(W.anim.pulsEnd);
+  AIR.hotUp = [p.clone().add(V3(0, 0.12, 0)), p.clone().add(V3(0, -0.22, -0.01)), V3(-1.36, 0.8, -3.37), V3(-1.45, 0.33, -3.38)];
+  const c = curveOf(AIR.pipeCold.map(q => V3(...q)));
+  const pt = c.getPointAt(0.18), tg = c.getTangentAt(0.18);
+  AIR.g31Dir = V3().crossVectors(tg, V3(1, 0, 0)).normalize(); if (AIR.g31Dir.y > 0) AIR.g31Dir.negate();
+  AIR.g31 = pt.clone().addScaledVector(AIR.g31Dir, 0.17);
 }
 
 /* --- корпус воздушного фильтра --- */
@@ -1235,8 +1343,11 @@ const AIR = {
   a.part('ab_element', el, [0, 0.95, 0]);
   const cover = group(mesh(rbox(1.95, 0.5, 2.55, 0.16, 4), 'plastic', V3(-4.05, 4.1, 0.4)));
   for (let i = 0; i < 5; i++) cover.add(mesh(rbox(1.6, 0.05, 0.06, 0.02), 'plastic', V3(-4.05, 4.36, -0.6 + i * 0.5)));
-  for (const [x, z] of [[-4.95, -0.8], [-4.95, 1.6], [-3.15, -0.8], [-3.15, 1.6]]) cover.add(mesh(rbox(0.1, 0.14, 0.12, 0.03), 'steelDark', V3(x, 3.85, z)));
   a.part('ab_cover', cover, [0, 1.7, 0]);
+  a.part('f_ab_top', group(...[[-4.95, -0.8], [-4.95, 1.6], [-3.15, -0.8], [-3.15, 1.6]].map(([x, z]) => fastenerObj('screw', V3(x, 4.36, z), V3(0, 1, 0)))), [0, 2.2, 0]);
+  a.part('f_ab_bot', fastenerObj('bolt', V3(-4.9, 3.1, 1.66), V3(0, 0, 1)), [0, -0.9, 0.4]);
+  const fl = group(mesh(cylY(0.05, 0.14, 12), 'rubber', V3(-4.7, 3.03, 1.0)), mesh(tubeGeo([[-4.7, 2.97, 1.0], [-4.72, 2.6, 1.05], [-4.75, 2.1, 1.2]], 0.03, 16, 8), 'rubber'));
+  a.part('ab_flutter', fl, [0, -0.8, 0.3]);
   const sn = group(mesh(varTubeGeo(curveOf([[-4.3, 3.62, 1.55], [-4.34, 3.7, 2.4], [-4.3, 3.88, 3.55], [-4.28, 3.92, 3.85]]), t => 0.24 + 0.05 * t, 48, 20), 'plastic'));
   sn.add(mesh(rbox(0.8, 0.5, 0.1, 0.05), 'plasticGrey', V3(-4.28, 3.92, 3.9)));
   a.part('ab_snorkel', sn, [0, 0.2, 0.9]);
@@ -1248,17 +1359,18 @@ const AIR = {
   a.part('maf_tube', group(mesh(cylZ(0.24, 0.58, 32), 'plasticGrey', V3(-3.4, 3.8, -1.13)), mesh(cylZ(0.27, 0.06, 32), 'plasticGrey', V3(-3.4, 3.8, -0.87))), [0, 0, -0.3]);
   a.part('maf_sensor', group(mesh(rbox(0.26, 0.2, 0.36, 0.04), 'plastic', V3(-3.4, 4.1, -1.13)), mesh(rbox(0.05, 0.26, 0.14, 0.01), 'pcb', V3(-3.4, 3.9, -1.13))), [0, 0.65, 0]);
   a.part('maf_conn', mesh(rbox(0.2, 0.14, 0.2, 0.03), 'plastic', V3(-3.18, 4.14, -1.13)), [0.45, 0.6, 0]);
-  a.part('maf_screws', group(mesh(cylY(0.03, 0.1, 10), 'steel', V3(-3.4, 4.23, -0.99)), mesh(cylY(0.03, 0.1, 10), 'steel', V3(-3.4, 4.23, -1.27))), [0, 1.05, 0]);
+  a.part('maf_screws', group(fastenerObj('screw', V3(-3.4, 4.21, -0.99), V3(0, 1, 0), 0.8), fastenerObj('screw', V3(-3.4, 4.21, -1.27), V3(0, 1, 0), 0.8)), [0, 1.05, 0]);
+  a.part('maf_oring', at(oringObj(0.235, 0.014).rotateX(Math.PI / 2), -3.4, 3.8, -0.85), [0, 0.35, 0.45]);
 }
 /* --- впускной патрубок к турбине + вентиляция картера --- */
 {
   const a = new Asm('induct', 'intake');
   a.anchor.set(-3.0, 3.35, -2.6);
-  const duct = new Flex(AIR.duct, 0.25, {bell: [[0.62, 0.8, 5, 0.035]], material: 'rubber'});
+  const duct = new Flex(AIR.duct, 0.25, {bell: [[0.6, 0.8, 5, 0.035]], material: 'rubber'});
   a.part('duct', duct.mesh, [0, 0.45, -0.3]);
   W.hoses.duct = duct;
   a.part('pcv_hose', mesh(tubeGeo(AIR.pcv, 0.06, 40, 12), 'vacHose'), [0, 0.8, 0.2]);
-  const cl = group(placeAlong(clampObj(0.27), V3(-2.02, 2.25, -2.85), V3(1, 0, 0)), placeAlong(clampObj(0.27), V3(-3.4, 3.79, -1.52), V3(0, 0, 1)));
+  const cl = group(placeAlong(clampObj(0.275, 0.07), V3(-2.33, 2.25, -2.85), V3(1, 0, 0)), placeAlong(clampObj(0.275, 0.07), V3(-3.4, 3.79, -1.52), V3(0, 0, 1)));
   a.part('duct_clamps', cl, [0, 0.3, -0.5]);
   W.anim.ductClampTurbo = cl.children[0];
 }
@@ -1270,20 +1382,22 @@ const AIR = {
   const up = new Flex(AIR.hotUp, 0.2, {bell: [[0.3, 0.7, 3, 0.03]]});
   a.part('hose_hot_up', up.mesh, [0.3, 0.2, -0.6]);
   const pipe = group(mesh(tubeGeo(AIR.pipeHot, 0.17, 140, 22), 'alu'));
-  pipe.add(placeAlong(spigot(0.17, 0.26), V3(-1.45, 0.86, -3.38), V3(0, 1, 0)));
-  pipe.add(placeAlong(spigot(0.17, 0.26), V3(-3.08, -0.7, 4.2), V3(0.03, 0.15, 1)));
-  pipe.add(mesh(rbox(0.1, 0.3, 0.2, 0.03), 'steelDark', V3(-3.1, -0.62, 0.3)));
+  const spTop = placeAlong(spigot(0.17, 0.26), V3(-1.45, 0.46, -3.38), V3(0, 1, 0));
+  const spFront = placeAlong(spigot(0.17, 0.26), V3(-3.08, -0.7, 4.2), V3(0.03, 0.15, 1));
+  pipe.add(spTop, spFront);
   a.part('pipe_hot', pipe, [-0.4, -0.35, 0]);
+  a.part('pipe_mount', group(mesh(rbox(0.1, 0.3, 0.2, 0.03), 'steelDark', V3(-3.1, -0.62, 0.3)), mesh(cylZ(0.05, 0.12, 12), 'rubber', V3(-3.1, -0.5, 0.3)), fastenerObj('bolt', V3(-3.1, -0.5, 0.42), V3(0, 0, 1))), [0, -0.5, 0.2]);
   const lo = new Flex(AIR.hotLo, 0.2, {});
   a.part('hose_hot_lo', lo.mesh, [-0.3, -0.2, 0.5]);
   W.hoses.hotUp = up; W.hoses.hotLo = lo;
   const cl = group(
-    placeAlong(clampObj(0.215), V3().copy(AIR.hotUp[0]).addScaledVector(up.endDir(0), -0.06), up.endDir(0)),
+    placeAlong(clampObj(0.215), AIR.hotUp[0].clone().addScaledVector(up.endDir(0), -0.06), up.endDir(0)),
     placeAlong(clampObj(0.215), AIR.hotUp[3].clone().addScaledVector(up.endDir(1), -0.06), up.endDir(1)),
     placeAlong(clampObj(0.215), V3(...AIR.hotLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)),
     placeAlong(clampObj(0.215), V3(...AIR.hotLo[3]).addScaledVector(lo.endDir(1), -0.06), lo.endDir(1)));
   a.part('clamps_hot', cl, [0, 0.7, 0]);
   W.anim.clampsHot = [...cl.children];
+  W.anim.spigots = {hotTop: spTop, hotFront: spFront};
 }
 /* --- интеркулер --- */
 {
@@ -1300,116 +1414,128 @@ const AIR = {
   const seals = group(at(oringObj(0.19, 0.02).rotateX(Math.PI / 2), -3.05, -0.32, 4.93), at(oringObj(0.19, 0.02).rotateX(Math.PI / 2), 2.65, -0.32, 4.93));
   a.part('ic_seals', seals, [0, 0.35, -0.6]);
   W.anim.icSeals = [...seals.children];
-  const mounts = group(...[-2.6, 2.2].map(x => mesh(rbox(0.3, 0.12, 0.3, 0.04), 'rubber', V3(x, -1.0, 5.35))), ...[-2.6, 2.2].map(x => mesh(rbox(0.3, 0.12, 0.3, 0.04), 'rubber', V3(x, 0.5, 5.35))));
-  a.part('ic_mounts', mounts, [0, -0.5, 0.3]);
+  a.part('ic_mounts', group(...[-2.6, 2.2].map(x => mesh(rbox(0.3, 0.12, 0.3, 0.04), 'rubber', V3(x, -1.0, 5.35)))), [0, -0.5, 0.3]);
+  a.part('f_ic', group(...[-2.6, 2.2].map(x => fastenerObj('bolt', V3(x, 0.52, 5.35), V3(0, 1, 0)))), [0, 0.6, 0.3]);
 }
 /* --- тракт наддува: холодная сторона --- */
 {
   const a = new Asm('charge_cold', 'charge');
-  a.anchor.set(0.6, 2.05, 3.6);
+  a.anchor.set(2.2, 1.5, 3.6);
   const lo = new Flex(AIR.coldLo, 0.2, {});
   a.part('hose_cold_lo', lo.mesh, [0.5, -0.3, 0.4]);
-  const pipe = group(mesh(tubeGeo(AIR.pipeCold, 0.17, 140, 22), 'plastic'));
-  const dBot = V3().subVectors(V3(...AIR.pipeCold[0]), V3(...AIR.pipeCold[1])).normalize();
-  const dTop = V3().subVectors(V3(...AIR.pipeCold[7]), V3(...AIR.pipeCold[6])).normalize();
-  pipe.add(placeAlong(spigot(0.17, 0.2, 'plastic'), V3(...AIR.pipeCold[0]).addScaledVector(dBot, 0.02), dBot));
-  pipe.add(placeAlong(spigot(0.17, 0.2, 'plastic'), V3(...AIR.pipeCold[7]).addScaledVector(dTop, -0.02), dTop));
-  pipe.add(mesh(cylY(0.1, 0.08, 24), 'plastic', AIR.g31.clone().add(V3(0, -0.06, 0))));
-  a.part('pipe_cold', pipe, [0, 0.25, 0.55]);
-  const up = new Flex(AIR.coldUp, 0.2, {bell: [[0.35, 0.7, 3, 0.03]]});
-  a.part('hose_cold_up', up.mesh, [-0.5, 0.35, 0.4]);
+  const pipe = group(mesh(tubeGeo(AIR.pipeCold, 0.17, 120, 22), 'plastic'));
+  const P = AIR.pipeCold.map(q => V3(...q)), n = P.length;
+  const dBot = V3().subVectors(P[0], P[1]).normalize(), dTop = V3().subVectors(P[n - 1], P[n - 2]).normalize();
+  const spBot = placeAlong(spigot(0.17, 0.2, 'plastic'), P[0].clone().addScaledVector(dBot, 0.02), dBot);
+  const spTop = placeAlong(spigot(0.17, 0.2, 'plastic'), P[n - 1].clone().addScaledVector(dTop, -0.02), dTop);
+  pipe.add(spBot, spTop);
+  pipe.add(placeAlong(mesh(cylY(0.1, 0.1, 24), 'plastic'), AIR.g31.clone().addScaledVector(AIR.g31Dir, -0.1), AIR.g31Dir));
+  a.part('pipe_cold', pipe, [0.35, -0.3, 0.55]);
+  const up = new Flex(AIR.coldUp, 0.2, {bell: [[0.3, 0.7, 3, 0.03]]});
+  a.part('hose_cold_up', up.mesh, [-0.3, 0.1, 0.55]);
   W.hoses.coldLo = lo; W.hoses.coldUp = up;
-  const ors = group(
-    placeAlong(oringObj(0.175), V3(...AIR.pipeCold[0]).addScaledVector(dBot, -0.03), dBot),
-    placeAlong(oringObj(0.175), V3(...AIR.pipeCold[7]).addScaledVector(dTop, -0.05), dTop),
-    placeAlong(oringObj(0.175), AIR.thr.clone().add(V3(0, 0, 0.28)), V3(0, 0, 1)));
-  a.part('orings_cold', ors, [0, -0.35, 0.6]);
-  W.anim.oringsCold = [...ors.children];
   const clips = group(
-    placeAlong(clampObj(0.215, 0.07), V3(...AIR.coldLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)),
-    placeAlong(clampObj(0.215, 0.07), V3(...AIR.coldLo[3]).addScaledVector(lo.endDir(1), -0.05), lo.endDir(1)),
-    placeAlong(clampObj(0.215, 0.07), V3(...AIR.coldUp[0]).addScaledVector(up.endDir(0), -0.05), up.endDir(0)),
-    placeAlong(clampObj(0.215, 0.07), V3(...AIR.coldUp[3]).addScaledVector(up.endDir(1), -0.06), up.endDir(1)));
-  a.part('clips_cold', clips, [0, 0.7, 0.2]);
+    placeAlong(clampObj(0.215), V3(...AIR.coldLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)),
+    placeAlong(clampObj(0.215), V3(...AIR.coldLo[3]).addScaledVector(lo.endDir(1), -0.05), lo.endDir(1)),
+    placeAlong(clampObj(0.215), V3(...AIR.coldUp[0]).addScaledVector(up.endDir(0), -0.05), up.endDir(0)),
+    placeAlong(clampObj(0.215), V3(...AIR.coldUp[3]).addScaledVector(up.endDir(1), -0.06), up.endDir(1)));
+  a.part('clamps_cold', clips, [0, 0.7, 0.2]);
   W.anim.clipsCold = [...clips.children];
+  W.anim.spigots.coldBot = spBot; W.anim.spigots.coldTop = spTop;
 }
-/* --- датчик давления наддува G31 с датчиком температуры G42 --- */
+/* --- датчик давления наддува G31 с датчиком температуры G42 (на трубе к заслонке, доступ снизу) --- */
 {
   const a = new Asm('g31', 'charge');
-  const p = AIR.g31;
-  a.anchor.copy(p).add(V3(0, 0.35, 0));
-  a.part('g31_body', group(mesh(cylY(0.09, 0.1, 24), 'plastic', p.clone().add(V3(0, 0.05, 0))), mesh(rbox(0.36, 0.05, 0.2, 0.02), 'plastic', p.clone().add(V3(0.06, 0.1, 0)))), [0, 0.55, 0]);
-  a.part('g31_elem', mesh(rbox(0.1, 0.03, 0.1, 0.01), 'pcb', p.clone().add(V3(0, 0.0, 0))), [0.3, 0.25, 0]);
-  a.part('g31_ntc', mesh(cylY(0.018, 0.16, 8), 'brass', p.clone().add(V3(0.0, -0.1, 0.0))), [-0.3, -0.35, 0]);
-  a.part('g31_oring', at(oringObj(0.07, 0.016), p.x, p.y - 0.02, p.z), [0, 0.2, 0.3]);
-  a.part('g31_screw', mesh(cylY(0.025, 0.14, 10), 'steel', p.clone().add(V3(0.18, 0.1, 0))), [0.35, 0.8, 0]);
-  a.part('g31_conn', mesh(rbox(0.18, 0.14, 0.16, 0.03), 'plastic', p.clone().add(V3(-0.17, 0.12, 0))), [-0.45, 0.6, 0]);
+  const p = AIR.g31, d = AIR.g31Dir;
+  a.anchor.copy(p).addScaledVector(d, 0.35);
+  const along = (k) => p.clone().addScaledVector(d, k);
+  a.part('g31_body', group(placeAlong(mesh(cylY(0.09, 0.1, 24), 'plastic'), along(0.05), d), placeAlong(mesh(rbox(0.36, 0.05, 0.2, 0.02), 'plastic'), along(0.1), d)), exv(d, 0.55));
+  a.part('g31_elem', placeAlong(mesh(rbox(0.1, 0.03, 0.1, 0.01), 'pcb'), along(0.0), d), exv(d, 0.3, [0.3, 0, 0]));
+  a.part('g31_ntc', placeAlong(mesh(cylY(0.018, 0.16, 8), 'brass'), along(-0.1), d), exv(d, -0.35));
+  a.part('g31_oring', placeAlong(oringObj(0.07, 0.016), along(-0.02), d), exv(d, 0.2, [0, 0, 0.3]));
+  a.part('g31_screw', placeAlong(fastenerObj('screw', V3(), V3(0, 1, 0)), along(0.12).add(V3(0.17, 0, 0)), d), exv(d, 0.8, [0.35, 0, 0]));
+  a.part('g31_conn', placeAlong(mesh(rbox(0.18, 0.14, 0.16, 0.03), 'plastic'), along(0.12).add(V3(-0.17, 0, 0)), d), exv(d, 0.6, [-0.45, 0, 0]));
 }
-/* --- дроссельная заслонка J338 --- */
+/* --- дроссельная заслонка J338: на коллекторе спереди, горловиной вниз --- */
 {
   const a = new Asm('throttle', 'charge');
   const c = AIR.thr;
-  a.anchor.copy(c).add(V3(-0.2, 0.45, 0.2));
-  a.part('thr_body', group(mesh(cylZ(0.3, 0.36, 36), 'alu', c.clone()), mesh(cylZ(0.22, 0.2, 32), 'alu', c.clone().add(V3(0, 0, 0.26))), mesh(rbox(0.72, 0.72, 0.05, 0.05), 'alu', c.clone().add(V3(0, 0, -0.18)))), [0, 0, 0.5]);
-  const plate = group(mesh(cylZ(0.21, 0.018, 36), 'aluBright', c.clone()), mesh(cylX(0.02, 0.5, 8), 'steel', c.clone()));
-  a.part('thr_plate', plate, [0, 0.55, 0.9]);
+  a.anchor.copy(c).add(V3(0.45, 0.2, 0.3));
+  a.part('thr_body', group(mesh(cylY(0.3, 0.36, 36), 'alu', c.clone()), placeAlong(spigot(0.22, 0.2), c.clone().add(V3(0, -0.28, 0)), V3(0, -1, 0)), mesh(rbox(0.72, 0.05, 0.72, 0.05), 'alu', c.clone().add(V3(0, 0.2, 0)))), [0, -0.55, 0.45]);
+  const plate = group(mesh(cylY(0.21, 0.018, 36), 'aluBright', c.clone()), mesh(cylX(0.02, 0.5, 8), 'steel', c.clone()));
+  a.part('thr_plate', plate, [0, -0.35, 0.95]);
   W.anim.thrPlate = plate;
-  a.part('thr_motor', group(mesh(rbox(0.3, 0.52, 0.34, 0.06), 'plastic', c.clone().add(V3(-0.42, -0.08, 0))), mesh(rbox(0.16, 0.16, 0.22, 0.03), 'plastic', c.clone().add(V3(-0.42, 0.28, 0.02)))), [-0.55, 0, 0.3]);
-  a.part('thr_g69', mesh(rbox(0.06, 0.22, 0.22, 0.02), 'pcb', c.clone().add(V3(-0.6, -0.08, 0))), [-0.95, 0.1, 0.3]);
-  a.part('thr_seal', at(oringObj(0.3, 0.018).rotateX(Math.PI / 2), c.x, c.y, c.z - 0.21), [0, 0, -0.4]);
+  a.part('thr_motor', group(mesh(rbox(0.3, 0.5, 0.34, 0.06), 'plastic', c.clone().add(V3(0.42, -0.02, 0))), mesh(rbox(0.16, 0.16, 0.22, 0.03), 'plastic', c.clone().add(V3(0.42, 0.28, 0.02)))), [0.6, 0, 0.3]);
+  a.part('thr_g69', mesh(rbox(0.06, 0.22, 0.22, 0.02), 'pcb', c.clone().add(V3(0.6, -0.02, 0))), [0.95, 0.1, 0.3]);
+  a.part('thr_seal', at(oringObj(0.28, 0.016), c.x, c.y + 0.22, c.z), [0, 0.1, 0.55]);
+  a.part('f_thr', group(...[[-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].map(([dx, dz]) => fastenerObj('bolt', c.clone().add(V3(dx, 0.21, dz)), V3(0, -1, 0)))), [0, -0.15, 0.75]);
+  a.part('thr_support', group(rodBetween(V3(1.2, 2.25, 2.33), V3(1.1, 1.3, 1.62), 0.035, 'steelDark'), fastenerObj('bolt', V3(1.1, 1.3, 1.6), V3(0, 0, 1))), [0, -0.3, 0.5]);
+  W.anim.spigots.thrIn = a.partObj('thr_body').children[1];
 }
-/* --- впускной коллектор со смесительной камерой EGR --- */
+/* --- впускной коллектор: ресивер, патрубок EGR, крепёж Torx T30 --- */
 {
   const a = new Asm('manifold', 'charge');
   a.anchor.set(0.4, 3.45, 2.3);
   const pl = group(mesh(rbox(3.8, 0.55, 0.56, 0.2, 4), 'alu', V3(0, 2.95, 2.22)));
   for (const x of L.cyl) pl.add(mesh(tubeGeo([[x, 2.95, 2.05], [x, 2.9, 1.8], [x, 2.86, 1.58]], 0.15, 12, 20), 'alu'));
   pl.add(mesh(rbox(3.6, 0.45, 0.08, 0.04), 'alu', V3(0, 2.86, 1.58)));
-  for (const x of [-1.76, -0.88, 0, 0.88, 1.76]) pl.add(mesh(hexGeo(0.045, 0.06).rotateX(Math.PI / 2), 'steel', V3(x, 3.12, 1.64)));
+  pl.add(mesh(cylY(0.26, 0.12, 32), 'alu', V3(AIR.thr.x, 2.68, AIR.thr.z)));
   a.part('im_plenum', pl, [0, 0.9, 0.2]);
-  const mix = group(mesh(tubeGeo([[-2.35, 2.95, 2.8], [-2.35, 2.95, 2.45], [-2.12, 2.95, 2.24], [-1.85, 2.95, 2.22]], 0.24, 20, 24), 'alu'));
-  mix.add(mesh(cylY(0.17, 0.26, 24), 'alu', V3(-2.35, 2.72, 2.43)));
-  a.part('im_mix', mix, [-0.6, 0.55, 0.3]);
+  a.part('f_im', group(...[-1.76, -0.88, 0, 0.88, 1.76].flatMap(x => [fastenerObj('torx', V3(x, 3.13, 1.63), V3(0, 0, 1)), fastenerObj('torx', V3(x, 2.6, 1.63), V3(0, 0, 1))])), [0, 1.3, 0.5]);
+  const egr = group(mesh(tubeGeo([[-2.3, 2.62, 2.2], [-2.1, 2.8, 2.22], [-1.86, 2.9, 2.22]], 0.13, 16, 20), 'alu'), mesh(cylX(0.18, 0.04, 24), 'alu', V3(-1.9, 2.92, 2.22)));
+  a.part('im_egr', egr, [-0.55, 0.35, 0.3]);
+  a.part('f_im_egr', group(fastenerObj('bolt', V3(-1.94, 3.12, 2.22), V3(-1, 0, 0)), fastenerObj('bolt', V3(-1.94, 2.72, 2.22), V3(-1, 0, 0))), [-0.8, 0.35, 0.3]);
   a.part('im_gasket', mesh(rbox(3.6, 0.46, 0.02, 0.01), 'green', V3(0, 2.86, 1.535)), [0, 0.3, -0.35]);
+  const dip = group(mesh(tubeGeo([[0.95, 0.5, 1.53], [0.95, 1.6, 1.85], [0.92, 2.6, 2.62], [0.9, 3.45, 2.66]], 0.035, 30, 8), 'plasticGrey'), mesh(rbox(0.12, 0.1, 0.12, 0.03), 'plasticWhite', V3(0.9, 3.5, 2.66)));
+  dip.children[1].material.color.set(0xe0a31a);
+  a.part('dipstick', dip, [0.35, 0.3, 0.4]);
 }
 /* --- радиатор (контекст, не выбирается) --- */
 const radiator = new THREE.Mesh(rbox(4.4, 3.7, 0.3, 0.05), new THREE.MeshStandardMaterial({color: 0x6f7780, transparent: true, opacity: 0.12, depthWrite: false, roughness: .6}));
 radiator.position.set(-0.2, 1.05, 4.72);
 scene.add(radiator);
 
-/* ================== EGR, ВЫПУСК, ЭБУ ================== */
-const EGRP = [[-1.05, 2.7, -1.82], [-1.6, 2.46, -1.76], [-2.4, 2.05, -1.55], [-2.74, 1.78, -0.6], [-2.76, 1.55, 0.8], [-2.66, 1.2, 1.6], [-2.5, 1.12, 1.95]];
-const EGR_TO_VALVE = [[-2.3, 1.58, 2.22], [-2.36, 1.9, 2.36], [-2.38, 2.14, 2.42]];
+/* ================== EGR (сзади, под турбиной), ВЫПУСК, ЭБУ ================== */
+/* трубка 1: отвод от выпускного коллектора → вход охладителя (с развязывающим элементом) */
+const EGRP1 = [[-1.05, 2.7, -1.84], [-1.1, 2.35, -1.9], [-1.15, 1.95, -1.95], [-1.18, 1.52, -1.98]];
+/* трубка 2: клапан EGR → патрубок EGR на впускном коллекторе (вокруг левого торца двигателя) */
+const EGRP2 = [[-2.72, 1.3, -1.98], [-2.86, 1.45, -1.5], [-2.87, 1.62, -0.3], [-2.8, 1.8, 0.9], [-2.6, 2.2, 1.75], [-2.4, 2.52, 2.12], [-2.3, 2.62, 2.2]];
+const EGR_VALVE = V3(-2.55, 1.25, -1.98);
 TX.cells = canvasTex(64, 64, (g, w, h) => {
   g.fillStyle = '#3a3a3a'; g.fillRect(0, 0, w, h); g.fillStyle = '#9a9a9a';
   for (let y = 0; y < h; y += 8) for (let x = 0; x < w; x += 8) g.fillRect(x + 1, y + 1, 6, 6);
 }, {repeat: [10, 4]});
 {
   const a = new Asm('egr', 'egr');
-  a.anchor.set(-1.7, 1.95, 2.55);
-  const pipe = mesh(varTubeGeo(curveOf(EGRP), t => 0.09 + bellow(t, 0.07, 0.2, 6, 0.025) + bellow(t, 0.78, 0.9, 6, 0.025), 160, 16), 'stainless');
-  a.part('egr_pipe', pipe, [-0.4, 0.2, 0]);
-  const cooler = group(mesh(rbox(1.4, 0.45, 0.46, 0.06), 'stainless', V3(-1.6, 1.35, 2.15)));
-  for (let i = 0; i < 7; i++) cooler.add(mesh(rbox(0.04, 0.5, 0.5, 0.01), 'stainless', V3(-2.15 + i * 0.2, 1.35, 2.15)));
-  cooler.add(mesh(cylZ(0.05, 0.25, 12), 'alu', V3(-1.0, 1.52, 1.95)), mesh(cylZ(0.05, 0.25, 12), 'alu', V3(-1.0, 1.18, 1.95)));
-  cooler.add(mesh(tubeGeo([[-1.0, 1.52, 1.83], [-0.8, 1.45, 1.7], [-0.6, 1.3, 1.55]], 0.055, 12, 10), 'rubber'));
-  cooler.add(mesh(tubeGeo([[-1.0, 1.18, 1.83], [-0.75, 1.0, 1.7], [-0.5, 0.85, 1.55]], 0.055, 12, 10), 'rubber'));
-  a.part('egr_cooler', cooler, [0.6, -0.55, 0.4]);
-  const byp = group(mesh(rbox(0.3, 0.52, 0.5, 0.05), 'alu', V3(-2.42, 1.38, 2.15)), mesh(cylX(0.012, 0.36, 8), 'steel', V3(-2.42, 1.2, 2.15)), mesh(rbox(0.02, 0.2, 0.3, 0.005), 'steel', V3(-2.42, 1.2, 2.15)));
-  a.part('egr_bypass', byp, [-0.55, -0.35, 0]);
-  const can = group(mesh(cylZ(0.15, 0.12, 28), 'steel', V3(-2.47, 1.38, 2.47)), mesh(cylZ(0.025, 0.3, 10), 'brass', V3(-2.45, 1.43, 2.68)), mesh(cylX(0.012, 0.2, 8), 'steel', V3(-2.55, 1.25, 2.4)));
-  a.part('egr_can', can, [-0.5, -0.1, 0.55]);
-  const elbow = mesh(tubeGeo(EGR_TO_VALVE, 0.1, 16, 16), 'stainless');
-  a.part('egr_elbow', elbow, [-0.35, 0.1, 0.25]);
-  const valve = group(mesh(rbox(0.42, 0.34, 0.42, 0.06), 'alu', V3(-2.38, 2.33, 2.42)));
-  valve.add(mesh(cylY(0.018, 0.4, 8), 'steel', V3(-2.38, 2.35, 2.42)), mesh(cylY(0.09, 0.02, 20), 'steel', V3(-2.38, 2.18, 2.42)));
-  a.part('egr_valve', valve, [0, 0.35, 0.6]);
+  a.anchor.set(-1.9, 1.95, -1.7);
+  const bell2 = (t) => 0.09 + bellow(t, 0.05, 0.16, 6, 0.025) + bellow(t, 0.84, 0.95, 6, 0.025);
+  a.part('egr_pipe1', mesh(varTubeGeo(curveOf(EGRP1), t => 0.09 + bellow(t, 0.3, 0.62, 6, 0.028), 60, 16), 'stainless'), [0.35, 0.45, -0.35]);
+  a.part('egr_pipe2', mesh(varTubeGeo(curveOf(EGRP2), bell2, 180, 16), 'stainless'), [-0.45, 0.2, 0]);
+  const cooler = group(mesh(rbox(1.2, 0.42, 0.44, 0.06), 'stainless', V3(-1.8, 1.2, -1.98)));
+  for (let i = 0; i < 6; i++) cooler.add(mesh(rbox(0.04, 0.48, 0.5, 0.01), 'stainless', V3(-2.3 + i * 0.2, 1.2, -1.98)));
+  cooler.add(mesh(cylZ(0.05, 0.25, 12), 'alu', V3(-2.3, 0.98, -1.8)), mesh(cylZ(0.05, 0.25, 12), 'alu', V3(-2.05, 0.98, -1.8)));
+  cooler.add(mesh(tubeGeo([[-2.3, 0.98, -1.68], [-2.2, 0.8, -1.6], [-2.0, 0.6, -1.52]], 0.055, 12, 10), 'rubber'));
+  cooler.add(mesh(tubeGeo([[-2.05, 0.98, -1.68], [-1.8, 0.75, -1.6], [-1.55, 0.6, -1.52]], 0.055, 12, 10), 'rubber'));
+  a.part('egr_cooler', cooler, [0, -0.75, -0.45]);
+  const byp = group(mesh(rbox(0.28, 0.5, 0.5, 0.05), 'alu', V3(-1.18, 1.25, -1.98)), mesh(cylZ(0.012, 0.36, 8), 'steel', V3(-1.18, 1.05, -1.98)), mesh(rbox(0.2, 0.02, 0.3, 0.005), 'steel', V3(-1.18, 1.05, -1.98)));
+  a.part('egr_bypass', byp, [0.55, -0.35, 0]);
+  const can = group(mesh(cylZ(0.15, 0.12, 28), 'steel', V3(-1.18, 0.86, -1.68)), mesh(cylZ(0.025, 0.3, 10), 'brass', V3(-1.16, 0.9, -1.48)), mesh(cylX(0.012, 0.24, 8), 'steel', V3(-1.12, 0.98, -1.8)));
+  a.part('egr_can', can, [0.5, -0.45, 0.45]);
+  const valve = group(mesh(rbox(0.3, 0.46, 0.46, 0.06), 'alu', EGR_VALVE.clone()));
+  valve.add(mesh(cylX(0.018, 0.34, 8), 'steel', EGR_VALVE.clone().add(V3(-0.02, 0, 0))), mesh(cylX(0.09, 0.02, 20), 'steel', EGR_VALVE.clone().add(V3(-0.12, 0, 0))));
+  a.part('egr_valve', valve, [-0.55, 0, -0.35]);
   W.anim.egrPoppet = valve.children[2];
-  const mot = group(mesh(rbox(0.32, 0.3, 0.2, 0.05), 'plastic', V3(-2.38, 2.33, 2.72)), mesh(rbox(0.14, 0.1, 0.12, 0.02), 'plasticGrey', V3(-2.2, 2.44, 2.8)));
-  mot.add(mesh(new THREE.PlaneGeometry(0.22, 0.07), new THREE.MeshBasicMaterial({map: textTex('N18', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), V3(-2.4, 2.3, 2.825)));
-  a.part('egr_motor', mot, [0, 0.3, 1.05]);
-  const gk = group(at(oringObj(0.1, 0.012).rotateX(Math.PI / 2), -2.5, 1.12, 1.97), at(oringObj(0.11, 0.012), -2.38, 2.16, 2.42), at(oringObj(0.12, 0.012), -1.05, 2.7, -1.84).rotateX(Math.PI / 2));
+  const mot = group(mesh(rbox(0.3, 0.26, 0.34, 0.05), 'plastic', EGR_VALVE.clone().add(V3(0, 0.36, -0.06))), mesh(rbox(0.14, 0.1, 0.12, 0.02), 'plasticGrey', EGR_VALVE.clone().add(V3(0.1, 0.52, -0.15))));
+  mot.add(mesh(new THREE.PlaneGeometry(0.22, 0.07), new THREE.MeshBasicMaterial({map: textTex('N18', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), EGR_VALVE.clone().add(V3(0, 0.36, -0.235)), [0, Math.PI, 0]));
+  a.part('egr_motor', mot, [-0.3, 0.6, -0.35]);
+  const gk = group(
+    at(oringObj(0.11, 0.012), -1.05, 2.66, -1.84), at(oringObj(0.11, 0.012), -1.18, 1.5, -1.98),
+    at(oringObj(0.11, 0.012).rotateZ(Math.PI / 2), -2.71, 1.3, -1.98), at(oringObj(0.12, 0.012).rotateX(Math.PI / 2), -2.3, 2.62, 2.2));
   a.part('egr_gaskets', gk, [0, -0.4, 0.3]);
+  a.part('f_egr_mani', group(fastenerObj('nut', V3(-0.93, 2.72, -1.84), V3(0, 1, 0)), fastenerObj('nut', V3(-1.17, 2.72, -1.84), V3(0, 1, 0))), [0.2, 0.7, -0.2]);
+  a.part('f_egr_cooler', group(...[-2.25, -1.45].map(x => fastenerObj('bolt', V3(x, 1.2, -1.74), V3(0, 0, 1)))), [0, -0.3, 0.55]);
+  a.part('f_egr_pipes', group(fastenerObj('bolt', V3(-1.02, 1.52, -1.98), V3(0, 1, 0)), fastenerObj('bolt', V3(-2.72, 1.5, -1.98), V3(-1, 0, 0)), fastenerObj('bolt', V3(-2.72, 1.1, -1.98), V3(-1, 0, 0))), [-0.2, 0.5, 0]);
+  a.part('egr_clamp', placeAlong(clampObj(0.12, 0.05), V3(-2.33, 2.6, 2.19), V3(0.3, 0.4, 0.2).normalize()), [-0.4, 0.3, 0.35]);
 }
 {
   const a = new Asm('dpf', 'exh');
@@ -1442,23 +1568,27 @@ TX.cells = canvasTex(64, 64, (g, w, h) => {
   a.part('tailpipe', mesh(tubeGeo([[X, -0.66, Z], [X, -1.0, -3.05], [1.0, -1.5, -3.6], [1.05, -1.72, -4.5]], 0.2, 30, 20), 'stainless'), [0, -0.4, -0.3]);
 }
 {
+  /* ЭБУ стоит в водоотводном коробе под решёткой стеклоочистителей (руководство VW) */
   const a = new Asm('ecu', 'ecu');
-  a.anchor.set(-4.35, 3.95, -3.35);
-  const c = V3(-4.35, 3.55, -3.35);
+  const c = V3(-1.3, 4.72, -4.35);
+  a.anchor.copy(c).add(V3(0, 0.4, 0));
   const cs = group(mesh(rbox(1.2, 0.3, 1.1, 0.05), 'alu', c.clone()));
   for (let i = 0; i < 8; i++) cs.add(mesh(rbox(1.0, 0.06, 0.03, 0.01), 'alu', c.clone().add(V3(0, 0.17, -0.42 + i * 0.12))));
   a.part('ecu_case', cs, [0, 0.8, 0]);
   a.part('ecu_pcb', mesh(rbox(1.05, 0.03, 0.95, 0.01), 'pcb', c.clone().add(V3(0, -0.02, 0))), [0, 0.35, 0]);
   a.part('ecu_baro', mesh(rbox(0.14, 0.06, 0.12, 0.02), 'plastic', c.clone().add(V3(0.3, 0.02, -0.25))), [0.2, 0.55, -0.2]);
   a.part('ecu_conn', group(mesh(rbox(0.5, 0.2, 0.18, 0.03), 'plastic', c.clone().add(V3(-0.2, 0, 0.62))), mesh(rbox(0.36, 0.2, 0.18, 0.03), 'plastic', c.clone().add(V3(0.3, 0, 0.62)))), [0, 0, 0.6]);
+  const fr = group(mesh(rbox(1.36, 0.04, 1.26, 0.02), 'steelDark', c.clone().add(V3(0, -0.18, 0))));
+  fr.add(...[[-0.62, -0.56], [0.62, -0.56], [-0.62, 0.56], [0.62, 0.56]].map(([dx, dz]) => fastenerObj('bolt', c.clone().add(V3(dx, -0.15, dz)), V3(0, 1, 0))));
+  a.part('ecu_frame', fr, [0, -0.45, 0]);
 }
 /* точки подключения проводов (для слоя «Сигналы ЭБУ») */
 W.sig = {
-  src: V3(-4.3, 3.6, -2.7),
+  src: V3(-1.3, 4.72, -3.72),
   targets: [
-    ['G70', 'maf', V3(-3.18, 4.14, -1.13)], ['G31/G42', 'g31', V3(-1.47, 1.99, 3.6)], ['G581', 'actuator', TA(0).add(V3(L.tx.lever + 0.2, 1.48, -0.76))],
-    ['N75', 'n75', V3(-1.57, 3.27, -3.78)], ['J338', 'throttle', V3(-2.77, 3.23, 2.97)], ['N18/G212', 'egr', V3(-2.2, 2.44, 2.8)],
-    ['N345', 'n345', V3(-1.33, 3.4, 2.4)], ['G505', 'dpf', V3(2.14, 1.34, -2.35)], ['G235', 'turbo', TA(0).add(V3(-0.1, 1.2, 0.8))], ['G39', 'dpf', V3(2.1, 2.3, -2.6)],
+    ['G70', 'maf', V3(-3.18, 4.14, -1.13)], ['G31/G42', 'g31', AIR.g31.clone().addScaledVector(AIR.g31Dir, 0.15).add(V3(-0.17, 0, 0))], ['G581', 'actuator', TA(0).add(V3(L.tx.lever + 0.2, 1.48, -0.76))],
+    ['N75', 'n75', V3(-1.57, 3.27, -3.78)], ['J338', 'throttle', AIR.thr.clone().add(V3(0.42, 0.28, 0.02))], ['N18/G212', 'egr', EGR_VALVE.clone().add(V3(0.1, 0.52, -0.15))],
+    ['N345', 'n345', V3(-0.73, 2.93, 2.66)], ['G505', 'dpf', V3(2.14, 1.34, -2.35)], ['G235', 'turbo', TA(0).add(V3(-0.1, 1.2, 0.8))], ['G39', 'dpf', V3(2.1, 2.3, -2.6)],
   ],
 };
 
@@ -1473,346 +1603,388 @@ const SYS = {
   ecu: {n: 'Электроника', c: '--sig'},
   engine: {n: 'Двигатель (для ориентира)', c: '--eng'},
 };
+/* источники: vw — руководство по ремонту VW; cat — каталоги и продавцы (сверить по VIN в ETKA); model — условно, нужны фото/замеры */
 const INFO = {
   turbo: {
-    t: 'Турбокомпрессор с изменяемой геометрией (VNT)', codes: ['VNT / VTG', 'в сборе с выпускным коллектором'],
-    what: 'Турбина и компрессор на общем валу. Отработавшие газы раскручивают колесо турбины, а колесо компрессора на другом конце вала сжимает впускной воздух. Корпус турбины на этом моторе отлит заодно с выпускным коллектором.',
+    t: 'Турбокомпрессор с изменяемой геометрией (VNT)', codes: ['BorgWarner BV40 (KKK)', '03L 253 010 J / 03L 253 056 E·Q', 'в сборе с коллектором'],
+    what: 'Турбина и компрессор на общем валу. Для 103-кВт мотора CFFB каталоги указывают BorgWarner BV40: колесо компрессора Ø46 мм на выходе и Ø34,4 мм на входе, 6+6 лопаток; колесо турбины Ø40/35,6 мм, 9 лопаток. Корпус турбины отлит заодно с выпускным коллектором.',
     role: 'Создаёт давление наддува. Величину наддува ЭБУ меняет поворотом направляющих лопаток вокруг колеса турбины: закрытые лопатки разгоняют газ и быстро раскручивают турбину, открытые расширяют проход и ограничивают наддув.',
     p0299: 'Если лопатки не закрываются (нет разрежения на актуаторе, порвана мембрана, механизм закоксован) или турбина изношена, фактическое давление не догоняет заданное, и ЭБУ записывает P0299.',
-    check: ['Шток актуатора: при разрежении 0,6 бар от ручного насоса уходит в крайнее положение и держится (подробно — в разделе «Актуатор»).', 'Рычаг VNT со снятой тягой поворачивается рукой по всему ходу, без закусываний.', 'Люфт вала: небольшой радиальный люфт допустим, касаний колёс о корпуса быть не должно.', 'Колесо компрессора без сколов, следов касания и масляной плёнки толще налёта.', 'Выпускной коллектор без трещин и сажи у прокладки: утечка газов до турбины снижает наддув.'],
+    check: ['Шток актуатора: при разрежении 0,6 бар от ручного насоса уходит в крайнее положение и держится (раздел «Актуатор»).', 'Рычаг VNT со снятой тягой поворачивается рукой по всему ходу, без закусываний.', 'Люфт вала: небольшой радиальный люфт допустим, касаний колёс о корпуса быть не должно.', 'Колесо компрессора без сколов и следов касания. При механическом повреждении руководство требует проверить фильтр, весь тракт и интеркулер на обломки.', 'Выпускной коллектор без трещин и сажи у прокладки.'],
     faults: ['Закоксовка механизма VNT (короткие поездки, работа EGR)', 'Износ подшипников вала из-за масла и перегрева', 'Трещины коллектора и корпуса турбины'],
-    spec: [['Маслоподводящая трубка, накидные гайки', '22 Н·м'], ['Крепление выпускного коллектора', '24 Н·м'], ['Опора турбокомпрессора', '9 Н·м'], ['Датчик температуры ОГ G235', '20 Н·м']],
-    note: 'По руководству VW турбокомпрессор меняется только в сборе с выпускным коллектором и вакуумным актуатором. Перед установкой маслоподводящей трубки в штуцер турбины заливают моторное масло.',
+    spec: [['Гайки коллектора (самоконтрящиеся, заменять)', '24 Н·м'], ['Накидная гайка маслоподводящей трубки', '22 Н·м'], ['Полые болты маслоподвода', '40 и 30 Н·м'], ['Опора турбины', '9 Н·м'], ['Впускной патрубок (Ansaugstutzen)', '9 Н·м'], ['Гаситель пульсаций', '9 Н·м'], ['Датчик G235', '20 Н·м'], ['Держатель проводов', '15 Н·м'], ['Трубка EGR к коллектору (гайки заменять)', '17 Н·м']],
+    note: 'Руководство VW: турбокомпрессор меняется только в сборе с выпускным коллектором и вакуумной камерой; перед установкой маслоподводящей трубки залить масло в штуцер турбины; после установки дать поработать около 1 минуты на ХХ, не газовать; выполнить базовую установку турбокомпрессора. Турбина снимается вниз вместе с коллектором; на 4Motion для доступа к опоре снимают правый привод и фланцевый вал углового редуктора.',
     parts: {
-      comp_housing: {t: 'Корпус компрессора («холодная улитка»)', d: 'Литой алюминиевый корпус со спиральным каналом. Вход — от воздушного фильтра, выход — в патрубок наддува.', r: 'Собирает воздух после колеса и превращает его скорость в давление. Задиры внутри говорят о касании колеса, то есть об износе подшипников.'},
-      comp_wheel: {t: 'Колесо компрессора', d: 'Алюминиевое колесо с основными и укороченными лопатками, закреплено гайкой на валу.', r: 'Сжимает воздух. Вращается вместе с турбиной с частотой порядка сотен тысяч оборотов в минуту, поэтому любой скол лопатки означает замену турбины.'},
-      chra: {t: 'Корпус подшипников (картридж)', d: 'Средняя часть турбины: подшипники скольжения, упорный подшипник, уплотнительные кольца вала. Сверху подвод масла, снизу слив.', r: 'Держит и смазывает вал. Масляное голодание или забитый слив быстро губят подшипники; масло с обеих сторон вала — признак износа.'},
-      shaft: {t: 'Вал ротора', d: 'Стальной вал, сваренный с колесом турбины; колесо компрессора надето на другой конец.', r: 'Передаёт мощность от турбины к компрессору. Осевого люфта практически нет, радиальный — небольшой.'},
-      turb_wheel: {t: 'Колесо турбины', d: 'Жаропрочное колесо радиально-осевого типа, работает в потоке газов с температурой в сотни градусов.', r: 'Принимает энергию выхлопа от сопловых лопаток и вращает вал. Нагар и эрозия лопаток снижают производительность.'},
-      nozzle: {t: 'Сопловой аппарат VNT (поворотные лопатки)', d: 'Кольцо с набором поворотных лопаток вокруг колеса турбины, каждая на своей оси.', r: 'Главный орган регулирования наддува. Закрытые лопатки сужают каналы, газ ускоряется и сильнее раскручивает турбину на низких оборотах. Открытые снижают сопротивление на высоких оборотах. Нагар между лопатками — частая причина их заедания.'},
-      unison: {t: 'Регулировочное кольцо', d: 'Кольцо за сопловым аппаратом, связанное с рычажками всех лопаток.', r: 'Поворачивается рычагом VNT и одновременно поворачивает все лопатки на одинаковый угол. При закоксовке кольцо заедает, и лопатки не двигаются, даже если актуатор тянет.'},
-      vnt_lever: {t: 'Рычаг привода VNT с валиком', d: 'Наружный рычаг на валике, который проходит в корпус и поворачивает регулировочное кольцо.', r: 'Связь между штоком актуатора и лопатками. Проверка: снять тягу и провернуть рычаг рукой — ход плавный по всему диапазону.'},
-      turb_housing: {t: 'Корпус турбины с выпускным коллектором', d: 'Чугунная отливка: коллектор собирает газы четырёх цилиндров и подводит их в спиральный канал турбины. Здесь же фланец на сажевый фильтр и отвод на EGR.', r: 'Подводит выхлоп к сопловому аппарату. Трещины и прогар прокладки у головки блока уводят энергию мимо турбины: наддув падает, в моторном отсеке пахнет выхлопом.'},
-      oil_feed: {t: 'Маслоподводящая трубка', d: 'Стальная трубка от блока цилиндров к корпусу подшипников, накидные гайки 22 Н·м.', r: 'Подаёт масло под давлением к подшипникам. Перед установкой турбины корпус заливают маслом через этот штуцер.'},
-      oil_drain: {t: 'Маслосливная трубка', d: 'Трубка с резиновым участком от низа картриджа в картер двигателя.', r: 'Свободный слив масла. Пережатый или закоксованный слив выдавливает масло через уплотнения вала в тракт наддува.'},
-      g235: {t: 'Датчик температуры ОГ перед турбиной G235', d: 'Термодатчик в коллекторе перед турбиной, 20 Н·м.', r: 'ЭБУ защищает турбину от перегрева и использует температуру в расчётах, в том числе при регенерации сажевого фильтра.'},
+      comp_housing: {t: 'Корпус компрессора («холодная улитка»)', d: 'Литой алюминиевый корпус со спиральным каналом.', r: 'Собирает воздух после колеса и превращает его скорость в давление. Задиры внутри — признак касания колеса и износа подшипников.'},
+      comp_wheel: {t: 'Колесо компрессора', d: 'Алюминиевое колесо BV40: Ø46 мм на выходе, Ø34,4 мм на входе, 6 основных и 6 укороченных лопаток (данные каталогов).', r: 'Сжимает воздух. Вращается с частотой порядка сотен тысяч оборотов в минуту, поэтому любой скол лопатки означает замену турбины.'},
+      intake_stub: {t: 'Впускной патрубок турбины (Ansaugstutzen)', d: 'Пластиковый патрубок, вставляется в корпус компрессора через уплотнительное кольцо и держится двумя невыпадающими винтами 9 Н·м.', r: 'Снимается вместе с воздуховодом от фильтра: воздуховод с патрубком отводят назад и стягивают с турбины (руководство VW).'},
+      stub_oring: {t: 'Уплотнительное кольцо впускного патрубка', d: 'Кольцо между патрубком и корпусом компрессора.', r: 'Заменяется при каждом снятии. Сторона всасывания: небольшие утечки здесь руководство допускает, но подсос мимо G70 сбивает расчёт массы воздуха.'},
+      f_stub: {t: 'Винты впускного патрубка', d: 'Два невыпадающих винта.', r: 'Момент 9 Н·м (руководство VW).'},
+      puls: {t: 'Гаситель пульсаций (Pulsationsdämpfer)', d: 'Резонатор на выходе компрессора. На рифлёный штуцер снизу надевается верхний патрубок наддува под винтовой хомут.', r: 'Гасит пульсации давления и шум компрессора. Крепится стопорным кольцом (ставится только в одном положении) и винтом 9 Н·м.'},
+      puls_oring: {t: 'Уплотнительное кольцо гасителя', d: 'Кольцо между гасителем и выходом компрессора.', r: 'Заменяется при снятии. Порванное кольцо — утечка наддува сразу после турбины.'},
+      f_puls: {t: 'Винт гасителя пульсаций', d: 'Винт крепления гасителя.', r: 'Момент 9 Н·м (руководство VW).'},
+      chra: {t: 'Корпус подшипников (картридж)', d: 'Средняя часть турбины: подшипники скольжения, упорный подшипник, уплотнительные кольца вала. Сверху подвод масла, снизу слив.', r: 'Держит и смазывает вал. Масляное голодание или забитый слив быстро губят подшипники.'},
+      shaft: {t: 'Вал ротора', d: 'Стальной вал, сваренный с колесом турбины; колесо компрессора надето на другой конец.', r: 'Передаёт мощность от турбины к компрессору.'},
+      turb_wheel: {t: 'Колесо турбины', d: 'Жаропрочное колесо: Ø40 мм на входе, Ø35,6 мм на выходе, 9 лопаток (данные каталогов для BV40).', r: 'Принимает энергию выхлопа от сопловых лопаток и вращает вал.'},
+      nozzle: {t: 'Сопловой аппарат VNT (поворотные лопатки)', d: 'Кольцо с поворотными лопатками вокруг колеса турбины, каждая на своей оси.', r: 'Главный орган регулирования наддува. Нагар между лопатками — частая причина их заедания.'},
+      unison: {t: 'Регулировочное кольцо', d: 'Кольцо за сопловым аппаратом, связанное с рычажками всех лопаток.', r: 'Поворачивает все лопатки одновременно. При закоксовке заедает.'},
+      vnt_lever: {t: 'Рычаг привода VNT с валиком', d: 'Наружный рычаг на валике, который проходит в корпус и поворачивает регулировочное кольцо.', r: 'Проверка: снять тягу и провернуть рычаг рукой — ход плавный по всему диапазону.'},
+      turb_housing: {t: 'Корпус турбины с выпускным коллектором', d: 'Чугунная отливка: коллектор собирает газы четырёх цилиндров и подводит их в спиральный канал турбины; здесь же отвод на EGR.', r: 'Трещины и прогар прокладки уводят энергию мимо турбины: наддув падает.'},
+      f_mani: {t: 'Гайки выпускного коллектора', d: 'Самоконтрящиеся гайки на шпильках головки блока.', r: 'Момент 24 Н·м, гайки заменять (руководство VW). Количество на модели — условно, сверить по фото.'},
+      mani_gasket: {t: 'Прокладка выпускного коллектора', d: 'Металлическая прокладка между коллектором и головкой.', r: 'Заменяется при снятии.'},
+      heat_shield: {t: 'Теплозащитный экран', d: 'Экран над коллектором и турбиной.', r: 'Защищает проводку и шланги от жара.'},
+      support: {t: 'Опора турбокомпрессора (Stütze)', d: 'Кронштейн между турбиной и блоком; снимается вместе с маслоподводящей трубкой.', r: 'Момент 9 Н·м (руководство VW).'},
+      f_union: {t: 'Накидная гайка маслоподвода на турбине', d: 'Гайка трубки подвода масла.', r: 'Момент 22 Н·м. Перед затяжкой залить масло в штуцер турбины.'},
+      f_banjo: {t: 'Полые болты маслоподвода', d: 'Два полых болта с уплотнительными кольцами разного диаметра.', r: 'Моменты 40 Н·м и 30 Н·м, кольца заменять (руководство VW). Какой болт где — сверить по рисунку ELSA.'},
+      oil_feed: {t: 'Маслоподводящая трубка', d: 'Стальная трубка от блока к корпусу подшипников.', r: 'Перед установкой проверить на проходимость.'},
+      oil_drain: {t: 'Маслосливная трубка', d: 'Трубка от низа картриджа в картер; прокладка заменяется.', r: 'Свободный слив масла. Забитый слив выдавливает масло через уплотнения вала в тракт наддува.'},
+      g235: {t: 'Датчик температуры ОГ перед турбиной G235', d: 'Термодатчик в коллекторе перед турбиной, 20 Н·м.', r: 'ЭБУ защищает турбину от перегрева и использует температуру при регенерации сажевого фильтра.'},
     },
   },
   actuator: {
-    t: 'Вакуумный актуатор турбины с датчиком положения G581', codes: ['Druckdose', 'G581'],
-    what: 'Пневмокамера с резиновой мембраной и пружиной. Разрежение от клапана N75 тянет мембрану, шток через рычаг поворачивает лопатки турбины. В крышке стоит датчик положения G581.',
-    role: 'Разрежение закрывает лопатки, и наддув растёт. Без разрежения пружина возвращает шток и лопатки открываются: это аварийное положение с минимальным наддувом.',
-    p0299: 'Главный подозреваемый в вашем случае: во время теста шток не двигался. Возможные причины — нет разрежения на штуцере, порвана мембрана или заклинил механизм VNT.',
-    check: ['Снять шланг со штуцера актуатора, подключить ручной вакуумный насос (VAS 6213 или аналог).', 'Создать разрежение 0,6 бар: шток уходит в крайнее положение, и примерно 30 с разрежение не падает (руководство VW).', 'Сбросить разрежение: шток возвращается пружиной плавно, без рывков.', 'Параллельно смотреть в ODIS/VCDS положение регулятора наддува (G581): значение плавно меняется вместе со штоком.', 'Шток не идёт, а разрежение держится — заклинил механизм VNT. Разрежение падает — порвана мембрана.'],
-    faults: ['Трещина мембраны: разрежение не держится', 'Коррозия и заедание штока', 'Неисправность датчика G581 (коды группы P2562–P2565)'],
+    t: 'Вакуумная камера турбины с датчиком G581', codes: ['Druckdose', 'G581'],
+    what: 'Пневмокамера (Druckdose) с резиновой мембраной и пружиной на турбине. Разрежение от клапана N75 тянет мембрану, шток через рычаг поворачивает лопатки. В крышке — датчик положения регулятора давления наддува G581.',
+    role: 'Разрежение закрывает лопатки, наддув растёт. Без разрежения пружина открывает лопатки: аварийное положение с минимальным наддувом.',
+    p0299: 'Главный подозреваемый в вашем случае: во время теста шток не двигался. Причины — нет разрежения на штуцере, порвана мембрана или заклинил механизм VNT.',
+    check: ['Снять шланг со штуцера камеры, подключить ручной насос VAS 6213.', 'Создать 0,6 бар: шток уходит в крайнее положение, около 30 с разрежение не падает (руководство VW).', 'Сбросить: шток возвращается пружиной плавно.', 'Параллельно смотреть в ODIS/VCDS положение G581: значение меняется вместе со штоком.', 'Шток не идёт, а разрежение держится — заклинил механизм VNT. Разрежение падает — порвана мембрана.'],
+    faults: ['Трещина мембраны', 'Коррозия и заедание штока', 'Неисправность датчика G581 (коды группы P2562–P2565)'],
     spec: [['Проверочное разрежение', '0,6 бар'], ['Удержание', '≈ 30 с без падения']],
-    note: 'Длина тяги задаёт характеристику регулирования. После замены актуатора его регулируют и адаптируют по данным ODIS или VCDS.',
+    note: 'Камера отдельно от турбины по руководству VW не меняется: турбина идёт в сборе с коллектором и камерой. После замены выполняется базовая установка турбокомпрессора.',
     parts: {
-      can_top: {t: 'Верхняя крышка (вакуумная полость)', d: 'Штампованная крышка со штуцером разрежения.', r: 'Вместе с мембраной образует вакуумную камеру. Трещина или ослабленная завальцовка дают утечку разрежения.'},
-      g581: {t: 'Датчик положения G581', d: 'Бесконтактный датчик хода штока в крышке актуатора: питание, масса, сигнал.', r: 'Сообщает ЭБУ фактическое положение лопаток. ЭБУ сравнивает его с заданным и корректирует управление N75.'},
-      diaphragm: {t: 'Мембрана', d: 'Армированная резиновая мембрана, связана со штоком через тарелку.', r: 'Превращает разрежение в усилие на штоке. Порыв мембраны — классическая причина «шток не двигается» и P0299.'},
-      spring: {t: 'Возвратная пружина', d: 'Витая пружина внутри камеры.', r: 'Без разрежения держит шток в положении «лопатки открыты». Мотор при этом едет, но наддува почти нет.'},
-      can_bottom: {t: 'Нижняя чашка и кронштейн', d: 'Корпус камеры со стороны штока и кронштейн крепления к корпусу компрессора.', r: 'Держит актуатор в правильном положении относительно рычага. Погнутый кронштейн меняет характеристику регулирования.'},
-      rod: {t: 'Шток с регулировочной резьбой', d: 'Стальной шток с контргайками и наконечником на пальце рычага VNT.', r: 'Передаёт ход мембраны на рычаг. Длина выставлена на заводе; менять её «на глаз» нельзя.'},
+      can_top: {t: 'Верхняя крышка (вакуумная полость)', d: 'Штампованная крышка со штуцером разрежения.', r: 'Трещина или ослабленная завальцовка дают утечку разрежения.'},
+      g581: {t: 'Датчик положения G581', d: 'Бесконтактный датчик хода штока в крышке камеры.', r: 'Сообщает ЭБУ фактическое положение лопаток; ЭБУ сравнивает его с заданным.'},
+      diaphragm: {t: 'Мембрана', d: 'Армированная резиновая мембрана с тарелкой штока.', r: 'Порыв мембраны — классическая причина «шток не двигается» и P0299.'},
+      spring: {t: 'Возвратная пружина', d: 'Витая пружина внутри камеры.', r: 'Без разрежения держит лопатки открытыми.'},
+      can_bottom: {t: 'Нижняя чашка и кронштейн', d: 'Корпус камеры со стороны штока и кронштейн на корпусе компрессора.', r: 'Погнутый кронштейн меняет характеристику регулирования.'},
+      rod: {t: 'Шток с регулировочной резьбой', d: 'Стальной шток с контргайками и наконечником на пальце рычага VNT.', r: 'Длина выставлена на заводе; менять её «на глаз» нельзя.'},
     },
   },
   n75: {
-    t: 'Клапан ограничения давления наддува N75', codes: ['N75', 'например 1K0 906 627 A — сверить по VIN'],
-    what: 'Электропневматический клапан с тремя штуцерами: вход разрежения от насоса, выход к актуатору и атмосферный вход через глушитель и фильтр. ЭБУ управляет им импульсами с переменной скважностью.',
-    role: 'Подмешивает к разрежению атмосферный воздух и так плавно задаёт разрежение на актуаторе: больше скважность — сильнее разрежение — сильнее закрыты лопатки.',
-    p0299: 'Щелчки при тесте исполнительных механизмов — это работа якоря N75. Они показывают только, что на катушку приходит сигнал. Шток двигается, лишь когда на вход клапана приходит разрежение и клапан его пропускает.',
-    check: ['Двигатель работает: вакуумметр на входе — разрежение порядка 0,8 бар и выше*.', 'Вакуумметр на выходе к актуатору: при тесте или перегазовке разрежение меняется.', 'Шланги не перепутаны: вход — от насоса через обратный клапан, выход — к актуатору, третий штуцер — атмосфера через фильтр.', 'Фильтр и глушитель атмосферного штуцера не забиты и не в масле.', 'Разъём и проводка; сопротивление обмотки — по данным ELSA.'],
-    faults: ['Залипание якоря: щёлкает, но не пропускает разрежение', 'Трещина корпуса или штуцера', 'Забитый фильтр атмосферного входа'],
-    spec: [['Разрежение на входе, двигатель работает', '≈ 0,8 бар и выше*']],
-    note: '* Ориентир для исправного вакуумного насоса дизеля; отдельного значения для этой проверки в руководстве VW нет.',
+    t: 'Клапан ограничения давления наддува N75', codes: ['N75', '1K0 906 627 A/B (каталоги)'],
+    what: 'Электропневматический клапан с тремя штуцерами. По руководству VW средний штуцер идёт к вакуумной камере турбины; подвод разрежения — от насоса через обратный клапан; третий штуцер — атмосфера через глушитель и фильтр. ЭБУ управляет клапаном импульсами.',
+    role: 'Подмешивает к разрежению атмосферный воздух и так задаёт разрежение на камере турбины.',
+    p0299: 'Щелчки при тесте исполнительных механизмов — это работа якоря N75. Они показывают только, что на катушку приходит сигнал. Шток двигается, лишь когда на вход приходит разрежение и клапан его пропускает.',
+    check: ['Линия к турбине (руководство VW): снять шланг со среднего штуцера N75 и с камеры турбины, один конец заглушить, на другой — VAS 6213, 0,6 бар, 30 с — не должно падать. Падает — заменить шланг.', 'Двигатель работает: вакуумметр на подводе — порядка 0,8 бар и выше*.', 'Вакуумметр на среднем штуцере: при тесте или перегазовке разрежение меняется.', 'Фильтр и глушитель атмосферного штуцера не забиты.', 'Разъём и проводка; сопротивление обмотки — по ELSA.'],
+    faults: ['Залипание якоря: щёлкает, но не пропускает разрежение', 'Трещина корпуса или штуцера', 'Забитый фильтр атмосферного входа', 'Перепутанные шланги после ремонта'],
+    spec: [['Проверка линии к турбине', '0,6 бар, 30 с'], ['Разрежение на подводе, мотор работает', '≈ 0,8 бар и выше*']],
+    note: '* Ориентир для исправного вакуумного насоса дизеля; в руководстве VW отдельного значения нет. Какой из крайних штуцеров подвод, а какой атмосфера — сверьте по фото вашего клапана.',
     parts: {
-      n75_body: {t: 'Корпус со штуцерами', d: 'Пластиковый корпус, три штуцера направлены в одну сторону.', r: 'Трещины у основания штуцеров дают подсос воздуха, и разрежение на актуаторе не набирается.'},
-      n75_coil: {t: 'Катушка электромагнита', d: 'Обмотка, на которую ЭБУ подаёт импульсы.', r: 'Двигает якорь. Обрыв обмотки ЭБУ распознаёт и записывает отдельный код по цепи клапана.'},
-      n75_armature: {t: 'Якорь с клапаном', d: 'Подвижный сердечник с уплотнением, перекрывающий каналы.', r: 'Переключает выход между разрежением и атмосферой много раз в секунду. Именно он щёлкает при тесте.'},
-      n75_conn: {t: 'Разъём', d: 'Двухконтактный разъём: питание и управляющий сигнал от ЭБУ.', r: 'Окисленные контакты дают прерывистую работу клапана.'},
-      n75_bracket: {t: 'Кронштейн', d: 'Держатель клапана в моторном отсеке.', r: 'Клапан закреплён так, чтобы шланги не перегибались.'},
-      n75_silencer: {t: 'Глушитель', d: 'Небольшой глушитель на атмосферном штуцере.', r: 'Снижает шум сбрасываемого воздуха. По схеме VW стоит в вакуумной системе вместе с фильтром.'},
-      n75_filter: {t: 'Фильтр атмосферного входа', d: 'Фильтрующий элемент на атмосферном штуцере.', r: 'Не пускает пыль в клапан. Забитый фильтр мешает сбрасывать разрежение, и регулирование становится вялым.'},
+      n75_body: {t: 'Корпус со штуцерами', d: 'Пластиковый корпус, три штуцера в одну сторону; средний — к камере турбины.', r: 'Трещины у основания штуцеров дают подсос воздуха.'},
+      n75_coil: {t: 'Катушка электромагнита', d: 'Обмотка, на которую ЭБУ подаёт импульсы.', r: 'Обрыв обмотки ЭБУ фиксирует кодом по цепи клапана.'},
+      n75_armature: {t: 'Якорь с клапаном', d: 'Подвижный сердечник с уплотнением.', r: 'Переключает выход между разрежением и атмосферой. Именно он щёлкает при тесте.'},
+      n75_conn: {t: 'Разъём', d: 'Двухконтактный разъём от ЭБУ.', r: 'Окисленные контакты дают прерывистую работу.'},
+      n75_bracket: {t: 'Кронштейн', d: 'Держатель клапана.', r: 'Шланги не должны перегибаться.'},
+      n75_silencer: {t: 'Глушитель', d: 'Глушитель на атмосферном штуцере (есть на схеме VW).', r: 'Снижает шум сбрасываемого воздуха.'},
+      n75_filter: {t: 'Фильтр атмосферного входа', d: 'Фильтр на атмосферном штуцере (есть на схеме VW).', r: 'Забитый фильтр делает регулирование вялым.'},
     },
   },
   vpump: {
-    t: 'Вакуумный насос', codes: ['на торце ГБЦ'],
-    what: 'Лопастной насос на торце головки блока со смазкой от двигателя. Большой штуцер идёт к вакуумному усилителю тормозов, малый — к пневмосистеме управления (N75, N345).',
-    role: 'Источник разрежения. У дизеля во впускном коллекторе нет разрежения, поэтому для тормозов и пневмоприводов стоит отдельный насос.',
-    p0299: 'При слабом насосе или утечке в магистрали на вход N75 не приходит полное разрежение, и актуатор не может закрыть лопатки. Насос работает, только пока вращается двигатель: на заглушённом моторе актуатор сдвинется лишь за счёт остатка разрежения в трубках.',
-    check: ['Вакуумметр через тройник перед N75 на холостом ходу.', 'Осмотр: течь масла из насоса, трещины на жёсткой трубке к усилителю тормозов.', 'Если тормоза в норме, а у N75 разрежения мало — ищите утечку в ветке управления.'],
+    t: 'Вакуумный насос', codes: ['03L 145 100 F (каталоги)'],
+    what: 'Лопастной насос на торце головки блока со смазкой от двигателя. Большой штуцер — к усилителю тормозов, малый (через соединительный элемент) — к системе управления: обратный клапан, N75, N345.',
+    role: 'Источник разрежения: у дизеля во впускном коллекторе разрежения нет.',
+    p0299: 'Насос работает, только пока вращается двигатель. На заглушённом моторе камера турбины может сдвинуться лишь за счёт запаса разрежения в ресивере и трубках.',
+    check: ['Вакуумметр через тройник перед N75 на холостом ходу.', 'Течь масла из насоса, трещины жёсткой трубки к усилителю тормозов.', 'Тормоза в норме, а у N75 разрежения мало — ищите утечку в ветке управления.'],
     faults: ['Износ ротора и лопатки', 'Трещины трубок и штуцеров'],
     parts: {
-      vp_body: {t: 'Корпус насоса', d: 'Алюминиевый корпус, прикручен к головке блока.', r: 'В нём вращается ротор; сюда же подходит масло для смазки.'},
-      vp_rotor: {t: 'Ротор с лопаткой', d: 'Ротор с подвижной лопаткой, приводится от двигателя.', r: 'Откачивает воздух из магистралей. Износ снижает глубину разрежения.'},
-      vp_cover: {t: 'Крышка', d: 'Крышка корпуса на болтах.', r: 'Закрывает рабочую полость. Течь масла из-под крышки видна на торце ГБЦ.'},
-      vp_ports: {t: 'Штуцеры', d: 'Большой — к усилителю тормозов, малый — к управлению турбиной и EGR.', r: 'Трещина штуцера даёт утечку сразу во всей системе.'},
+      vp_body: {t: 'Корпус насоса', d: 'Алюминиевый корпус на головке блока.', r: 'Сюда же подходит масло для смазки.'},
+      vp_rotor: {t: 'Ротор с лопаткой', d: 'Ротор с подвижной лопаткой.', r: 'Износ снижает глубину разрежения.'},
+      vp_cover: {t: 'Крышка', d: 'Крышка корпуса на болтах.', r: 'Течь масла видна на торце ГБЦ.'},
+      vp_ports: {t: 'Штуцеры', d: 'Большой — к усилителю тормозов, малый — к управлению.', r: 'Трещина штуцера даёт утечку во всей системе.'},
     },
   },
   checkvalve: {
     t: 'Обратный клапан', codes: ['положение установки важно'],
-    what: 'Небольшой клапан между насосом и потребителями. По руководству VW важно положение установки: воздух проходит только в сторону насоса.',
-    role: 'Удерживает разрежение в магистрали управления, когда разрежение от насоса падает.',
-    p0299: 'Установлен наоборот или залип — N75 остаётся без разрежения, актуатор не работает.',
-    check: ['Продуть: воздух проходит только в сторону насоса.', 'Сверить направление по маркировке на корпусе.'],
+    what: 'Клапан между насосом и потребителями; по руководству VW положение установки важно.',
+    role: 'Удерживает разрежение в линии и ресивере, когда разрежение от насоса падает.',
+    p0299: 'Установлен наоборот или залип — N75 остаётся без разрежения.',
+    check: ['Руководство VW: снять шланги с нижних штуцеров N345 и N75, заглушить (не винтами), снять шланг у соединительного элемента насоса, подключить VAS 6213, 0,6 бар, 30 с — не должно падать.', 'Затем снять шланг с ручного насоса и вынуть одну из заглушек: исправный клапан даёт отчётливое шипение — уходит разрежение из ресивера. Нет шипения — заменить клапан.'],
     parts: {
-      cv_pump: {t: 'Половина корпуса со стороны насоса', d: 'Чёрная часть корпуса.', r: 'Подключается к линии от насоса.'},
-      cv_cons: {t: 'Половина корпуса со стороны потребителей', d: 'Светлая часть корпуса.', r: 'Подключается к линии на N75 и N345.'},
-      cv_disc: {t: 'Клапанная пластина', d: 'Резиновая пластина внутри корпуса.', r: 'Открывается к насосу и закрывается обратным потоком.'},
+      cv_pump: {t: 'Половина корпуса со стороны насоса', d: 'Чёрная часть корпуса.', r: 'К линии от насоса.'},
+      cv_cons: {t: 'Половина корпуса со стороны потребителей', d: 'Светлая часть корпуса.', r: 'К линии на ресивер, N75 и N345.'},
+      cv_disc: {t: 'Клапанная пластина', d: 'Резиновая пластина.', r: 'Открывается к насосу, закрывается обратным потоком.'},
     },
   },
   n345: {
-    t: 'Клапан переключения охладителя EGR N345', codes: ['N345'],
-    what: 'Электромагнитный клапан, который подаёт разрежение на вакуумную камеру байпасной заслонки охладителя EGR.',
+    t: 'Клапан переключения охладителя EGR N345', codes: ['N345', 'держатель 9 Н·м'],
+    what: 'Электромагнитный клапан в держателе спереди на впускном коллекторе (руководство VW). Подаёт разрежение на камеру байпасной заслонки охладителя EGR.',
     role: 'На холодном двигателе газы EGR идут в обход охладителя, после прогрева — через него.',
-    p0299: 'Сидит на той же магистрали разрежения, что и N75. Трещина его шланга или порванная камера заслонки подсасывают воздух и могут «ронять» разрежение для турбины.',
-    check: ['Пережать шланг к N345 и посмотреть, выросло ли разрежение у N75.', 'Проверить камеру заслонки ручным насосом: 0,6 бар, разрежение не падает.'],
+    p0299: 'Сидит на той же линии разрежения, что и N75. Трещина его шланга или порванная камера заслонки роняют разрежение и для турбины.',
+    check: ['Линия к камере EGR (руководство VW): 0,6 бар, 30 с; если камера исправна, а разрежение падает — заменить шланг от N345.', 'Пережать шланг к N345 и посмотреть, выросло ли разрежение у N75.'],
     parts: {
-      n345_body: {t: 'Корпус со штуцерами', d: 'Пластиковый корпус электромагнитного клапана.', r: 'Пропускает разрежение к камере заслонки по команде ЭБУ.'},
-      n345_conn: {t: 'Разъём', d: 'Разъём управления от ЭБУ.', r: 'Обрыв цепи ЭБУ фиксирует отдельным кодом.'},
+      n345_body: {t: 'Корпус со штуцерами', d: 'Нижний штуцер — подвод разрежения (руководство VW).', r: 'Пропускает разрежение к камере заслонки по команде ЭБУ.'},
+      n345_conn: {t: 'Разъём', d: 'Разъём от ЭБУ.', r: 'Обрыв цепи ЭБУ фиксирует кодом.'},
+      n345_holder: {t: 'Держатель N345', d: 'Держатель спереди на впускном коллекторе; клапан вщёлкивается в него.', r: 'Болт держателя 9 Н·м (руководство VW).'},
     },
   },
   vlines: {
-    t: 'Вакуумные трубки', codes: ['не перегибать'],
-    what: 'Магистрали: насос → обратный клапан → тройник → N75 → актуатор; тройник → N345 → камера заслонки EGR; насос → усилитель тормозов.',
-    role: 'Передают разрежение. По руководству VW трубки нельзя перегибать, перекручивать и пережимать.',
-    p0299: 'Трещина на изгибе, соскочивший или разбухший от масла конец — самая дешёвая причина, при которой шток актуатора не двигается.',
-    check: ['Осмотреть каждую трубку по всей длине, особенно изгибы и концы на штуцерах.', 'Трубка сидит на штуцере плотно и не снимается без усилия.', 'При сомнении — проверить участок ручным насосом.'],
+    t: 'Вакуумные трубки и ресивер', codes: ['не перегибать'],
+    what: 'Линии: насос → обратный клапан → ресивер → тройник → N75 → камера турбины; тройник → N345 → камера заслонки EGR; насос → усилитель тормозов. Ресивер разрежения есть в процедуре проверки VW.',
+    role: 'Передают и хранят разрежение. По руководству VW трубки нельзя перегибать, перекручивать и пережимать — иначе машина может встать.',
+    p0299: 'Трещина на изгибе, соскочивший или разбухший от масла конец — самая дешёвая причина, при которой шток не двигается.',
+    check: ['Осмотреть каждую трубку по всей длине, особенно изгибы и концы.', 'Проверка по участкам ручным насосом VAS 6213: 0,6 бар, 30 с.', 'Теплозащитные рукава вернуть на те же места.'],
+    note: 'Место ресивера на модели — условно, уточнить по фото.',
     parts: {
-      l_pump_check: {t: 'Насос → обратный клапан', d: 'Линия от малого штуцера насоса.', r: 'Подаёт разрежение в систему управления.'},
-      l_check_tee: {t: 'Обратный клапан → тройник', d: 'Короткий участок после клапана.', r: 'Держит запас разрежения для N75 и N345.'},
-      l_tee_n75: {t: 'Тройник → N75 (вход)', d: 'Линия на вход клапана наддува.', r: 'Если здесь нет разрежения, клапан щёлкает впустую.'},
-      l_n75_act: {t: 'N75 (выход) → актуатор турбины', d: 'Самая горячая линия: проходит рядом с турбиной.', r: 'Передаёт управляющее разрежение на актуатор. От жара трескается у концов.'},
+      l_pump_check: {t: 'Насос → обратный клапан', d: 'Линия от соединительного элемента насоса.', r: 'Подаёт разрежение в систему управления.'},
+      l_check_tee: {t: 'Обратный клапан → ресивер → тройник', d: 'Линия с ресивером.', r: 'Держит запас разрежения для N75 и N345.'},
+      l_tee_n75: {t: 'Тройник → N75 (подвод)', d: 'Линия на вход клапана наддува.', r: 'Без разрежения здесь клапан щёлкает впустую.'},
+      l_n75_act: {t: 'N75 (средний штуцер) → камера турбины', d: 'Линия у горячей турбины.', r: 'Проверяется отдельно: 0,6 бар, 30 с.'},
       l_n75_vent: {t: 'N75 → глушитель и фильтр', d: 'Атмосферный выход клапана.', r: 'Через него клапан сбрасывает разрежение.'},
-      l_tee_n345: {t: 'Тройник → N345', d: 'Длинная линия вперёд к впускному коллектору.', r: 'Утечка здесь уменьшает разрежение и для турбины.'},
-      l_n345_can: {t: 'N345 → камера заслонки EGR', d: 'Линия к вакуумной камере на охладителе EGR.', r: 'Переключает заслонку байпаса охладителя.'},
-      l_brake: {t: 'Насос → усилитель тормозов', d: 'Толстая жёсткая трубка.', r: 'Питает вакуумный усилитель тормозов; трещина чувствуется по тугой педали.'},
+      l_tee_n345: {t: 'Тройник → N345', d: 'Линия вперёд к впускному коллектору.', r: 'Утечка здесь снижает разрежение и для турбины.'},
+      l_n345_can: {t: 'N345 → камера заслонки EGR', d: 'Линия к камере на охладителе EGR (сзади, под турбиной).', r: 'Форму изгиба не менять (руководство VW).'},
+      l_brake: {t: 'Насос → усилитель тормозов', d: 'Толстая жёсткая трубка.', r: 'Трещина чувствуется по тугой педали.'},
       tee: {t: 'Тройник', d: 'Разветвитель линии управления.', r: 'Делит разрежение между N75 и N345.'},
-      booster: {t: 'Вакуумный усилитель тормозов', d: 'Показан условно, для ориентира.', r: 'Главный потребитель разрежения от насоса.'},
+      reservoir: {t: 'Ресивер разрежения', d: 'Ёмкость на линии после обратного клапана.', r: 'Даёт запас разрежения; по нему судят об исправности обратного клапана (шипение при сбросе).'},
+      sleeve_n75_act: {t: 'Теплозащитный рукав шланга камеры турбины', d: 'Рукав на шланге у турбины.', r: 'При сборке ставится на то же место (руководство VW).'},
+      sleeve_n345_can: {t: 'Теплозащитный рукав шланга камеры EGR', d: 'Рукав на шланге у охладителя EGR.', r: 'При сборке ставится на то же место.'},
+      booster: {t: 'Вакуумный усилитель тормозов', d: 'Показан условно.', r: 'Главный потребитель разрежения.'},
     },
   },
   airbox: {
     t: 'Корпус воздушного фильтра', codes: ['впуск'],
-    what: 'Пластиковый корпус с фильтрующим элементом. Сырой воздух заходит через воздухозаборник, чистый выходит через расходомер G70.',
+    what: 'Корпус с фильтрующим элементом. Сырой воздух идёт по воздуховоду от замковой панели, чистый — через расходомер G70 к турбине.',
     role: 'Очищает воздух для турбины и двигателя.',
-    p0299: 'Сильно забитый фильтр создаёт разрежение перед компрессором, и на высоких оборотах наддув не набирается. Как основная причина P0299 встречается реже, но проверяется за минуту.',
-    check: ['Осмотреть элемент: грязь, вода, масло.', 'Крышка закрыта плотно, воздухозаборник не забит листьями.'],
+    p0299: 'Сильно забитый фильтр создаёт разрежение перед компрессором; на высоких оборотах наддув не набирается.',
+    check: ['Элемент: грязь, вода, масло; только оригинальный элемент.', 'Корпус и воздуховод от замковой панели очистить от листьев и соли (руководство VW).', 'Шланг слива воды и лепестковый клапан очистить.'],
+    spec: [['Винты верхней части', '1,5 Н·м'], ['Крепление нижней части', '8 Н·м']],
     parts: {
-      ab_cover: {t: 'Крышка', d: 'Верхняя часть корпуса на защёлках.', r: 'Прижимает элемент; неплотная крышка пропускает нефильтрованный воздух.'},
-      ab_element: {t: 'Фильтрующий элемент', d: 'Гофрированная бумага в рамке.', r: 'Задерживает пыль. Меняется по регламенту и при загрязнении.'},
-      ab_lower: {t: 'Нижний корпус', d: 'Основание с выходом на расходомер.', r: 'Направляет воздух к G70 и турбине.'},
-      ab_snorkel: {t: 'Воздухозаборник', d: 'Канал забора воздуха из передней части моторного отсека.', r: 'Забор холодного воздуха; забитый заборник ограничивает поток.'},
+      ab_cover: {t: 'Крышка', d: 'Верхняя часть корпуса.', r: 'Неплотная крышка пропускает нефильтрованный воздух.'},
+      f_ab_top: {t: 'Винты верхней части', d: 'Винты крышки фильтра.', r: 'Момент 1,5 Н·м (руководство VW).'},
+      ab_element: {t: 'Фильтрующий элемент', d: 'Гофрированная бумага в рамке.', r: 'Только оригинальный, по интервалам замены.'},
+      ab_lower: {t: 'Нижний корпус', d: 'Основание с выходом на расходомер.', r: 'Для холодных стран — с шлангом забора тёплого воздуха; вариант со снежной сеткой.'},
+      f_ab_bot: {t: 'Крепление нижней части', d: 'Болт с втулкой и шайбой.', r: 'Момент 8 Н·м (руководство VW).'},
+      ab_flutter: {t: 'Лепестковый клапан и шланг слива воды', d: 'Слив воды из корпуса.', r: 'Очистить и установить обратно.'},
+      ab_snorkel: {t: 'Воздуховод к замковой панели', d: 'Забор воздуха спереди.', r: 'Забитый воздуховод ограничивает поток.'},
     },
   },
   maf: {
-    t: 'Расходомер воздуха G70', codes: ['G70', '1,5 Н·м'],
-    what: 'Плёночный датчик массового расхода воздуха в корпусе воздушного фильтра. Винты крепления 1,5 Н·м.',
-    role: 'Сообщает ЭБУ массу поступающего воздуха. По ней ЭБУ дозирует топливо, управляет EGR и ограничивает дымность.',
-    p0299: 'Наддув сам не создаёт, но по руководству VW загрязнение или влага на датчике искажают показания: ЭБУ уменьшает подачу топлива, мощность падает. Смотрите массу воздуха «задано / факт» вместе с наддувом.',
-    check: ['Измеряемые величины: масса воздуха факт против заданной на холостом ходу и под нагрузкой.', 'Сенсор без масла, пыли и влаги.'],
-    spec: [['Винты крепления', '1,5 Н·м']],
+    t: 'Расходомер воздуха G70', codes: ['G70', '03L 906 461 A (каталоги)', 'Bosch 0 281 002 956'],
+    what: 'Плёночный датчик массового расхода воздуха в корпусе воздушного фильтра: два винта 1,5 Н·м, уплотнительное кольцо.',
+    role: 'Сообщает ЭБУ массу воздуха: по ней ЭБУ дозирует топливо, управляет EGR и ограничивает дымность.',
+    p0299: 'По руководству VW грязь или влага искажают показания: ЭБУ уменьшает подачу топлива, мощность падает. Смотрите массу воздуха «задано / факт» вместе с наддувом.',
+    check: ['Масса воздуха факт против заданной на ХХ и под нагрузкой.', 'Сенсор без масла, пыли и влаги; шланг чистой стороны без грязи.'],
+    spec: [['Винты крепления (2 шт.)', '1,5 Н·м'], ['Уплотнительное кольцо', 'заменять, смазка без силикона']],
     parts: {
       maf_tube: {t: 'Корпус-патрубок', d: 'Проточная часть датчика.', r: 'Выравнивает поток перед сенсором.'},
-      maf_sensor: {t: 'Сенсорный модуль', d: 'Плата с нагреваемым плёночным элементом, выступающая в поток.', r: 'Измеряет массу воздуха. Трогать элемент руками и продувать сжатым воздухом нельзя.'},
-      maf_conn: {t: 'Разъём', d: 'Разъём датчика.', r: 'Окисление контактов даёт скачки показаний.'},
-      maf_screws: {t: 'Винты крепления', d: 'Два винта, 1,5 Н·м.', r: 'Перетяг трескает корпус и даёт подсос воздуха.'},
+      maf_sensor: {t: 'Сенсорный модуль', d: 'Плата с нагреваемым плёночным элементом.', r: 'Элемент не трогать и не продувать.'},
+      maf_conn: {t: 'Разъём', d: 'Разъём датчика.', r: 'Окисление даёт скачки показаний.'},
+      maf_screws: {t: 'Винты крепления', d: 'Два винта.', r: 'Момент 1,5 Н·м (руководство VW).'},
+      maf_oring: {t: 'Уплотнительное кольцо G70', d: 'Кольцо между датчиком и корпусом фильтра.', r: 'Заменять; монтировать со смазкой без силикона (руководство VW).'},
     },
   },
   induct: {
-    t: 'Впускной патрубок к турбине', codes: ['сторона всасывания'],
-    what: 'Гофрированный патрубок от расходомера к входу компрессора. Сюда же приходит шланг вентиляции картера.',
+    t: 'Воздуховод к турбине', codes: ['пружинные хомуты', 'сторона всасывания'],
+    what: 'Гофрированный воздуховод от G70 к впускному патрубку турбины, на пружинных хомутах (Federbandschellen). Сюда приходит шланг вентиляции картера.',
     role: 'Подводит чистый воздух к компрессору.',
-    p0299: 'Трещина здесь даёт подсос неучтённого воздуха после G70, и регулирование сбивается. По руководству VW небольшие утечки на стороне всасывания допускаются, трещины и соскочившие хомуты — нет.',
-    check: ['Осмотреть гофру на трещины, особенно снизу.', 'Проверить хомуты на входе турбины и у G70.', 'Масляный налёт внутри от вентиляции картера — норма, лужи масла — нет.'],
+    p0299: 'Трещина даёт подсос неучтённого воздуха после G70. Небольшие утечки на стороне всасывания руководство допускает, трещины — нет.',
+    check: ['Гофра без трещин, особенно снизу.', 'Хомуты на месте.', 'Масляный налёт от вентиляции картера — норма, лужи — нет.'],
     parts: {
-      duct: {t: 'Гофрированный патрубок', d: 'Резиновый патрубок с гофрой для компенсации колебаний двигателя.', r: 'Подводит воздух к компрессору; трескается по гофре.'},
-      pcv_hose: {t: 'Шланг вентиляции картера', d: 'От маслоотделителя на крышке ГБЦ во впускной патрубок.', r: 'Картерные газы с масляным туманом дожигаются в двигателе. Отсюда масляный налёт в тракте наддува.'},
-      duct_clamps: {t: 'Хомуты', d: 'Хомуты на входе компрессора и у расходомера.', r: 'Слабый хомут — подсос воздуха мимо G70.'},
+      duct: {t: 'Гофрированный воздуховод', d: 'Резиновый воздуховод с гофрой.', r: 'Снимается вместе с впускным патрубком турбины.'},
+      pcv_hose: {t: 'Шланг вентиляции картера', d: 'От маслоотделителя на крышке ГБЦ; снимается кнопками-фиксаторами.', r: 'Отсюда масляный налёт в тракте наддува.'},
+      duct_clamps: {t: 'Пружинные хомуты', d: 'Хомуты Federbandschelle.', r: 'Ставить хомуты серийного образца.'},
     },
   },
 };
 
-const CLAMP_SPEC = [['Хомут шириной 13 мм', '5,5 Н·м'], ['Хомут шириной 9 мм', '3 Н·м'], ['Давление опрессовки (V.A.G 1687)', 'не более 0,5 бар']];
+const CLAMP_SPEC = [['Винтовой хомут шириной 13 мм', '5,5 Н·м'], ['Винтовой хомут шириной 9 мм', '3 Н·м'], ['Давление опрессовки (V.A.G 1687)', 'не более 0,5 бар']];
+const CLAMP_NOTE = 'Руководство VW: все патрубки наддува — на винтовых хомутах серийного образца; затягивать строго моментом: и недотяг, и перетяг приводят к тому, что патрубок в движении соскакивает с рифлёного штуцера. У бывших в употреблении хомутов червяк перед установкой обработать растворителем ржавчины. Штуцеры и патрубки перед сборкой — без масла и смазки.';
 Object.assign(INFO, {
   charge_hot: {
-    t: 'Тракт наддува: горячая сторона', codes: ['после компрессора'],
-    what: 'Верхний патрубок от компрессора, металлическая труба вдоль левой стороны двигателя и нижний патрубок к интеркулеру.',
+    t: 'Тракт наддува: горячая сторона', codes: ['после компрессора', 'винтовые хомуты'],
+    what: 'Верхний патрубок от гасителя пульсаций, левая металлическая труба и нижний патрубок к интеркулеру (позиции 1, 2, 6 схемы VW). Все соединения — патрубок на рифлёном штуцере под винтовым хомутом.',
     role: 'Подводит горячий сжатый воздух от турбины к интеркулеру.',
-    p0299: 'Любая утечка после компрессора даёт одну картину: ЭБУ закрывает лопатки почти полностью, а давление всё равно ниже заданного. Под нагрузкой часто слышно шипение или свист.',
-    check: ['Опрессовка тестером V.A.G 1687 или аналогом: не более 0,5 бар (руководство VW).', 'Хомуты затянуты моментом: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м.', 'Перед сборкой концы патрубков и штуцеры очищают от масла и смазки.', 'Нажмите на номер соединения на модели, чтобы снять патрубок и посмотреть посадку.'],
-    faults: ['Трещина резины у кромки или на изгибе', 'Расслоение внутреннего слоя от масла', 'Ослабший хомут'],
-    spec: [...CLAMP_SPEC, ['Крепление трубы', '9 Н·м']],
+    p0299: 'Любая утечка после компрессора даёт одну картину: ЭБУ закрывает лопатки почти полностью, а давление всё равно ниже заданного. Под нагрузкой часто слышно шипение.',
+    check: ['Опрессовка V.A.G 1687 не более 0,5 бар (руководство VW).', 'Хомуты затянуты моментом: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м.', 'Нажмите на номер соединения на модели, чтобы снять патрубок и посмотреть штуцер.'],
+    faults: ['Трещина резины у кромки или на изгибе', 'Расслоение внутреннего слоя от масла', 'Хомут затянут не по моменту — патрубок сползает'],
+    spec: [...CLAMP_SPEC, ['Крепление левой трубы', '9 Н·м']],
+    note: CLAMP_NOTE,
     parts: {
-      hose_hot_up: {t: 'Верхний патрубок (горячая сторона)', d: 'Армированный резиновый патрубок от штуцера компрессора к трубе.', r: 'Компенсирует колебания двигателя. Работает в самом горячем месте тракта, поэтому стареет первым.'},
-      pipe_hot: {t: 'Левая труба наддува (горячая сторона)', d: 'Жёсткая металлическая труба вдоль двигателя с креплением к кузову.', r: 'Ведёт воздух вниз к интеркулеру. Проверяются буртики на концах и крепления.'},
-      hose_hot_lo: {t: 'Нижний патрубок (горячая сторона)', d: 'Короткий патрубок от трубы к входному бачку интеркулера.', r: 'Внизу собирает масло и грязь — смотрите трещины снизу.'},
-      clamps_hot: {t: 'Хомуты', d: 'Хомуты на концах патрубков.', r: 'Держат патрубки на штуцерах под давлением наддува. Моменты: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м.'},
+      hose_hot_up: {t: 'Верхний патрубок (горячая сторона)', d: 'Армированный патрубок от гасителя пульсаций к левой трубе.', r: 'Самое горячее место тракта: стареет первым.'},
+      pipe_hot: {t: 'Левая труба наддува (горячая сторона)', d: 'Жёсткая металлическая труба с рифлёными штуцерами на концах.', r: 'Ведёт воздух вниз к интеркулеру.'},
+      pipe_mount: {t: 'Крепление трубы: втулка и резиновая шпилька', d: 'Втулка (Hülse) и резиновая шпилька (Tülle) крепления трубы.', r: 'Болт 9 Н·м; шпильку заменить при повреждении (руководство VW).'},
+      hose_hot_lo: {t: 'Нижний патрубок (горячая сторона)', d: 'Патрубок от трубы к входному бачку интеркулера.', r: 'Внизу собирает масло и грязь.'},
+      clamps_hot: {t: 'Винтовые хомуты', d: 'Хомуты серийного образца шириной 13 или 9 мм.', r: '13 мм — 5,5 Н·м, 9 мм — 3 Н·м. Ширину хомута проверить на месте.'},
     },
   },
   intercooler: {
     t: 'Интеркулер (охладитель наддувочного воздуха)', codes: ['воздух–воздух', '5 Н·м'],
-    what: 'Радиатор «воздух–воздух» в передней части перед радиатором охлаждения: алюминиевая сердцевина и пластиковые бачки.',
-    role: 'Охлаждает сжатый воздух. Холодный воздух плотнее, и в цилиндры попадает больше кислорода.',
-    p0299: 'Трещина бачка или сердцевины, негерметичное уплотнение штуцера — утечка наддува. Внизу интеркулера может скапливаться масло: лёгкий налёт допустим, лужа — повод проверить турбину и вентиляцию картера.',
-    check: ['Опрессовка тракта не более 0,5 бар, обмылить бачки и швы.', 'Осмотреть соты на механические повреждения.', 'Уплотнения штуцеров при разборке заменить.'],
+    what: 'Радиатор «воздух–воздух» на замковой панели, рядом с конденсатором кондиционера. Стоит на двух резиновых опорах, на штуцерах — уплотнения.',
+    role: 'Охлаждает сжатый воздух. Холодный воздух плотнее — в цилиндры попадает больше кислорода.',
+    p0299: 'Трещина бачка или сердцевины, негерметичное уплотнение штуцера — утечка наддува. Лёгкий масляный налёт допустим, лужа масла — повод проверить турбину и вентиляцию картера.',
+    check: ['Опрессовка не более 0,5 бар, бачки и швы — течеискателем.', 'Соты без механических повреждений.', 'Снятие по руководству VW: бампер, воздуховоды слева и справа, хомуты, винты интеркулера и конденсатора; интеркулер отвести назад, конденсатор — вперёд в проём замковой панели, интеркулер снять вверх и по диагонали вниз. Контур кондиционера не вскрывать.'],
     spec: [['Крепление интеркулера', '5 Н·м']],
     parts: {
-      ic_core: {t: 'Сердцевина', d: 'Алюминиевые трубки с пластинами; воздух наддува идёт внутри трубок, встречный поток охлаждает их снаружи.', r: 'Отводит тепло сжатого воздуха. Камни и коррозия пробивают трубки.'},
-      ic_tank_in: {t: 'Входной бачок', d: 'Пластиковый бачок со штуцером горячего воздуха.', r: 'Распределяет воздух по трубкам. Трескается по шву с сердцевиной.'},
-      ic_tank_out: {t: 'Выходной бачок', d: 'Пластиковый бачок со штуцером охлаждённого воздуха.', r: 'Собирает охлаждённый воздух и отдаёт его в холодную сторону тракта.'},
-      ic_seals: {t: 'Уплотнения штуцеров', d: 'Уплотнения между патрубками и штуцерами бачков.', r: 'Заменяются при каждой разборке соединения.'},
-      ic_mounts: {t: 'Резиновые опоры', d: 'Опоры крепления к кузову, болты 5 Н·м.', r: 'Гасят вибрацию; порванная опора даёт трещины бачков.'},
+      ic_core: {t: 'Сердцевина', d: 'Алюминиевые трубки с пластинами.', r: 'Камни и коррозия пробивают трубки.'},
+      ic_tank_in: {t: 'Входной бачок', d: 'Бачок со штуцером горячего воздуха.', r: 'Трескается по шву с сердцевиной.'},
+      ic_tank_out: {t: 'Выходной бачок', d: 'Бачок со штуцером охлаждённого воздуха.', r: 'Отдаёт воздух в холодную сторону тракта.'},
+      ic_seals: {t: 'Уплотнения штуцеров', d: 'Уплотнения на входе и выходе (позиции 7 и 9 схемы VW).', r: 'Проверить при разборке.'},
+      ic_mounts: {t: 'Резиновые опоры', d: 'Опоры (Lager) снизу.', r: 'Порванная опора даёт трещины бачков от вибрации.'},
+      f_ic: {t: 'Винты крепления интеркулера', d: 'Винты к замковой панели.', r: 'Момент 5 Н·м (руководство VW).'},
     },
   },
   charge_cold: {
-    t: 'Тракт наддува: холодная сторона', codes: ['после интеркулера'],
-    what: 'Нижний патрубок от интеркулера, пластиковая труба с датчиком G31/G42 и верхний патрубок к дроссельной заслонке.',
+    t: 'Тракт наддува: холодная сторона', codes: ['после интеркулера', 'винтовые хомуты'],
+    what: 'Нижний патрубок от интеркулера, правая пластиковая труба с датчиком G31/G42 и верхний патрубок к дроссельной заслонке (позиции 13, 15, 14 схемы VW). Соединения — патрубок на рифлёном штуцере под винтовым хомутом.',
     role: 'Подводит охлаждённый сжатый воздух к двигателю.',
-    p0299: 'Разъёмы здесь уплотнены кольцами. Перекрученное, надрезанное или выдавленное из канавки кольцо даёт утечку, которую трудно увидеть без опрессовки.',
-    check: ['Опрессовка не более 0,5 бар, мыльный раствор или дым на каждое соединение.', 'Снять разъём, осмотреть кольцо и горловину на трещины.', 'Уплотнительные кольца при разборке заменить.', 'Фиксаторы разъёмов защёлкнуты полностью.'],
-    spec: [...CLAMP_SPEC, ['Уплотнительные кольца', 'заменять']],
+    p0299: 'Утечка здесь даёт ту же картину, что и на горячей стороне. Отдельно проверяется датчик G31: его уплотнительное кольцо — единственное кольцо на этой трубе.',
+    check: ['Опрессовка не более 0,5 бар; течеискатель или ультразвуковой тестер V.A.G 1842 на каждое соединение.', 'Хомуты по моменту, трещины у штуцеров.'],
+    spec: [...CLAMP_SPEC],
+    note: CLAMP_NOTE,
     parts: {
-      hose_cold_lo: {t: 'Нижний патрубок (холодная сторона)', d: 'Патрубок от выходного бачка интеркулера к трубе.', r: 'Внизу, рядом с грязью и влагой; смотрите трещины и посадку.'},
-      pipe_cold: {t: 'Правая труба наддува (холодная сторона)', d: 'Пластиковая труба через переднюю часть двигателя с посадочным местом датчика G31/G42.', r: 'Ведёт воздух к дроссельной заслонке. Трещины бывают у горловин и креплений.'},
-      hose_cold_up: {t: 'Верхний патрубок (холодная сторона)', d: 'Патрубок от трубы к дроссельной заслонке.', r: 'Последний участок перед двигателем.'},
-      orings_cold: {t: 'Уплотнительные кольца', d: 'Кольца в разъёмах труб и на входе дроссельной заслонки.', r: 'Держат давление наддува. Проверяйте: кольцо целое, не перекручено, не сплющено и сидит в канавке.'},
-      clips_cold: {t: 'Хомуты и фиксаторы', d: 'Хомуты и пружинные фиксаторы разъёмов.', r: 'Недощёлкнутый фиксатор позволяет разъёму «дышать» под давлением.'},
+      hose_cold_lo: {t: 'Нижний патрубок (холодная сторона)', d: 'Патрубок от выходного бачка интеркулера к трубе.', r: 'Внизу, рядом с грязью и влагой.'},
+      pipe_cold: {t: 'Правая труба наддува (холодная сторона)', d: 'Пластиковая труба с посадочным местом датчика G31/G42.', r: 'Снимается вместе с датчиком при снятии дроссельной заслонки.'},
+      hose_cold_up: {t: 'Верхний патрубок (холодная сторона)', d: 'Патрубок от трубы к горловине дроссельной заслонки.', r: 'Держится хомутом на горловине J338.'},
+      clamps_cold: {t: 'Винтовые хомуты', d: 'Хомуты серийного образца.', r: '13 мм — 5,5 Н·м, 9 мм — 3 Н·м.'},
     },
   },
   g31: {
-    t: 'Датчик давления наддува G31 с датчиком температуры G42', codes: ['G31', 'G42', '5 Н·м'],
-    what: 'Комбинированный датчик на трубе наддува после интеркулера: абсолютное давление и температура воздуха. Крепится винтом 5 Н·м, уплотняется кольцом.',
-    role: 'Главная обратная связь регулятора наддува: ЭБУ сравнивает показания G31 с заданным давлением и по разнице управляет клапаном N75.',
-    p0299: 'Если датчик занижает (масло, нагар, повреждение), ЭБУ видит недонаддув даже при исправной турбине. Проверка простая: на заглушённом двигателе G31 показывает почти то же, что датчик атмосферного давления в ЭБУ.',
-    check: ['Зажигание включено, двигатель не работает: сравнить «давление наддува, факт» и «атмосферное давление». Обычно они расходятся не больше чем на пару десятков гПа.', 'Снять датчик, осмотреть на масло и нагар, заменить уплотнительное кольцо.', 'Проверить разъём и проводку.'],
+    t: 'Датчик давления наддува G31 с датчиком температуры G42', codes: ['G31', 'G42', '03G 906 051 D/E (каталоги)', '5 Н·м'],
+    what: 'Комбинированный датчик на правой трубе наддува, идущей к дроссельной заслонке. Доступ — снизу, после снятия шумоизоляции (руководство VW). Крепится винтом 5 Н·м, уплотняется кольцом.',
+    role: 'Главная обратная связь регулятора наддува: ЭБУ сравнивает показания G31 с заданным давлением и по разнице управляет N75.',
+    p0299: 'Если датчик занижает (масло, нагар, повреждение), ЭБУ видит недонаддув при исправной турбине. На заглушённом двигателе G31 показывает почти то же, что датчик атмосферного давления в ЭБУ.',
+    check: ['Зажигание включено, двигатель не работает: «давление наддува, факт» и «атмосферное давление» расходятся не больше чем на пару десятков гПа.', 'Снятие: шумоизоляцию снизу, разъём, винт; вынуть датчик из трубы. Кольцо заменить.'],
     spec: [['Винт крепления', '5 Н·м'], ['Уплотнительное кольцо', 'заменять']],
     parts: {
       g31_body: {t: 'Корпус датчика', d: 'Пластиковый корпус с фланцем под винт.', r: 'Вставляется в трубу наддува.'},
-      g31_elem: {t: 'Чувствительный элемент давления', d: 'Полупроводниковый элемент абсолютного давления.', r: 'Даёт напряжение, пропорциональное давлению наддува.'},
-      g31_ntc: {t: 'Терморезистор G42', d: 'Терморезистор температуры воздуха в потоке.', r: 'ЭБУ учитывает температуру в расчёте наддува и массы воздуха.'},
-      g31_oring: {t: 'Уплотнительное кольцо', d: 'Кольцо между датчиком и трубой.', r: 'Нет кольца или оно повреждено — утечка наддува прямо у датчика. Заменяется при снятии.'},
-      g31_screw: {t: 'Винт крепления', d: 'Винт, 5 Н·м.', r: 'Прижимает датчик к трубе.'},
-      g31_conn: {t: 'Разъём', d: 'Разъём датчика: питание 5 В, масса, сигналы давления и температуры.', r: 'Окисленные контакты дают скачки показаний.'},
+      g31_elem: {t: 'Чувствительный элемент давления', d: 'Элемент абсолютного давления.', r: 'Даёт напряжение, пропорциональное давлению.'},
+      g31_ntc: {t: 'Терморезистор G42', d: 'Датчик температуры воздуха в потоке.', r: 'ЭБУ учитывает температуру в расчёте наддува.'},
+      g31_oring: {t: 'Уплотнительное кольцо', d: 'Кольцо между датчиком и трубой.', r: 'Заменяется при снятии (руководство VW).'},
+      g31_screw: {t: 'Винт крепления', d: 'Винт датчика.', r: 'Момент 5 Н·м (руководство VW).'},
+      g31_conn: {t: 'Разъём', d: 'Разъём датчика: питание, масса, сигналы давления и температуры.', r: 'Отстёгивается при снятии трубы.'},
     },
   },
   throttle: {
-    t: 'Блок дроссельной заслонки J338', codes: ['J338', 'G69'],
-    what: 'Заслонка с электроприводом и датчиком положения G69 на входе во впускной коллектор.',
-    role: 'У дизеля обычно открыта полностью. Прикрывается для мягкой остановки двигателя, для точной дозировки EGR и при регенерации сажевого фильтра.',
-    p0299: 'Влияет косвенно: заслонка, залипшая в прикрытом положении, душит двигатель, и масса воздуха ниже заданной. G31 стоит до заслонки, поэтому давление при этом может быть даже выше.',
-    check: ['Тест исполнительных механизмов: заслонка закрывается и открывается полностью.', 'Нагар на кромке заслонки и в горловине.'],
+    t: 'Блок дроссельной заслонки J338', codes: ['J338', 'G69', '8 и 9 Н·м'],
+    what: 'Заслонка с электроприводом и потенциометром G69 спереди на впускном коллекторе, горловиной вниз. На некоторых машинах есть опора между заслонкой и картером (руководство VW). Рядом — направляющая масляного щупа.',
+    role: 'У дизеля обычно открыта полностью. Прикрывается для мягкой остановки двигателя, дозировки EGR и регенерации сажевого фильтра.',
+    p0299: 'Косвенно: залипшая прикрытой заслонка душит двигатель, масса воздуха ниже заданной. G31 стоит до заслонки, поэтому давление может быть даже выше.',
+    check: ['Тест исполнительных механизмов: заслонка закрывается и открывается полностью.', 'Нагар на кромке и в горловине.', 'При снятии O-ring заменить.'],
+    spec: [['Крепление заслонки', '8 Н·м и 9 Н·м'], ['Уплотнительное кольцо', 'заменять']],
     parts: {
-      thr_body: {t: 'Корпус', d: 'Алюминиевый корпус с горловиной и фланцем.', r: 'Крепится к смесительной камере коллектора.'},
-      thr_plate: {t: 'Заслонка на валу', d: 'Круглая заслонка на оси.', r: 'Перекрывает поток воздуха. Нагар мешает полному закрытию и открытию.'},
-      thr_motor: {t: 'Электропривод', d: 'Электродвигатель с редуктором в пластиковом корпусе.', r: 'Поворачивает заслонку по команде ЭБУ.'},
-      thr_g69: {t: 'Потенциометр G69', d: 'Датчик положения заслонки.', r: 'Сообщает ЭБУ фактический угол заслонки.'},
-      thr_seal: {t: 'Уплотнение', d: 'Уплотнение между заслонкой и коллектором.', r: 'Негерметичность здесь — утечка наддува на самом входе в двигатель.'},
+      thr_body: {t: 'Корпус с горловиной', d: 'Алюминиевый корпус; горловина вниз, на неё надевается патрубок под хомут.', r: 'Крепится к коллектору.'},
+      thr_plate: {t: 'Заслонка на валу', d: 'Круглая заслонка.', r: 'Нагар мешает полному закрытию и открытию.'},
+      thr_motor: {t: 'Электропривод', d: 'Электродвигатель с редуктором.', r: 'Поворачивает заслонку по команде ЭБУ.'},
+      thr_g69: {t: 'Потенциометр G69', d: 'Датчик положения заслонки.', r: 'Сообщает ЭБУ фактический угол.'},
+      thr_seal: {t: 'Уплотнительное кольцо', d: 'Кольцо между заслонкой и коллектором.', r: 'Заменяется при снятии (руководство VW).'},
+      f_thr: {t: 'Болты заслонки', d: 'Крепление к коллектору.', r: 'Моменты 8 и 9 Н·м (руководство VW); какой болт какой — по рисунку ELSA.'},
+      thr_support: {t: 'Опора заслонки к картеру', d: 'Есть не на всех машинах (руководство VW).', r: 'Снимается перед снятием коллектора.'},
     },
   },
   manifold: {
-    t: 'Впускной коллектор со смесительной камерой EGR', codes: ['впуск'],
-    what: 'Алюминиевый коллектор на передней стороне головки блока. У входа — смесительная камера, где к воздуху подмешиваются газы EGR.',
-    role: 'Распределяет воздух по четырём цилиндрам.',
-    p0299: 'Прогоревшая или смещённая прокладка коллектора — утечка наддува прямо у головки. Толстый нагар от EGR сужает каналы.',
-    check: ['Опрессовка тракта и прослушивание зоны прокладки.', 'Оценить нагар в смесительной камере через снятую дроссельную заслонку.'],
+    t: 'Впускной коллектор', codes: ['Torx T30', 'патрубок EGR 8 Н·м'],
+    what: 'Алюминиевый коллектор спереди на головке блока. Слева — патрубок EGR, куда приходит соединительная трубка от охладителя; снизу спереди — дроссельная заслонка; спереди — держатель N345.',
+    role: 'Распределяет воздух и газы EGR по четырём цилиндрам.',
+    p0299: 'Прогоревшая или смещённая прокладка — утечка наддува прямо у головки. Толстый нагар от EGR сужает каналы.',
+    check: ['Опрессовка тракта, прослушать зону прокладки.', 'Болты коллектора (вставка Torx T30 T10405): откручивать снаружи внутрь крест-накрест, затягивать изнутри наружу крест-накрест; прокладки заменить (руководство VW).'],
+    spec: [['Патрубок EGR', '8 Н·м'], ['Хомут соединительной трубки EGR (заменять)', '5 Н·м'], ['Держатель N345', '9 Н·м'], ['Прокладки, уплотнительные кольца', 'заменять']],
     parts: {
-      im_plenum: {t: 'Коллектор с каналами', d: 'Ресивер и четыре канала к впускным окнам головки.', r: 'Распределяет заряд по цилиндрам.'},
-      im_mix: {t: 'Смесительная камера', d: 'Узел, где встречаются воздух от заслонки и газы от клапана EGR.', r: 'Здесь быстрее всего растёт нагар.'},
-      im_gasket: {t: 'Прокладка коллектора', d: 'Прокладка между коллектором и головкой блока.', r: 'Держит давление наддува на входе в цилиндры.'},
+      im_plenum: {t: 'Коллектор с каналами', d: 'Ресивер и четыре канала к впускным окнам.', r: 'Распределяет заряд по цилиндрам.'},
+      f_im: {t: 'Болты коллектора Torx T30', d: 'Болты крепления к головке блока.', r: 'Порядок: снимать снаружи внутрь, затягивать изнутри наружу крест-накрест. Количество на модели — условно.'},
+      im_egr: {t: 'Патрубок EGR (Stutzen)', d: 'Патрубок на коллекторе для соединительной трубки от охладителя EGR.', r: 'Крепление 8 Н·м, уплотнительное кольцо заменять (руководство VW).'},
+      f_im_egr: {t: 'Болты патрубка EGR', d: 'Крепление патрубка к коллектору.', r: 'Момент 8 Н·м.'},
+      im_gasket: {t: 'Прокладка коллектора', d: 'Прокладка между коллектором и головкой.', r: 'Заменяется при снятии.'},
+      dipstick: {t: 'Направляющая масляного щупа', d: 'Трубка щупа у дроссельной заслонки, с уплотнительным кольцом.', r: 'Её винт откручивают при снятии заслонки.'},
     },
   },
   egr: {
-    t: 'Модуль рециркуляции ОГ (EGR)', codes: ['N18', 'G212', 'N345'],
-    what: 'Охладитель EGR со встроенным клапаном N18 и датчиком положения G212, байпасная заслонка с вакуумной камерой и трубка от выпускного коллектора с развязывающими гофрами.',
+    t: 'Модуль рециркуляции ОГ (EGR)', codes: ['N18', 'G212', '03L 131 512 BB (каталоги, CFFB)'],
+    what: 'Охладитель EGR со встроенным клапаном N18 и потенциометром G212 стоит сзади, под турбиной: для снятия руководство требует снять сажевый фильтр и опору турбины с маслоподводом. Трубки EGR — с развязывающими элементами; соединительная трубка идёт к патрубку на впускном коллекторе.',
     role: 'Возвращает часть выхлопа во впуск, чтобы снизить образование оксидов азота. На полной нагрузке клапан закрыт.',
-    p0299: 'Клапан, залипший открытым, уводит газы мимо турбины и разбавляет свежий заряд: турбине не хватает энергии, масса воздуха ниже заданной, наддув не набирается.',
-    check: ['Измеряемые величины: положение клапана EGR задано/факт, масса воздуха задано/факт.', 'Тест исполнительных механизмов клапана.', 'Заслонка байпаса: ручной насос на камеру, 0,6 бар.', 'Герметичность охладителя по охлаждающей жидкости: тестер V.A.G 1274 B.'],
-    spec: [['Большинство креплений', '9 Н·м'], ['Крепление охладителя', '24 Н·м'], ['Хомут', '5 Н·м']],
+    p0299: 'Клапан, залипший открытым, уводит газы мимо турбины и разбавляет свежий заряд: масса воздуха ниже заданной, наддув не набирается.',
+    check: ['Положение клапана EGR задано/факт, масса воздуха задано/факт.', 'Переключение заслонки (руководство VW): снять теплозащитный рукав, на камеру — VAS 6213; тяга должна двигаться. Не двигается или рывками — неисправна камера или тугая заслонка.', 'Герметичность по жидкости: тестер V.A.G 1274 B с адаптером 1274/8 на прогретом двигателе. Перед заменой охладителя проверить насос V178.'],
+    spec: [['Крепления трубок и охладителя', '9 Н·м, одно соединение 24 Н·м (по рисунку ELSA)'], ['Хомут трубки', '5 Н·м'], ['Трубка EGR на коллекторе', '17 Н·м, гайки заменять'], ['Прокладки', 'заменять']],
+    note: 'Развязывающие элементы трубок не сгибать — трескаются (руководство VW). Точное положение модуля и трассы трубок — уточнить по фото снизу.',
     parts: {
-      egr_pipe: {t: 'Трубка EGR с развязывающими гофрами', d: 'Стальная трубка от выпускного коллектора к охладителю с гибкими участками.', r: 'Подводит газы к модулю; гофры гасят вибрацию и тепловое расширение.'},
-      egr_cooler: {t: 'Охладитель EGR', d: 'Теплообменник, омываемый охлаждающей жидкостью двигателя.', r: 'Снижает температуру возвращаемых газов. Течь ОЖ внутрь — белый дым и потеря жидкости.'},
+      egr_pipe1: {t: 'Трубка EGR от выпускного коллектора', d: 'Короткая трубка с развязывающим элементом.', r: 'Гайки на коллекторе 17 Н·м, заменять; прокладку заменять.'},
+      egr_pipe2: {t: 'Соединительная трубка к впускному коллектору', d: 'Трубка вокруг левого торца двигателя с развязывающими элементами.', r: 'На патрубке коллектора — хомут 5 Н·м, заменять.'},
+      egr_cooler: {t: 'Охладитель EGR', d: 'Теплообменник, омываемый охлаждающей жидкостью.', r: 'Течь внутрь — белый дым и потеря жидкости.'},
       egr_bypass: {t: 'Байпасная заслонка', d: 'Заслонка на входе охладителя.', r: 'Пускает газы в обход охладителя на холодном двигателе.'},
-      egr_can: {t: 'Вакуумная камера заслонки', d: 'Пневмокамера, управляется клапаном N345.', r: 'Переключает заслонку. Порванная камера подсасывает воздух из общей магистрали разрежения.'},
-      egr_elbow: {t: 'Патрубок к клапану', d: 'Короткий канал от охладителя к клапану EGR.', r: 'Соединяет охладитель и клапан.'},
-      egr_valve: {t: 'Клапан EGR (тарелка и шток)', d: 'Тарельчатый клапан в корпусе у смесительной камеры.', r: 'Дозирует количество газов. Нагар на тарелке не даёт ему закрыться.'},
-      egr_motor: {t: 'Привод клапана N18 с датчиком G212', d: 'Электропривод клапана со встроенным датчиком положения.', r: 'Открывает клапан по команде ЭБУ; G212 сообщает фактическое положение.'},
-      egr_gaskets: {t: 'Прокладки', d: 'Прокладки и уплотнения соединений модуля.', r: 'Заменяются при разборке.'},
+      egr_can: {t: 'Вакуумная камера заслонки', d: 'Пневмокамера с тягой, управляется N345.', r: 'Порванная камера подсасывает воздух из общей линии разрежения.'},
+      egr_valve: {t: 'Клапан EGR', d: 'Тарельчатый клапан, встроен в модуль охладителя.', r: 'Нагар на тарелке не даёт ему закрыться.'},
+      egr_motor: {t: 'Привод клапана N18 с потенциометром G212', d: 'Электропривод клапана.', r: 'G212 сообщает фактическое положение.'},
+      egr_gaskets: {t: 'Прокладки', d: 'Прокладки фланцев трубок.', r: 'Заменяются при разборке.'},
+      f_egr_mani: {t: 'Гайки трубки EGR на выпускном коллекторе', d: 'Самоконтрящиеся гайки.', r: 'Момент 17 Н·м, заменять (руководство VW).'},
+      f_egr_cooler: {t: 'Крепление охладителя EGR', d: 'Болты модуля к блоку.', r: 'Момент — по рисунку ELSA (в перечне руководства 9 и 24 Н·м).'},
+      f_egr_pipes: {t: 'Болты фланцев трубок EGR', d: 'Крепление трубок к модулю.', r: 'Момент 9 Н·м (руководство VW).'},
+      egr_clamp: {t: 'Хомут соединительной трубки', d: 'Хомут на патрубке впускного коллектора.', r: 'Момент 5 Н·м, заменять (руководство VW).'},
     },
   },
   dpf: {
     t: 'Окислительный нейтрализатор и сажевый фильтр', codes: ['DPF', 'G505', 'G39'],
-    what: 'Модуль сразу за турбиной: окислительный катализатор и сажевый фильтр в одном корпусе, датчик перепада давления G505, лямбда-зонд G39 и датчик температуры ОГ.',
-    role: 'Дожигает CO и углеводороды, задерживает сажу. Фильтр периодически очищается регенерацией.',
-    p0299: 'Сильно забитый фильтр поднимает противодавление: двигатель теряет мощность, на высоких оборотах наддув проседает. Проверяется по перепаду давления G505 и расчётной загрузке сажей.',
-    check: ['Измеряемые величины: перепад давления на фильтре и загрузка сажей.', 'Трубки G505 не треснули и не перепутаны местами.', 'После замены G505 его адаптируют в ODIS/VCDS.'],
+    what: 'Модуль сразу за турбиной: окислительный катализатор и сажевый фильтр в одном корпусе, датчик перепада давления G505, лямбда-зонд G39 и датчик температуры.',
+    role: 'Дожигает CO и углеводороды, задерживает сажу.',
+    p0299: 'Сильно забитый фильтр поднимает противодавление: на высоких оборотах наддув проседает. Проверяется по перепаду давления G505 и загрузке сажей.',
+    check: ['Перепад давления на фильтре и загрузка сажей.', 'Трубки G505 не треснули и не перепутаны.', 'После замены G505 или фильтра: «01 — Lernwerte Differenzdruckgeber DPF zurücksetzen» (руководство VW).'],
     parts: {
-      dpf_down: {t: 'Приёмная труба от турбины', d: 'Колено от выходного фланца турбины к модулю.', r: 'Прогар фланца — шум и утечка газов.'},
-      dpf_can: {t: 'Корпус модуля', d: 'Стальной корпус с конусами входа и выхода.', r: 'Держит оба керамических блока.'},
-      dpf_doc: {t: 'Окислительный катализатор', d: 'Керамические соты с каталитическим покрытием.', r: 'Окисляет CO и углеводороды и греет газы для регенерации фильтра.'},
-      dpf_core: {t: 'Сажевый фильтр', d: 'Пористая керамика с попеременно заглушёнными каналами.', r: 'Задерживает сажу. Забитый фильтр поднимает противодавление.'},
-      dpf_shield: {t: 'Теплозащитный экран', d: 'Экран со стороны щита моторного отсека.', r: 'Защищает окружающие детали от жара.'},
-      g505: {t: 'Датчик перепада давления G505', d: 'Датчик с двумя трубками: до и после фильтра.', r: 'По перепаду ЭБУ оценивает загрузку сажей. Треснувшая трубка искажает оценку.'},
-      g39: {t: 'Лямбда-зонд G39', d: 'Широкополосный кислородный датчик.', r: 'ЭБУ использует его для коррекции EGR и массы воздуха.'},
-      egt: {t: 'Датчик температуры ОГ перед фильтром', d: 'Термодатчик на входе модуля.', r: 'Контролирует температуру при регенерации.'},
-      tailpipe: {t: 'Труба к глушителю', d: 'Выход модуля к остальной выпускной системе.', r: 'Дальше — средний и задний глушители.'},
+      dpf_down: {t: 'Приёмная труба от турбины', d: 'Колено от выхода турбины.', r: 'Прогар фланца — шум и утечка газов.'},
+      dpf_can: {t: 'Корпус модуля', d: 'Стальной корпус с конусами.', r: 'Держит оба блока.'},
+      dpf_doc: {t: 'Окислительный катализатор', d: 'Керамические соты с покрытием.', r: 'Окисляет CO и углеводороды, греет газы для регенерации.'},
+      dpf_core: {t: 'Сажевый фильтр', d: 'Пористая керамика.', r: 'Забитый фильтр поднимает противодавление.'},
+      dpf_shield: {t: 'Теплозащитный экран', d: 'Экран со стороны щита.', r: 'Защищает детали от жара.'},
+      g505: {t: 'Датчик перепада давления G505', d: 'Датчик с трубками до и после фильтра.', r: 'После замены — сброс обучаемых значений.'},
+      g39: {t: 'Лямбда-зонд G39', d: 'Широкополосный кислородный датчик; ключ 3337.', r: 'ЭБУ корректирует по нему EGR и массу воздуха.'},
+      egt: {t: 'Датчик температуры ОГ перед фильтром', d: 'Термодатчик на входе модуля.', r: 'Контроль регенерации.'},
+      tailpipe: {t: 'Труба к глушителю', d: 'Выход модуля.', r: 'Дальше — глушители.'},
     },
   },
   ecu: {
     t: 'Блок управления двигателем J623', codes: ['03L 907 309 AE', 'Bosch EDC17'],
-    what: 'Электронный блок управления двигателем с датчиком атмосферного давления внутри.',
-    role: 'Рассчитывает заданное давление наддува по педали, оборотам, температурам и атмосферному давлению; управляет N75 так, чтобы G31 показал заданное; контролирует ход актуатора по G581.',
-    p0299: 'Код P0299 записывает сам ЭБУ, когда фактическое давление слишком долго остаётся заметно ниже заданного. Порог и время заданы в прошивке.',
-    check: ['Прочитать все коды двигателя: коды по цепям N75, G581, G31 меняют план поиска.', 'Проверить по базе VW, нет ли для автомобиля сервисных мероприятий по прошивке.'],
+    what: 'Блок в водоотводном коробе под решёткой стеклоочистителей, на держателе (руководство VW). Внутри — датчик атмосферного давления.',
+    role: 'Рассчитывает заданное давление наддува, управляет N75, контролирует ход камеры турбины по G581.',
+    p0299: 'Код P0299 записывает ЭБУ, когда фактическое давление слишком долго остаётся заметно ниже заданного. Порог и время заданы в прошивке.',
+    check: ['Прочитать все коды двигателя: коды по цепям N75, G581, G31 меняют план поиска.', 'Замена блока — только через ведомую функцию «Замена блока управления».'],
+    spec: [['Гайки держателя', '6 Н·м'], ['Болты крепления', '7 Н·м']],
+    note: 'Есть исполнение с защитным кожухом на срывных болтах: их выкручивают клещами, при сборке ставят новые до срыва головок.',
     parts: {
-      ecu_case: {t: 'Корпус', d: 'Алюминиевый корпус с рёбрами.', r: 'Отводит тепло и защищает электронику.'},
-      ecu_pcb: {t: 'Плата', d: 'Процессор, драйверы клапанов, входы датчиков.', r: 'Здесь работает регулятор наддува: сравнивает G31 с заданным и выдаёт импульсы на N75.'},
-      ecu_baro: {t: 'Датчик атмосферного давления', d: 'Датчик внутри блока.', r: 'Эталон для проверки G31 на заглушённом двигателе.'},
-      ecu_conn: {t: 'Разъёмы', d: 'Разъёмы жгутов двигателя и автомобиля.', r: 'Влага в разъёме даёт плавающие ошибки.'},
+      ecu_case: {t: 'Корпус', d: 'Алюминиевый корпус.', r: 'Отводит тепло.'},
+      ecu_pcb: {t: 'Плата', d: 'Процессор, драйверы клапанов, входы датчиков.', r: 'Здесь работает регулятор наддува.'},
+      ecu_baro: {t: 'Датчик атмосферного давления', d: 'Датчик внутри блока.', r: 'Эталон для проверки G31.'},
+      ecu_conn: {t: 'Разъёмы', d: 'Два разъёма с фиксаторами.', r: 'Влага в разъёме даёт плавающие ошибки.'},
+      ecu_frame: {t: 'Держатель', d: 'Рама с креплением в водоотводном коробе.', r: 'Гайки 6 Н·м, болты 7 Н·м (руководство VW).'},
     },
   },
   engine: {
-    t: 'Двигатель 2.0 TDI Common Rail (EA189)', codes: ['1968 см³', 'R4'],
-    what: 'Рядный четырёхцилиндровый дизель с непосредственным впрыском Common Rail: чугунный блок, алюминиевая головка, 16 клапанов.',
-    role: 'Показан для ориентира: впуск спереди, выпуск и турбина сзади, у щита моторного отсека.',
+    t: 'Двигатель 2.0 TDI Common Rail (EA189)', codes: ['1968 см³', 'R4', 'Ø81 × 95,5 мм'],
+    what: 'Рядный четырёхцилиндровый дизель: чугунный блок, алюминиевая головка, 16 клапанов, диаметр цилиндра 81 мм, ход 95,5 мм, межцилиндровое расстояние 88 мм.',
+    role: 'Показан для ориентира: впуск спереди, выпуск, турбина и EGR сзади, у щита моторного отсека.',
     parts: {
-      block: {t: 'Блок цилиндров', d: 'Чугунный блок с коленчатым валом.', r: 'Основа двигателя; сзади на нём подвод и слив масла турбины.'},
-      gasket: {t: 'Прокладка ГБЦ', d: 'Многослойная стальная прокладка.', r: 'Уплотняет камеры сгорания и каналы масла и ОЖ.'},
-      head: {t: 'Головка блока цилиндров', d: 'Алюминиевая головка с двумя распредвалами.', r: 'Спереди — впускные окна, сзади — выпускные с коллектором и турбиной. На торце — вакуумный насос.'},
-      cover: {t: 'Крышка ГБЦ с маслоотделителем', d: 'Пластиковая крышка со встроенным маслоотделителем вентиляции картера.', r: 'Картерные газы идут отсюда во впускной патрубок турбины.'},
+      block: {t: 'Блок цилиндров', d: 'Чугунный блок с коленчатым валом.', r: 'Сзади на нём подвод и слив масла турбины и модуль EGR.'},
+      gasket: {t: 'Прокладка ГБЦ', d: 'Многослойная стальная прокладка.', r: 'Уплотняет камеры сгорания и каналы.'},
+      head: {t: 'Головка блока цилиндров', d: 'Алюминиевая головка с двумя распредвалами.', r: 'Спереди — впуск, сзади — выпуск; на торце — вакуумный насос.'},
+      cover: {t: 'Крышка ГБЦ с маслоотделителем', d: 'Крышка со встроенным маслоотделителем.', r: 'Картерные газы идут отсюда во впуск турбины.'},
       pan: {t: 'Масляный поддон', d: 'Поддон со сливной пробкой.', r: 'Сюда стекает масло из турбины.'},
-      bell: {t: 'Фланец картера сцепления', d: 'Место крепления коробки передач (показано условно).', r: 'Сторона коробки передач — левая по ходу автомобиля.'},
+      bell: {t: 'Фланец картера сцепления', d: 'Место крепления коробки передач (условно).', r: 'Сторона коробки — левая.'},
     },
   },
   timing: {
     t: 'Привод ГРМ', codes: ['ремень'],
-    what: 'Зубчатый ремень ГРМ под пластиковыми кожухами и демпфер коленвала.',
-    role: 'Синхронизирует распредвалы и насос высокого давления с коленвалом.',
+    what: 'Зубчатый ремень под пластиковыми кожухами и демпфер коленвала.',
+    role: 'Синхронизирует распредвалы и насос высокого давления.',
     parts: {
-      beltcover_up: {t: 'Верхний кожух ремня ГРМ', d: 'Пластиковый кожух.', r: 'Защищает ремень от грязи.'},
+      beltcover_up: {t: 'Верхний кожух ремня ГРМ', d: 'Пластиковый кожух.', r: 'Защищает ремень.'},
       beltcover_lo: {t: 'Нижний кожух ремня ГРМ', d: 'Пластиковый кожух.', r: 'Защищает нижнюю часть привода.'},
-      damper: {t: 'Шкив-демпфер коленвала', d: 'Шкив с гасителем крутильных колебаний.', r: 'Приводит поликлиновой ремень навесного оборудования.'},
+      damper: {t: 'Шкив-демпфер коленвала', d: 'Шкив с гасителем колебаний.', r: 'Приводит ремень навесного оборудования.'},
     },
   },
   accessories: {
     t: 'Навесное оборудование', codes: ['поликлиновой ремень'],
-    what: 'Генератор, компрессор кондиционера, натяжитель и поликлиновой ремень.',
-    role: 'Показаны для ориентира в передней части двигателя.',
+    what: 'Генератор, компрессор кондиционера, натяжитель и поликлиновой ремень (положение условно).',
+    role: 'Для ориентира в передней части двигателя.',
     parts: {
-      alternator: {t: 'Генератор', d: 'Генератор с регулятором напряжения.', r: 'Заряжает аккумулятор и питает бортовую сеть.'},
+      alternator: {t: 'Генератор', d: 'Генератор с регулятором.', r: 'Питает бортовую сеть.'},
       ac: {t: 'Компрессор кондиционера', d: 'Компрессор с муфтой.', r: 'Сжимает хладагент.'},
-      belt: {t: 'Поликлиновой ремень', d: 'Ремень привода навесного оборудования.', r: 'Передаёт вращение от коленвала.'},
-      tensioner: {t: 'Натяжитель', d: 'Автоматический натяжитель с роликом.', r: 'Держит натяжение ремня.'},
+      belt: {t: 'Поликлиновой ремень', d: 'Ремень навесного оборудования.', r: 'Передаёт вращение от коленвала.'},
+      tensioner: {t: 'Натяжитель', d: 'Автоматический натяжитель.', r: 'Держит натяжение.'},
     },
   },
   rail: {
     t: 'Топливная система Common Rail', codes: ['G247'],
-    what: 'Топливная рампа с датчиком давления G247, четыре форсунки и трубки высокого давления.',
-    role: 'Показана для ориентира. Давление в рампе тоже влияет на мощность, но наддув регулируется отдельно.',
+    what: 'Рампа с датчиком давления G247, четыре форсунки и трубки высокого давления.',
+    role: 'Для ориентира. Давление в рампе влияет на мощность, но наддув регулируется отдельно.',
     parts: {
-      rail: {t: 'Топливная рампа', d: 'Аккумулятор топлива под высоким давлением.', r: 'Питает все форсунки одинаковым давлением.'},
-      g247: {t: 'Датчик давления топлива G247', d: 'Датчик в торце рампы.', r: 'Сообщает ЭБУ давление в рампе.'},
-      injectors: {t: 'Форсунки', d: 'Электроуправляемые форсунки.', r: 'Впрыскивают топливо несколькими порциями за цикл.'},
-      hplines: {t: 'Трубки высокого давления', d: 'Стальные трубки от рампы к форсункам.', r: 'Затягиваются моментом по ELSA и при снятии обычно заменяются.'},
+      rail: {t: 'Топливная рампа', d: 'Аккумулятор топлива высокого давления.', r: 'Питает форсунки.'},
+      g247: {t: 'Датчик давления топлива G247', d: 'Датчик в рампе; уплотнение — режущая кромка, без кольца (руководство VW).', r: 'После проверки допускается повторная установка.'},
+      injectors: {t: 'Форсунки', d: 'Электроуправляемые форсунки.', r: 'Впрыскивают топливо несколькими порциями.'},
+      hplines: {t: 'Трубки высокого давления', d: 'Стальные трубки от рампы к форсункам.', r: 'Момент — по ELSA.'},
     },
   },
 });
@@ -1820,70 +1992,147 @@ Object.assign(INFO, {
 /* ================== ДИАГНОСТИКА P0299: вывод, шаги, сценарии, соединения ================== */
 const KEY_HTML = `<h4>Что это значит сейчас</h4><ul>
 <li><b>1050 / 937–948 гПа на холостом ходу</b> — сами по себе не неисправность. На ХХ турбина почти не создаёт давления, факт близок к атмосферному. Если атмосферное у вас около 940 гПа (≈ 600 м над уровнем моря или непогода), датчик G31 показывает правильно. P0299 записывается под нагрузкой.</li>
-<li><b>Щелчки без движения штока</b> — это щёлкал клапан N75. Шток двигается, только если до актуатора дошло разрежение. Если тест делали на заглушённом двигателе, вакуумный насос стоял, и разрежения могло просто не быть.</li>
-<li><b>Самый быстрый следующий шаг — шаг 3</b>: ручной насос на актуатор. За 5 минут он делит поиск пополам: турбина с актуатором или управление (N75, трубки, насос).</li></ul>`;
+<li><b>Щелчки без движения штока</b> — это щёлкал клапан N75. Шток двигается, только если до камеры турбины дошло разрежение. Если тест делали на заглушённом двигателе, вакуумный насос стоял, и разрежения могло просто не быть.</li>
+<li><b>Самый быстрый следующий шаг — шаг 3</b>: ручной насос на камеру турбины. За 5 минут он делит поиск пополам: турбина с камерой или управление (N75, трубки, насос).</li></ul>`;
 
 const STEPS = [
   {t: 'Датчик G31 на заглушённом двигателе', s: '2 мин · сканер', view: 'front34', focus: ['g31', 'ecu'],
     do: ['Зажигание включено, двигатель не работает.', 'В измеряемых величинах двигателя открыть «давление наддува, факт» и «атмосферное давление».'],
     norm: 'Значения почти совпадают, обычно в пределах пары десятков гПа. Тогда ваши 937–948 гПа на ХХ — это просто атмосферное давление.',
-    bad: ['Сильное расхождение — датчик G31, его уплотнительное кольцо, разъём или проводка.']},
-  {t: 'Разрежение на входе N75', s: '5 мин · вакуумметр', view: 'iso', focus: ['vpump', 'checkvalve', 'vlines', 'n75'],
-    do: ['Двигатель на холостом ходу.', 'Вакуумметр через тройник в линию от обратного клапана к N75.'],
-    norm: 'Стабильно порядка 0,8 бар и выше (ориентир для исправного насоса дизеля).',
-    bad: ['Мало разрежения: трещины трубок, обратный клапан стоит наоборот или залип, утечка в ветке N345 и камеры заслонки EGR, изношен насос.', 'Пережмите ветку на N345: если разрежение выросло, утечка там.']},
-  {t: 'Актуатор ручным насосом', s: '5 мин · ручной вакуумный насос', view: 'iso', focus: ['actuator', 'turbo'], key: true, demo: 'pump',
-    do: ['Снять шланг со штуцера актуатора, подключить ручной насос (VAS 6213 или аналог).', 'Создать 0,6 бар, смотреть на шток и на положение G581 в измеряемых величинах.', 'Подержать около 30 с и сбросить.'],
-    norm: 'Шток уходит в крайнее положение, разрежение не падает, после сброса шток возвращается пружиной (руководство VW).',
-    bad: ['Шток не двигается, разрежение держится — заклинил механизм VNT: снять тягу и провернуть рычаг рукой.', 'Разрежение падает — порвана мембрана актуатора.', 'Всё в норме — турбина и актуатор ни при чём, ищем в управлении: шаги 2 и 4.']},
-  {t: 'Клапан N75 и его шланги', s: '10 мин · вакуумметр', view: 'iso', focus: ['n75', 'vlines'], demo: 'n75',
-    do: ['Двигатель работает. Вакуумметр на выход N75 (линия к актуатору).', 'Повторить тест исполнительных механизмов или сделать перегазовку.', 'Сверить подключение: вход — от насоса, выход — к актуатору, третий штуцер — атмосфера через фильтр.'],
-    norm: 'Разрежение на выходе меняется вслед за управлением, шток двигается.',
-    bad: ['Клапан щёлкает, а разрежение на выходе не меняется — N75 неисправен или забит фильтр атмосферного входа.', 'Шланги перепутаны — подключить по схеме.']},
-  {t: 'Опрессовка тракта наддува', s: '20 мин · V.A.G 1687 или дымогенератор', view: 'front34', focus: ['charge_hot', 'intercooler', 'charge_cold', 'g31', 'throttle', 'manifold'], demo: 'joints',
-    do: ['Подать давление в тракт — не более 0,5 бар (руководство VW).', 'Слушать шипение; мыльный раствор или дым на каждое соединение 1–9 на модели.', 'Отдельно: бачки интеркулера, датчик G31, прокладка коллектора.'],
-    norm: 'Давление держится, пузырей и дыма нет. Небольшие утечки на стороне всасывания турбины руководство допускает.',
-    bad: ['Нашли утечку — снять соединение, проверить кольцо и горловину; кольца заменить.']},
-  {t: 'EGR и дроссельная заслонка', s: '10 мин · сканер', view: 'front34', focus: ['egr', 'throttle', 'maf'],
-    do: ['Под нагрузкой: положение клапана EGR задано/факт, масса воздуха задано/факт, положение дроссельной заслонки.', 'Тест исполнительных механизмов клапана EGR и заслонки.'],
-    norm: 'На полной нагрузке клапан EGR закрыт, масса воздуха близка к заданной, заслонка открыта.',
-    bad: ['Клапан EGR не закрывается — нагар или привод; турбине не хватает энергии выхлопа.']},
+    bad: ['Сильное расхождение — датчик G31, его уплотнительное кольцо, разъём или проводка. Датчик снимается снизу после снятия шумоизоляции.']},
+  {t: 'Линия подвода, ресивер и обратный клапан', s: '10 мин · VAS 6213 · по руководству VW', view: 'iso', focus: ['vpump', 'checkvalve', 'vlines', 'n75', 'n345'],
+    do: ['Снять крышку двигателя. Вынуть N345 из держателя спереди на коллекторе.', 'Снять шланги с нижнего штуцера N345 и с подвода N75, концы заглушить (не винтами и не болтами).', 'Снять шланг у соединительного элемента вакуумного насоса, подключить к нему VAS 6213, создать 0,6 бар, смотреть около 30 с.', 'Затем снять шланг с насоса и вынуть одну из заглушек.'],
+    norm: 'Разрежение 30 с не падает; при снятии заглушки слышно отчётливое шипение — ресивер держал разрежение, обратный клапан исправен.',
+    bad: ['Разрежение падает — искать повреждение или неплотное соединение в линии, заменить участок шланга.', 'Шипения нет — заменить обратный клапан.']},
+  {t: 'Камера турбины ручным насосом', s: '5 мин · VAS 6213', view: 'iso', focus: ['actuator', 'turbo'], key: true, demo: 'pump',
+    do: ['Снять шланг со штуцера вакуумной камеры турбины, подключить VAS 6213.', 'Создать 0,6 бар, смотреть на шток и на положение G581 в измеряемых величинах.', 'Подержать около 30 с и сбросить.'],
+    norm: 'Шток уходит в крайнее положение, разрежение не падает, после сброса шток возвращается пружиной.',
+    bad: ['Шток не двигается, разрежение держится — заклинил механизм VNT: снять тягу и провернуть рычаг рукой.', 'Разрежение падает — порвана мембрана (по руководству VW меняется турбина в сборе).', 'Всё в норме — турбина и камера ни при чём, ищем в управлении: шаги 2 и 4.']},
+  {t: 'Линия от N75 к турбине и сам N75', s: '10 мин · VAS 6213 · по руководству VW', view: 'iso', focus: ['n75', 'vlines', 'actuator'], demo: 'n75',
+    do: ['Снять шланг со среднего штуцера N75 и с камеры турбины; один конец заглушить, на другой — VAS 6213, 0,6 бар, около 30 с.', 'Затем двигатель работает: вакуумметр на средний штуцер N75, повторить тест исполнительных механизмов или сделать перегазовку.', 'Сверить подключение трёх штуцеров N75 и состояние фильтра атмосферного входа.'],
+    norm: 'Линия держит 0,6 бар; на среднем штуцере разрежение меняется вслед за управлением, шток двигается.',
+    bad: ['Линия не держит — заменить шланг.', 'Клапан щёлкает, а на среднем штуцере разрежение не меняется — N75 неисправен или забит фильтр.']},
+  {t: 'Опрессовка тракта наддува', s: '20 мин · V.A.G 1687 + адаптер 1687/12', view: 'front34', focus: ['charge_hot', 'intercooler', 'charge_cold', 'g31', 'throttle', 'manifold', 'induct'], demo: 'joints',
+    do: ['Снять воздуховод с корпуса воздушного фильтра, вставить адаптер 1687/12 во впускной шланг и закрепить хомутом.', 'Тестер: регулятор полностью выкрутить, вентили закрыть, подключить к адаптеру и к сжатому воздуху; открыть вентиль, выставить 0,5 бар (не больше!), открыть второй вентиль и дать заполниться.', 'Искать утечки: на слух, рукой, течеискателем, ультразвуковым тестером V.A.G 1842. Пройти соединения 1–10 на модели.'],
+    norm: 'Утечек в напорной части нет. Небольшие утечки на стороне всасывания допустимы; проверка на удержание давления невозможна — немного воздуха уходит через клапаны в двигатель (руководство VW).',
+    bad: ['Нашли утечку — снять соединение, осмотреть; уплотнения и кольца заменить, хомуты затянуть моментом.']},
+  {t: 'EGR и дроссельная заслонка', s: '10 мин · сканер · VAS 6213', view: 'iso', focus: ['egr', 'throttle', 'maf', 'n345'],
+    do: ['Под нагрузкой: положение клапана EGR задано/факт, масса воздуха задано/факт, положение дроссельной заслонки.', 'Тест исполнительных механизмов клапана EGR и заслонки.', 'Заслонка байпаса охладителя: снять теплозащитный рукав, VAS 6213 на камеру — тяга должна двигаться плавно.'],
+    norm: 'На полной нагрузке клапан EGR закрыт, масса воздуха близка к заданной, заслонка J338 открыта, тяга байпаса двигается.',
+    bad: ['Клапан EGR не закрывается — нагар или привод.', 'Тяга байпаса не двигается или рывками — камера неисправна или заслонка тугая; порванная камера роняет разрежение и для турбины.']},
   {t: 'Противодавление и сажевый фильтр', s: '5 мин · сканер', view: 'iso', focus: ['dpf', 'turbo'],
     do: ['Перепад давления на фильтре (G505) на ХХ и на повышенных оборотах, расчётная загрузка сажей.', 'Осмотреть коллектор и фланцы на следы прорыва газов.'],
-    norm: 'Перепад и загрузка в пределах, указанных в ELSA; следов прорыва газов нет.',
-    bad: ['Высокий перепад — регенерация или проверка фильтра.', 'Сажа у прокладки коллектора — утечка газов до турбины.']},
+    norm: 'Перепад и загрузка в пределах ELSA; следов прорыва нет.',
+    bad: ['Высокий перепад — регенерация или проверка фильтра.', 'Сажа у прокладки коллектора — утечка газов до турбины (гайки 24 Н·м — новые).']},
   {t: 'Заезд с записью', s: '15 мин · сканер и дорога', view: 'iso', focus: ['turbo', 'actuator', 'g31', 'ecu'], demo: 'pull',
-    do: ['3-я передача, полный газ примерно с 1500 до 4000 об/мин.', 'Записать: наддув задано/факт, положение актуатора задано/факт (G581), масса воздуха задано/факт, положение EGR.', 'Вписать точки во вкладке «Сценарии» и сравнить с картинами неисправностей.'],
-    norm: 'Факт догоняет заданное с небольшой задержкой, актуатор отрабатывает команду.',
-    bad: ['Актуатор задан, но не отрабатывает — управление или механизм (шаги 2–4).', 'Актуатор отрабатывает до упора, а давления нет — утечка или износ турбины (шаги 5 и 7).']},
+    do: ['3-я передача, полный газ примерно с 1500 до 4000 об/мин.', 'Записать: наддув задано/факт, положение камеры задано/факт (G581), массу воздуха задано/факт, положение EGR.', 'Загрузить CSV во вкладке «Графики» и сравнить с картинами неисправностей.'],
+    norm: 'Факт догоняет заданное с небольшой задержкой, камера отрабатывает команду.',
+    bad: ['Команда на камеру есть, а она не отрабатывает — управление или механизм (шаги 2–4).', 'Камера отрабатывает до упора, а давления нет — утечка или износ турбины (шаги 5 и 7).']},
 ];
 
 /* сценарии для упрощённой модели */
 const SCEN = [
-  {id: 'ok', t: 'Исправная система', sig: 'Факт идёт за заданным с небольшой задержкой, положение актуатора (G581) следует за заданным.', next: 'Если ваш лог выглядит так, а код возвращается, проверьте его условия появления в стоп-кадре.'},
-  {id: 'novac', t: 'Нет разрежения у актуатора', s: 'трубка, обратный клапан, насос', sig: 'Заданное положение актуатора уходит к 100 %, фактическое остаётся около нуля. Давление растёт только за счёт оборотов и остаётся далеко ниже заданного.', next: 'Шаги 2 и 3: вакуумметр на входе N75, ручной насос на актуатор.'},
-  {id: 'n75', t: 'N75 щёлкает, но не пропускает разрежение', sig: 'На графиках то же, что при отсутствии разрежения: команда есть, шток стоит. Отличие видно только вакуумметром: на входе N75 разрежение есть, на выходе — нет.', next: 'Шаг 4.'},
-  {id: 'membrane', t: 'Порвана мембрана актуатора', sig: 'Актуатор двигается вяло и не доходит до заданного положения; давление ниже заданного во всём диапазоне.', next: 'Шаг 3: при проверке ручным насосом разрежение не держится.'},
+  {id: 'ok', t: 'Исправная система', sig: 'Факт идёт за заданным с небольшой задержкой, положение камеры (G581) следует за заданным.', next: 'Если ваш лог выглядит так, а код возвращается, смотрите условия появления в стоп-кадре.'},
+  {id: 'novac', t: 'Нет разрежения у камеры', s: 'трубка, обратный клапан, насос', sig: 'Заданное положение камеры уходит к 100 %, фактическое остаётся около нуля. Давление растёт только за счёт оборотов и остаётся далеко ниже заданного.', next: 'Шаги 2 и 3.'},
+  {id: 'n75', t: 'N75 щёлкает, но не пропускает разрежение', sig: 'На графиках то же, что при отсутствии разрежения. Отличие видно только вакуумметром: на подводе N75 разрежение есть, на среднем штуцере — нет.', next: 'Шаг 4.'},
+  {id: 'membrane', t: 'Порвана мембрана камеры', sig: 'Камера двигается вяло и не доходит до заданного положения; давление ниже заданного во всём диапазоне.', next: 'Шаг 3: разрежение не держится.'},
   {id: 'vnt', t: 'Механизм VNT закоксован', s: 'заедает', sig: 'Шток почти не двигается или двигается рывками, хотя разрежение есть. Давление ниже заданного, особенно на низких оборотах.', next: 'Шаг 3: шток не идёт при 0,6 бар — снять тягу, проверить рычаг рукой.'},
-  {id: 'leak', t: 'Утечка в тракте наддува', s: 'патрубок, кольцо, интеркулер', sig: 'ЭБУ закрывает лопатки почти до упора (актуатор около 100 %), а давление всё равно отстаёт — сильнее всего там, где заданное максимально. Под нагрузкой шипение.', next: 'Шаг 5: опрессовка, соединения 1–9.'},
+  {id: 'leak', t: 'Утечка в тракте наддува', s: 'патрубок, хомут, интеркулер', sig: 'ЭБУ закрывает лопатки почти до упора (камера около 100 %), а давление всё равно отстаёт — сильнее всего там, где заданное максимально. Под нагрузкой шипение.', next: 'Шаг 5: опрессовка, соединения 1–10.'},
   {id: 'egr', t: 'Клапан EGR залип открытым', sig: 'Масса воздуха заметно ниже заданной, давление отстаёт на низких и средних оборотах, возможен чёрный дым.', next: 'Шаг 6.'},
   {id: 'dpf', t: 'Забит сажевый фильтр', sig: 'Давление проседает к высоким оборотам, перепад давления на фильтре высокий, мотор «задыхается».', next: 'Шаг 7.'},
-  {id: 'g31', t: 'Датчик G31 занижает показания', sig: 'На заглушённом двигателе G31 показывает меньше атмосферного. ЭБУ видит недонаддув и закрывает лопатки сильнее нужного; реальный наддув при этом может быть даже выше.', next: 'Шаг 1.'},
+  {id: 'g31', t: 'Датчик G31 занижает показания', sig: 'На заглушённом двигателе G31 показывает меньше атмосферного. ЭБУ видит недонаддув и закрывает лопатки сильнее нужного; реальный наддув может быть даже выше.', next: 'Шаг 1.'},
 ];
 
-/* соединения тракта наддува: текст */
+/* соединения тракта наддува (типы — по руководству VW) */
 const JOINT_TXT = {
-  1: {t: 'Выход компрессора → верхний патрубок', k: 'Хомут', c: 'Штуцер компрессора без трещин, резина у кромки целая, хомут 13 мм затянут на 5,5 Н·м. Масляный налёт возможен из-за вентиляции картера, лужи масла — нет.'},
-  2: {t: 'Верхний патрубок → труба (горячая сторона)', k: 'Хомут', c: 'Буртик трубы цел, патрубок надет до упора, внутренний слой не расслоился.'},
-  3: {t: 'Труба → нижний патрубок (горячая сторона)', k: 'Хомут', c: 'Трещины снизу патрубка, следы масла и грязи, момент хомута.'},
-  4: {t: 'Нижний патрубок → интеркулер (вход)', k: 'Хомут и уплотнение штуцера', c: 'Трещины бачка у штуцера, уплотнение целое; при разборке уплотнение заменить.'},
-  5: {t: 'Интеркулер (выход) → нижний патрубок', k: 'Хомут и уплотнение штуцера', c: 'То же, что на входе: бачок, штуцер, уплотнение.'},
-  6: {t: 'Нижний патрубок → труба с датчиком', k: 'Разъём с уплотнительным кольцом', c: 'Кольцо целое, не перекручено, не сплющено и сидит в канавке; фиксатор защёлкнут; у горловины нет трещин. Кольцо заменить.'},
-  7: {t: 'Труба → верхний патрубок', k: 'Разъём с уплотнительным кольцом', c: 'Как у соединения 6. Сюда часто попадает масло — кольцо разбухает.'},
-  8: {t: 'Верхний патрубок → дроссельная заслонка', k: 'Уплотнительное кольцо', c: 'Кольцо на входе заслонки и сама горловина. Нагар и масло здесь — повод осмотреть и смесительную камеру.'},
-  9: {t: 'Датчик G31/G42 → труба', k: 'Уплотнительное кольцо, винт 5 Н·м', c: 'Кольцо на месте и целое, винт затянут на 5 Н·м. Масло на сенсоре искажает показания.'},
-  10: {t: 'Впускной патрубок → вход компрессора', k: 'Хомут, сторона всасывания', c: 'Трещины гофры, посадка хомута. Небольшие утечки на этой стороне руководство допускает, но не трещины.'},
+  1: {t: 'Гаситель пульсаций → верхний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Штуцер гасителя без трещин, резина у кромки целая, хомут затянут моментом (13 мм — 5,5 Н·м). Сам гаситель держится стопорным кольцом и винтом 9 Н·м, под ним O-ring.'},
+  2: {t: 'Верхний патрубок → левая труба', k: 'Винтовой хомут на рифлёном штуцере', c: 'Рифление штуцера чистое, патрубок надет до упора, внутренний слой не расслоился.'},
+  3: {t: 'Левая труба → нижний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Трещины снизу патрубка, масло и грязь, момент хомута.'},
+  4: {t: 'Нижний патрубок → интеркулер (вход)', k: 'Винтовой хомут и уплотнение штуцера', c: 'Трещины бачка у штуцера, состояние уплотнения.'},
+  5: {t: 'Интеркулер (выход) → нижний патрубок', k: 'Винтовой хомут и уплотнение штуцера', c: 'То же, что на входе: бачок, штуцер, уплотнение.'},
+  6: {t: 'Нижний патрубок → правая труба', k: 'Винтовой хомут на рифлёном штуцере', c: 'Штуцер пластиковой трубы без трещин, хомут по моменту.'},
+  7: {t: 'Правая труба → верхний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Сюда часто попадает масло — резина разбухает и сползает.'},
+  8: {t: 'Верхний патрубок → горловина J338', k: 'Винтовой хомут на горловине заслонки', c: 'Горловина и кромка патрубка. Нагар и масло здесь — повод осмотреть коллектор.'},
+  9: {t: 'Датчик G31/G42 → труба', k: 'Уплотнительное кольцо, винт 5 Н·м', c: 'Кольцо на месте и целое, винт 5 Н·м. Масло на сенсоре искажает показания. Доступ снизу.'},
+  10: {t: 'Впускной патрубок → компрессор', k: 'O-ring и два невыпадающих винта 9 Н·м', c: 'Патрубок снимается вместе с воздуховодом от фильтра. Кольцо заменить. Сторона всасывания: небольшие утечки допускаются, трещины — нет.'},
 };
+
+/* ================== ПАСПОРТ ДАННЫХ, КРЕПЁЖ, СПИСОК НА ЗАВТРА ================== */
+/* status: vw — руководство VW; cat — каталоги и продавцы (сверить по VIN); you — ваши данные; model — условно */
+const STATUS = {vw: ['руководство VW', 'ok'], cat: ['каталог, сверить по VIN', 'warn'], you: ['ваши данные', 'ok'], model: ['условно, нужны фото', 'bad']};
+const PASSPORT = [
+  ['Автомобиль', 'VIN WVGZZZ5NZDW114949, 2013 модельный год', 'you'],
+  ['Автомобиль', 'ЭБУ 03L 907 309 AE', 'you'],
+  ['Автомобиль', 'Код двигателя (вероятно CFFB, 103 кВт)', 'model'],
+  ['Турбина', 'BorgWarner BV40, 03L 253 010 J / 03L 253 056 E·Q', 'cat'],
+  ['Турбина', 'Колёса: компрессор Ø46 / 34,4 мм, 6+6; турбина Ø40 / 35,6 мм, 9 лопаток', 'cat'],
+  ['Турбина', 'Меняется только с коллектором и вакуумной камерой; после установки — базовая установка', 'vw'],
+  ['Турбина', 'Вход — патрубок на O-ring и двух винтах 9 Н·м; выход — гаситель пульсаций, стопорное кольцо, O-ring, 9 Н·м', 'vw'],
+  ['Турбина', 'Гайки коллектора 24 Н·м (новые), маслоподвод 22/40/30 Н·м, опора 9 Н·м, G235 20 Н·м', 'vw'],
+  ['Вакуум', 'Состав: камера с G581, N75, глушитель, фильтр, обратный клапан, ресивер, N345, камера заслонки EGR', 'vw'],
+  ['Вакуум', 'N75: средний штуцер — к камере турбины', 'vw'],
+  ['Вакуум', 'Проверки: 0,6 бар, 30 с; шипение обратного клапана', 'vw'],
+  ['Вакуум', 'Какой из крайних штуцеров N75 подвод, какой атмосфера; место ресивера', 'model'],
+  ['Тракт', 'Все патрубки — винтовые хомуты: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м', 'vw'],
+  ['Тракт', 'Кольца — только у G31, J338, впускного патрубка, гасителя и G70; у интеркулера — уплотнения', 'vw'],
+  ['Тракт', 'Опрессовка: V.A.G 1687 + 1687/12, не больше 0,5 бар', 'vw'],
+  ['Тракт', 'Интеркулер на замковой панели у конденсатора, 5 Н·м', 'vw'],
+  ['Тракт', 'G31/G42 на трубе к J338, доступ снизу, 5 Н·м; J338 спереди на коллекторе горловиной вниз', 'vw'],
+  ['Номера', 'N75 1K0 906 627 A/B; G31 03G 906 051 D/E; G70 03L 906 461 A; насос 03L 145 100 F; охладитель EGR 03L 131 512 BB', 'cat'],
+  ['EGR', 'Охладитель со встроенным N18/G212 сзади под турбиной; трубки с развязкой; хомут 5 Н·м (новый)', 'vw'],
+  ['ЭБУ', 'В водоотводном коробе под решёткой стеклоочистителей; 6 и 7 Н·м', 'vw'],
+  ['Геометрия', 'Точная форма деталей, трассы шлангов, число болтов на фланцах', 'model'],
+];
+/* крепёж: ссылка на деталь модели (узел.деталь) */
+const FASTENERS = [
+  ['Турбина', 'Гайки выпускного коллектора', '24 Н·м', 'самоконтрящиеся — заменять', 'turbo.f_mani'],
+  ['Турбина', 'Прокладка выпускного коллектора', '—', 'заменять', 'turbo.mani_gasket'],
+  ['Турбина', 'Накидная гайка маслоподвода', '22 Н·м', 'залить масло в штуцер турбины', 'turbo.f_union'],
+  ['Турбина', 'Полые болты маслоподвода', '40 и 30 Н·м', 'кольца разного диаметра — заменять', 'turbo.f_banjo'],
+  ['Турбина', 'Опора турбины', '9 Н·м', '', 'turbo.support'],
+  ['Турбина', 'Впускной патрубок, невыпадающие винты', '9 Н·м', 'O-ring заменять', 'turbo.f_stub'],
+  ['Турбина', 'Гаситель пульсаций', '9 Н·м', 'стопорное кольцо — одно положение; O-ring заменять', 'turbo.f_puls'],
+  ['Турбина', 'Датчик G235', '20 Н·м', '', 'turbo.g235'],
+  ['Турбина', 'Держатель проводов', '15 Н·м', '', ''],
+  ['EGR', 'Гайки трубки EGR на выпускном коллекторе', '17 Н·м', 'заменять, прокладку заменять', 'egr.f_egr_mani'],
+  ['EGR', 'Фланцы трубок EGR', '9 Н·м', 'прокладки заменять', 'egr.f_egr_pipes'],
+  ['EGR', 'Модуль охладителя', '9 / 24 Н·м', 'какой болт какой — по рисунку ELSA', 'egr.f_egr_cooler'],
+  ['EGR', 'Хомут соединительной трубки', '5 Н·м', 'заменять', 'egr.egr_clamp'],
+  ['Тракт', 'Винтовой хомут 13 мм', '5,5 Н·м', 'серийный образец; червяк — растворителем ржавчины', 'charge_hot.clamps_hot'],
+  ['Тракт', 'Винтовой хомут 9 мм', '3 Н·м', '', 'charge_cold.clamps_cold'],
+  ['Тракт', 'Крепление левой трубы', '9 Н·м', 'шпильку заменить при повреждении', 'charge_hot.pipe_mount'],
+  ['Тракт', 'Интеркулер', '5 Н·м', '', 'intercooler.f_ic'],
+  ['Тракт', 'Датчик G31/G42', '5 Н·м', 'O-ring заменять', 'g31.g31_screw'],
+  ['Впуск', 'Расходомер G70, 2 винта', '1,5 Н·м', 'O-ring заменять, смазка без силикона', 'maf.maf_screws'],
+  ['Впуск', 'Верхняя часть корпуса фильтра', '1,5 Н·м', '', 'airbox.f_ab_top'],
+  ['Впуск', 'Нижняя часть корпуса фильтра', '8 Н·м', '', 'airbox.f_ab_bot'],
+  ['Коллектор', 'Болты коллектора Torx T30', 'по ELSA', 'изнутри наружу крест-накрест; прокладки заменять', 'manifold.f_im'],
+  ['Коллектор', 'Патрубок EGR', '8 Н·м', 'уплотнительное кольцо заменять', 'manifold.f_im_egr'],
+  ['Коллектор', 'Дроссельная заслонка J338', '8 и 9 Н·м', 'O-ring заменять', 'throttle.f_thr'],
+  ['Коллектор', 'Держатель N345', '9 Н·м', '', 'n345.n345_holder'],
+  ['ЭБУ', 'Гайки держателя', '6 Н·м', '', 'ecu.ecu_frame'],
+  ['ЭБУ', 'Болты ЭБУ', '7 Н·м', '', 'ecu.ecu_frame'],
+];
+const FAST_PIDS = new Set(FASTENERS.map(f => f[4]).filter(Boolean).concat(['charge_hot.clamps_hot', 'charge_cold.clamps_cold', 'induct.duct_clamps', 'vpump.vp_cover']));
+const TODO = [
+  ['engine', 'Код двигателя: наклейка в багажнике/сервисной книжке или клеймо на блоке — фото'],
+  ['turbo', 'Табличка турбины (BorgWarner 5440…, 03L 253 …) — фото крупно'],
+  ['labels', 'Номера на N75, G31, G70 и вакуумной камере — фото этикеток'],
+  ['bay', 'Моторный отсек со всех сторон и снизу с подъёмника, рулетка в кадре'],
+  ['vac', 'N75 крупно: какой шланг на какой штуцер; обратный клапан (стрелка); ресивер; насос'],
+  ['vnt', 'Турбина сзади: камера, тяга, рычаг VNT, теплозащитный рукав'],
+  ['etka', 'ETKA по VIN: турбина и наддув, фильтр, впускной коллектор, EGR, выпуск, вакуумные шланги'],
+  ['elsa', 'ELSA по VIN: рисунки с моментами (уточнят 24 Н·м и болты заслонки)'],
+  ['pump', 'Результат ручного насоса на камере: ход штока и держит ли 0,6 бар 30 с'],
+  ['log', 'Лог VCDS CSV: 3-я передача, полный газ, 1500→4000 об/мин'],
+  ['scan', 'По желанию: 3D-скан телефоном (Polycam, Scaniverse, RealityScan) — GLB, OBJ, STL или PLY'],
+];
+/* детали-крепёж получают описание из таблицы, если его нет в INFO */
+for (const [g, t, v, note, ref] of FASTENERS) {
+  if (!ref) continue; const [asm, pid] = ref.split('.'); const I = INFO[asm]; if (!I) continue;
+  I.parts = I.parts || {};
+  if (!I.parts[pid]) I.parts[pid] = {t, d: `${g}: ${t}.`, r: `Момент ${v}${note ? '; ' + note : ''} (руководство VW).`};
+}
 
 /* ================== УПРОЩЁННАЯ МОДЕЛЬ РЕГУЛИРОВАНИЯ НАДДУВА ================== */
 const AMB = 945; // гПа — атмосферное в модели (близко к вашему факту на ХХ)
@@ -1937,7 +2186,7 @@ function simulatePull(sid) {
 const SIMS = {}; SCEN.forEach(sc => SIMS[sc.id] = simulatePull(sc.id));
 
 /* ================== ГРАФИК (canvas) ================== */
-function drawChart(host, {x0, x1, y0, y1, yStep, fmtY, series, points = [], cursor = null, hover = null}) {
+function drawChart(host, {x0, x1, y0, y1, yStep, fmtY, series, points = [], points2 = [], cursor = null, hover = null}) {
   const cv = host.querySelector('canvas'), dpr = Math.min(devicePixelRatio || 1, 2);
   const W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
   if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
@@ -1954,12 +2203,16 @@ function drawChart(host, {x0, x1, y0, y1, yStep, fmtY, series, points = [], curs
   }
   g.strokeStyle = col('--axis'); g.beginPath(); g.moveTo(pad.l, H - pad.b + .5); g.lineTo(W - pad.r, H - pad.b + .5); g.stroke();
   g.textAlign = 'center'; g.fillStyle = col('--muted'); g.textBaseline = 'top';
-  for (let v = 1500; v <= x1; v += 500) { g.fillText(num(v), X(v), H - pad.b + 5); }
+  for (let v = Math.ceil(x0 / 500) * 500; v <= x1; v += 500) { g.fillText(num(v), X(v), H - pad.b + 5); }
   g.lineJoin = g.lineCap = 'round';
   for (const s of series) {
     g.strokeStyle = col(s.c); g.lineWidth = 2; g.setLineDash(s.dash || []); g.beginPath();
     s.d.forEach(([x, y], i) => i ? g.lineTo(X(x), Y(clamp(y, y0, y1))) : g.moveTo(X(x), Y(clamp(y, y0, y1))));
     g.stroke(); g.setLineDash([]);
+  }
+  for (const [x, y] of points2) {
+    if (x < x0 || x > x1) continue;
+    g.strokeStyle = col('--s1'); g.lineWidth = 1.6; g.beginPath(); g.arc(X(x), Y(clamp(y, y0, y1)), 3.6, 0, TAU); g.stroke();
   }
   for (const [x, y] of points) {
     if (x < x0 - 400 || x > x1) continue;
@@ -1999,7 +2252,7 @@ function fitDist(radius) {
 function viewBias() {
   if (isNarrow()) return {x: 0, y: 0.1};
   const vntOpen = !$('#vnt').classList.contains('collapsed');
-  return {x: vntOpen ? -0.2 : -0.04, y: 0.1};
+  return {x: vntOpen ? -0.2 : -0.04, y: 0.15};
 }
 function flyTo(target, radius, dir) {
   const d = (dir ? (Array.isArray(dir) ? V3(...dir) : dir.clone()) : camera.position.clone().sub(controls.target)).normalize();
@@ -2053,10 +2306,11 @@ function paint() {
     if (SEL.asm === a.id && SEL.hoverPart === o.userData.pid && SEL.part !== o.userData.pid) k = Math.max(k, 0.2);
     if (SEL.asm === a.id && SEL.part === o.userData.pid) k = 0.45;
     if (o.userData.vacGlow && FX.vacOn) { c = VACC; k = Math.max(k, 0.55); }
+    if (FX.fastOn && FAST_PIDS.has(a.id + '.' + o.userData.pid) && !isGhost(o)) { c = FASTC; k = Math.max(k, 0.75); }
     emissiveOf(o, c, k);
   });
 }
-const VACC = new THREE.Color();
+const VACC = new THREE.Color(), FASTC = new THREE.Color(0xf2a900);
 
 /* --- сфера для кадрирования (с учётом разборки) --- */
 function focusSphere(a, e = a.et) {
@@ -2096,7 +2350,7 @@ function selectAsm(id, {fly = true, explode = true} = {}) {
   for (const b of W.asm.values()) setAsmGhost(b, b.id !== id);
   if (['turbo', 'actuator'].includes(id) && !isNarrow()) UI.expandVNT(true);
   a.et = explode ? 1 : 0;
-  if (fly) { const f = focusSphere(a, a.et); flyTo(f.c, f.r * 1.05); }
+  if (fly) { const f = focusSphere(a, a.et); flyTo(f.c, f.r * (a.et ? 1.3 : 1.05)); }
   makePartLabels(a);
   paint(); UI.renderInspector(); UI.markTree(); FX.onSelection();
 }
@@ -2118,7 +2372,7 @@ function back() {
 }
 function toggleExplode() {
   const a = SEL.asm && W.asm.get(SEL.asm); if (!a) return;
-  a.et = a.et > 0.5 ? 0 : 1; const f = focusSphere(a, a.et); flyTo(f.c, f.r * 1.05); UI.renderInspector();
+  a.et = a.et > 0.5 ? 0 : 1; const f = focusSphere(a, a.et); flyTo(f.c, f.r * (a.et ? 1.3 : 1.05)); UI.renderInspector();
 }
 const ENGINE_IDS = ['engine', 'timing', 'accessories', 'rail'];
 
@@ -2192,21 +2446,24 @@ function syncAsmLabels() {
 }
 
 /* ================== СОЕДИНЕНИЯ ТРАКТА НАДДУВА ================== */
+const firstMesh = (o) => { let m = null; o.traverse(x => { if (!m && x.isMesh) m = x; }); return m; };
+const SP = W.anim.spigots, TURBO = W.asm.get('turbo');
 const JOINTS = [
-  {n: 1, asm: 'charge_hot', flex: 'hotUp', end: 0, clamp: W.anim.clampsHot[0]},
-  {n: 2, asm: 'charge_hot', flex: 'hotUp', end: 1, clamp: W.anim.clampsHot[1]},
-  {n: 3, asm: 'charge_hot', flex: 'hotLo', end: 0, clamp: W.anim.clampsHot[2]},
+  {n: 1, asm: 'charge_hot', flex: 'hotUp', end: 0, clamp: W.anim.clampsHot[0], ring: firstMesh(TURBO.partObj('puls'))},
+  {n: 2, asm: 'charge_hot', flex: 'hotUp', end: 1, clamp: W.anim.clampsHot[1], ring: firstMesh(SP.hotTop)},
+  {n: 3, asm: 'charge_hot', flex: 'hotLo', end: 0, clamp: W.anim.clampsHot[2], ring: firstMesh(SP.hotFront)},
   {n: 4, asm: 'charge_hot', flex: 'hotLo', end: 1, clamp: W.anim.clampsHot[3], ring: W.anim.icSeals[0]},
   {n: 5, asm: 'charge_cold', flex: 'coldLo', end: 0, clamp: W.anim.clipsCold[0], ring: W.anim.icSeals[1]},
-  {n: 6, asm: 'charge_cold', flex: 'coldLo', end: 1, clamp: W.anim.clipsCold[1], ring: W.anim.oringsCold[0]},
-  {n: 7, asm: 'charge_cold', flex: 'coldUp', end: 0, clamp: W.anim.clipsCold[2], ring: W.anim.oringsCold[1]},
-  {n: 8, asm: 'charge_cold', flex: 'coldUp', end: 1, clamp: W.anim.clipsCold[3], ring: W.anim.oringsCold[2]},
+  {n: 6, asm: 'charge_cold', flex: 'coldLo', end: 1, clamp: W.anim.clipsCold[1], ring: firstMesh(SP.coldBot)},
+  {n: 7, asm: 'charge_cold', flex: 'coldUp', end: 0, clamp: W.anim.clipsCold[2], ring: firstMesh(SP.coldTop)},
+  {n: 8, asm: 'charge_cold', flex: 'coldUp', end: 1, clamp: W.anim.clipsCold[3], ring: firstMesh(SP.thrIn)},
   {n: 9, asm: 'g31', sensor: true},
-  {n: 10, asm: 'induct', flex: 'duct', end: 1, clamp: W.anim.ductClampTurbo},
+  {n: 10, asm: 'induct', flex: 'duct', end: 1, clamp: W.anim.ductClampTurbo, ring: firstMesh(TURBO.partObj('stub_oring')), extra: [W.anim.stubPart, W.anim.stubScrews]},
 ];
 for (const j of JOINTS) {
   j.d = 0; j.dt = 0; Object.assign(j, JOINT_TXT[j.n]);
-  if (j.sensor) { j.pos = AIR.g31.clone(); j.ring = W.asm.get('g31').partObj('g31_oring'); j.slide = V3(0, 1, 0); }
+  if (j.extra) j.extraHome = j.extra.map(o => o.userData.home.clone());
+  if (j.sensor) { j.pos = AIR.g31.clone(); j.ring = firstMesh(W.asm.get('g31').partObj('g31_oring')); j.slide = AIR.g31Dir.clone().multiplyScalar(0.4); }
   else {
     const f = W.hoses[j.flex], P = f.pts, n = P.length;
     j.pos = (j.end ? P[n - 1] : P[0]).clone();
@@ -2224,7 +2481,7 @@ function toggleJoint(j, open) {
   j.dt = open ?? (j.dt ? 0 : 1);
   if (a.et > 0) a.et = 0;
   if (SEL.asm && SEL.asm !== j.asm && !['charge_hot', 'charge_cold', 'intercooler', 'g31', 'induct'].includes(SEL.asm)) clearSelection({fly: false});
-  SEL.joint = j.dt ? j : null;
+  SEL.joint = j;
   if (j.dt) { const out = V3(j.pos.x, 0, j.pos.z - 0.3).normalize(); flyTo(j.pos, 1.35, out.multiplyScalar(1.1).add(V3(0, 0.75, 0)).addScaledVector(j.slide.clone().normalize(), 0.25)); }
   UI.renderInspector(); syncJointLabels();
 }
@@ -2237,10 +2494,11 @@ function setStepFocus(ids) {
 function closeAllJoints(except) { for (const j of JOINTS) if (j.asm !== except) j.dt = 0; }
 function applyJoint(j) {
   const k = ease(j.d);
-  if (j.sensor) { W.asm.get('g31').g.position.y = 0.4 * k; }
+  if (j.sensor) { W.asm.get('g31').g.position.copy(j.slide).multiplyScalar(k); }
   else {
     const f = W.hoses[j.flex]; f.off[j.end].copy(j.slide).multiplyScalar(k); f.update();
     j.clamp.position.copy(j.clampHome).addScaledVector(j.slide, k);
+    if (j.extra) j.extra.forEach((o, i) => { o.userData.home.copy(j.extraHome[i]).addScaledVector(j.slide, k); o.position.copy(o.userData.home); });
   }
 }
 function syncJointLabels() {
@@ -2260,17 +2518,17 @@ const tw = (x, y, z) => TA(0).add(V3(x, y, z));
 const FLOWS = [];
 function addFlow(kind, pts, n) { const c = curveOf(toW(pts)); c.arcLengthDivisions = 300; c.updateArcLengths(); const len = c.getLength(); FLOWS.push({kind, c, len, n: n || Math.max(5, Math.round(len * 3)), ph: Math.random()}); }
 {
-  addFlow('intake', [[-4.28, 3.92, 3.95], [-4.3, 3.86, 3.5], [-4.34, 3.7, 2.4], [-4.3, 3.62, 1.55], [-4.1, 3.62, 0.8], [-3.85, 3.66, -0.3], [-3.45, 3.8, -0.8], ...AIR.duct, [-1.62, 2.25, -2.85]]);
+  addFlow('intake', [[-4.28, 3.92, 3.95], [-4.3, 3.86, 3.5], [-4.34, 3.7, 2.4], [-4.3, 3.62, 1.55], [-4.1, 3.62, 0.8], [-3.85, 3.66, -0.3], [-3.45, 3.8, -0.8], ...AIR.duct, [-2.05, 2.25, -2.85], [-1.62, 2.25, -2.85]]);
   const vol = []; const th0 = -Math.PI / 2 + 0.9 * TAU, span = 0.9 * TAU;
   for (const f of [0.05, 0.25, 0.45, 0.65, 0.85, 1]) { const th = th0 - f * span, Rc = 0.3 + lerp(0.07, 0.19, f) * 0.92; vol.push(tw(-1.24, Rc * Math.cos(th), Rc * Math.sin(th))); }
   const co = TA(0).add(W.anim.compOut.p);
-  addFlow('hot', [[-1.6, 2.25, -2.85], tw(-1.3, 0.2, -0.05), ...vol, co, ...AIR.hotUp.slice(1), ...AIR.pipeHot, ...AIR.hotLo, [-3.05, -0.3, 5.35]]);
+  addFlow('hot', [[-1.6, 2.25, -2.85], tw(-1.3, 0.2, -0.05), ...vol, co, TA(0).add(W.anim.pulsEnd), ...AIR.hotUp.slice(1), ...AIR.pipeHot, ...AIR.hotLo, [-3.05, -0.3, 5.35]]);
   for (const y of [-0.75, -0.45, -0.15, 0.15]) addFlow('ic', [[-2.9, y, 5.35], [-0.2, y, 5.35], [2.45, y, 5.35]], 10);
-  addFlow('cold', [[2.65, -0.3, 5.35], [2.65, -0.32, 5.0], ...AIR.coldLo.slice(1), ...AIR.pipeCold.slice(1), ...AIR.coldUp.slice(1), [-2.35, 2.95, 2.95], [-2.35, 2.95, 2.6], [-2.2, 2.95, 2.3], [-1.85, 2.95, 2.22], [1.8, 2.95, 2.22]]);
+  addFlow('cold', [[2.65, -0.3, 5.35], [2.65, -0.32, 5.0], ...AIR.coldLo.slice(1), ...AIR.pipeCold.slice(1), ...AIR.coldUp.slice(1), [1.45, 2.47, 2.52], [1.42, 2.82, 2.36], [0.6, 2.95, 2.22], [-1.8, 2.95, 2.22]]);
   for (const x of L.cyl) addFlow('cold', [[x, 2.95, 2.22], [x, 2.9, 1.8], [x, 2.86, 1.3]], 3);
   for (const x of L.cyl) addFlow('exh', [[x, 2.86, -1.2], tw(x, 0.61, 1.35), tw(x * 0.7, 0.63, 1.05), tw(-0.34 + x * 0.18, 0.64, 0.78), tw(-0.34, 0.63, 0.6)], 5);
   addFlow('exh', [tw(-0.34, 0.63, 0.6), tw(-0.35, 0.62, 0.1), tw(-0.35, 0.12, -0.58), tw(-0.35, -0.55, -0.15), tw(-0.34, -0.12, 0.45), tw(-0.3, 0.18, 0.2), tw(-0.2, 0, 0), tw(0.26, 0, 0), [0.55, 2.25, -2.87], [0.85, 2.15, -2.93], [0.95, 1.9, -2.95], [0.95, 1.2, -2.95], [0.95, 0.2, -2.95], [0.95, -0.66, -2.95], [0.95, -1.0, -3.05], [1.0, -1.5, -3.6], [1.05, -1.72, -4.5]]);
-  addFlow('egr', [[-0.6, 2.87, -2.2], ...EGRP, [-2.3, 1.2, 2.05], [-1.6, 1.22, 2.05], [-1.0, 1.26, 2.08], [-0.95, 1.46, 2.2], [-1.6, 1.5, 2.25], [-2.2, 1.52, 2.24], ...EGR_TO_VALVE, [-2.38, 2.33, 2.42], [-2.36, 2.6, 2.43], [-2.35, 2.85, 2.45], [-2.2, 2.95, 2.3]]);
+  addFlow('egr', [[-0.6, 2.87, -2.2], ...EGRP1, [-1.3, 1.22, -1.98], [-1.8, 1.2, -1.98], [-2.35, 1.22, -1.98], EGR_VALVE.clone(), ...EGRP2, [-2.1, 2.8, 2.22], [-1.5, 2.95, 2.22]]);
   addFlow('vac_in', [...VACP.pump_check, ...VACP.check_tee.slice(1), ...VACP.tee_n75.slice(1)]);
   addFlow('vac_out', [...VACP.n75_act]);
   addFlow('vac_br', [...VACP.tee_n345, ...VACP.n345_can.slice(1)]);
@@ -2348,8 +2606,8 @@ const FAULT_AT = {
   n75: [VAC.n75.clone().add(V3(0, 0.3, 0)), 'N75 щёлкает, но не пропускает разрежение'],
   membrane: [TA(0).add(CAN_C).add(V3(0, 0.1, 0)), 'Порвана мембрана актуатора'],
   vnt: [TA(0).add(LEVER_P), 'Закоксован механизм VNT'],
-  leak: [JOINTS[6].pos.clone(), 'Пример: утечка у уплотнительного кольца'],
-  egr: [V3(-2.38, 2.45, 2.6), 'Клапан EGR не закрывается'],
+  leak: [JOINTS[6].pos.clone(), 'Пример: утечка на соединении 7'],
+  egr: [EGR_VALVE.clone().add(V3(0, 0.55, 0)), 'Клапан EGR не закрывается'],
   dpf: [V3(0.95, 0.6, -2.3), 'Сажевый фильтр забит'],
   g31: [AIR.g31.clone().add(V3(0, 0.15, 0)), 'Датчик G31 занижает показания'],
 };
@@ -2422,12 +2680,13 @@ function clickSound(loud = 0.5) {
     const g = a.createGain(); g.gain.value = loud; s.connect(f).connect(g).connect(a.destination); s.start();
   } catch (e) { /* звук необязателен */ }
 }
+function cancelN75Test() { if (CTRL.test) { CTRL.test = null; UI.onTest && UI.onTest('cancel'); } }
 function startN75Test() {
   if (CTRL.test) return;
   const sc = CTRL.scen, run = CTRL.engine === 'run';
   const supply = run ? (sc === 'novac' ? 0.03 : 0.85) : (sc === 'novac' ? 0 : 0.34);
   CTRL.test = {t0: performance.now(), t: 0, supply, run, res: supply, last: -1, moved: 0};
-  CTRL.mode = 'test'; UI.onTest && UI.onTest('start');
+  UI.onTest && UI.onTest('start');
 }
 function stepTest(dt) {
   const T = CTRL.test; T.t = (performance.now() - T.t0) / 1000;
@@ -2437,10 +2696,10 @@ function stepTest(dt) {
   if (on) { v = T.run ? T.supply : T.res; if (CTRL.scen === 'n75') v = 0; if (CTRL.scen === 'membrane') v *= 0.4; }
   ST.vacAct += (v - ST.vacAct) * Math.min(1, dt / 0.12);
   const c = actuatorResponse(ST.vacAct); T.moved = Math.max(T.moved, c);
-  if (T.t > 5.2) { CTRL.test = null; CTRL.mode = 'sim'; UI.onTest && UI.onTest('end', T); }
+  if (T.t > 5.2) { CTRL.test = null; UI.onTest && UI.onTest('end', T); }
   return c;
 }
-FX.onSelection = () => { syncAsmLabels(); syncJointLabels(); };
+FX.onSelection = () => { syncAsmLabels(); syncJointLabels(); stage.classList.toggle('has-sel', !!SEL.asm); };
 
 /* ================== ПАНЕЛИ: дерево, описание, диагностика ================== */
 const TREE_NAMES = {turbo: 'Турбокомпрессор VNT', actuator: 'Вакуумный актуатор', n75: 'Клапан наддува', vpump: 'Вакуумный насос', checkvalve: 'Обратный клапан', vlines: 'Вакуумные трубки', n345: 'Клапан охладителя EGR', airbox: 'Воздушный фильтр', maf: 'Расходомер воздуха', induct: 'Патрубок к турбине', charge_hot: 'Горячая сторона', intercooler: 'Интеркулер', charge_cold: 'Холодная сторона', g31: 'Датчик давления наддува', throttle: 'Дроссельная заслонка', manifold: 'Впускной коллектор', egr: 'Модуль EGR', dpf: 'Нейтрализатор и DPF', ecu: 'Блок управления', engine: 'Блок и головка', timing: 'Привод ГРМ', accessories: 'Навесное', rail: 'Common Rail'};
@@ -2474,7 +2733,7 @@ UI.markTree = () => $$('#pane-parts .item').forEach(b => b.setAttribute('aria-cu
 const secList = (t, arr, ord) => arr && arr.length ? `<div class="sec"><h3>${t}</h3><${ord ? 'ol' : 'ul'}>${arr.map(x => `<li>${esc(x)}</li>`).join('')}</${ord ? 'ol' : 'ul'}></div>` : '';
 const secP = (t, p) => p ? `<div class="sec"><h3>${t}</h3><p>${esc(p)}</p></div>` : '';
 const specTable = (rows) => rows && rows.length ? `<div class="sec"><h3>Данные и моменты затяжки</h3><table class="spec">${rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></div>` : '';
-const CHARGE_ASM = {charge_hot: [1, 2, 3, 4], intercooler: [4, 5], charge_cold: [5, 6, 7, 8, 9], g31: [9], induct: [10]};
+const CHARGE_ASM = {charge_hot: [1, 2, 3, 4], intercooler: [4, 5], charge_cold: [5, 6, 7, 8, 9], g31: [9], induct: [10], turbo: [1, 10], throttle: [8]};
 
 UI.renderInspector = () => {
   const el = $('#insp');
@@ -2515,8 +2774,9 @@ UI.renderInspector = () => {
         <li>Нажмите на узел — он разложится на пронумерованные детали; нажмите на деталь — описание справа.</li>
         <li>«Соединения» — номера на патрубках: нажмите, чтобы снять патрубок и увидеть уплотнение.</li>
         <li>«Поток воздуха» и «Вакуум» показывают движение воздуха и разрежения стрелками.</li>
-        <li>Вкладка «Сценарии» сравнивает «задано / факт» при разных неисправностях.</li></ul></div>
-      <p class="src">Геометрия упрощена и передаёт устройство и расположение узлов, а не точные размеры. Моменты затяжки и нормы проверок — из руководства по ремонту Tiguan 2.0 TDI Common Rail; значения с пометкой «ориентир» — общие для этих двигателей.</p>`;
+        <li>Вкладка «Графики» сравнивает «задано / факт» при разных неисправностях и принимает ваш CSV из VCDS.</li>
+        <li>Вкладка «Данные» — паспорт данных, таблица крепежа с моментами, список «что собрать» и загрузка 3D-скана.</li></ul></div>
+      <p class="src">Моменты затяжки, типы соединений, состав вакуумной схемы и порядок проверок — из руководства по ремонту Tiguan 2.0 TDI Common Rail. Номера деталей — из каталогов, сверяйте по VIN. Форма деталей и трассы шлангов пока приближённые: их уточнят фото или 3D-скан вашего автомобиля. Подробно — во вкладке «Данные».</p>`;
   }
   UI.markTree();
 };
@@ -2532,6 +2792,23 @@ $('#insp').addEventListener('click', e => {
   else if (act === 'joint') toggleJoint(SEL.joint);
   else if (act === 'stroke') UI.demoPump();
 });
+
+/* --- вкладка «Данные»: паспорт, крепёж, список на завтра --- */
+UI.buildData = () => {
+  let g0 = '';
+  $('#passport').innerHTML = '<div class="pp">' + PASSPORT.map(([g, t, st]) => {
+    const head = g !== g0 ? `<span class="g">${esc(g)}</span>` : ''; g0 = g;
+    return `<div class="pp-row">${head}<span>${esc(t)}</span><span class="pill ${st}">${esc(STATUS[st][0])}</span></div>`;
+  }).join('') + '</div>';
+  $('#fast-table').innerHTML = '<table class="fast"><tbody>' + FASTENERS.map(([g, t, v, note, ref]) =>
+    `<tr${ref ? ` data-ref="${ref}" tabindex="0"` : ''}><td>${esc(t)}${note ? `<br><span class="n">${esc(note)}</span>` : ''}</td><td class="v">${esc(v)}</td></tr>`).join('') + '</tbody></table>';
+  const pick = (tr) => { const [asm, pid] = tr.dataset.ref.split('.'); if (W.asm.get(asm)) { selectPart(asm, pid); UI.mobileShow('info'); } };
+  $('#fast-table').addEventListener('click', e => { const tr = e.target.closest('tr[data-ref]'); if (tr) pick(tr); });
+  $('#fast-table').addEventListener('keydown', e => { const tr = e.target.closest('tr[data-ref]'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(tr); } });
+  const done = LS.get('tg-p0299-todo', {});
+  $('#todo').innerHTML = TODO.map(([id, t]) => `<li><label><input type="checkbox" id="todo-${id}" ${done[id] ? 'checked' : ''}><span>${esc(t)}</span></label></li>`).join('');
+  $('#todo').addEventListener('change', e => { const id = e.target.id.replace('todo-', ''); const d = LS.get('tg-p0299-todo', {}); d[id] = e.target.checked; LS.set('tg-p0299-todo', d); });
+};
 
 /* --- диагностика --- */
 UI.buildDiag = () => {
@@ -2619,7 +2896,7 @@ UI.setScen = (id) => {
   UI.redrawCharts(); UI.updateHud(); UI.setRunState();
 };
 UI.runPull = () => {
-  UI.setBoostMode('sim'); CTRL.mode = 'sim'; CTRL.play = {t0: performance.now(), t: 0}; CTRL.cursor = 0;
+  cancelN75Test(); UI.setBoostMode('sim'); CTRL.mode = 'sim'; CTRL.play = {t0: performance.now(), t: 0}; CTRL.cursor = 0;
   $('#run-pull').disabled = true; UI.setRunState();
 };
 UI.setRunState = () => {
@@ -2628,11 +2905,12 @@ UI.setRunState = () => {
 };
 UI.redrawCharts = () => {
   const S = SIMS[CTRL.scen].s, cur = CTRL.play || CTRL.cursor ? currentSample().rpm : null;
-  const pts = userLog.filter(r => r[0] !== '' && r[2] !== '').map(r => [+r[0], +r[2]]);
+  const pts = userLog.filter(r => r[0] !== '' && r[2] !== '').map(r => [+r[0], +r[2]]).concat(CSV.pts('act'));
+  const pts2 = userLog.filter(r => r[0] !== '' && r[1] !== '').map(r => [+r[0], +r[1]]).concat(CSV.pts('spec'));
   const series = [{c: '--s1', d: S.map(s => [s.rpm, s.spec])}, {c: '--s2', d: S.map(s => [s.rpm, s.act])}];
   if (CTRL.scen === 'g31') series.push({c: '--ink-2', dash: [5, 3], d: S.map(s => [s.rpm, s.actTrue])});
-  drawChart($('#ch-boost'), {x0: 700, x1: 4300, y0: 800, y1: 2600, yStep: 300, fmtY: v => num(v), series, points: pts, cursor: cur, hover: UI.hoverRpm});
-  drawChart($('#ch-act'), {x0: 700, x1: 4300, y0: 0, y1: 100, yStep: 25, fmtY: v => v + ' %', series: [{c: '--s1', d: S.map(s => [s.rpm, s.cSpec * 100])}, {c: '--s2', d: S.map(s => [s.rpm, s.cAct * 100])}], cursor: cur, hover: UI.hoverRpm});
+  drawChart($('#ch-boost'), {x0: 700, x1: 4300, y0: 800, y1: 2600, yStep: 300, fmtY: v => num(v), series, points: pts, points2: pts2, cursor: cur, hover: UI.hoverRpm});
+  drawChart($('#ch-act'), {x0: 700, x1: 4300, y0: 0, y1: 100, yStep: 25, fmtY: v => v + ' %', series: [{c: '--s1', d: S.map(s => [s.rpm, s.cSpec * 100])}, {c: '--s2', d: S.map(s => [s.rpm, s.cAct * 100])}], points: CSV.pts('ga'), points2: CSV.pts('gs'), cursor: cur, hover: UI.hoverRpm});
 };
 UI.chartTip = (px) => {
   const x = UI.hoverRpm; if (x == null) return;
@@ -2665,7 +2943,7 @@ UI.updateHud = () => {
 
 /* --- пульт VNT: ручной насос, тест N75 --- */
 const vacIn = $('#vac');
-vacIn.addEventListener('input', () => { CTRL.mode = 'manual'; CTRL.vac = +vacIn.value; });
+vacIn.addEventListener('input', () => { cancelN75Test(); CTRL.mode = 'manual'; CTRL.vac = +vacIn.value; });
 UI.setEngine = (e) => { CTRL.engine = e; $$('#engstate button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.e === e))); };
 $('#engstate').addEventListener('click', e => { const b = e.target.closest('button'); if (b) UI.setEngine(b.dataset.e); });
 $('#n75test').addEventListener('click', () => startN75Test());
@@ -2675,7 +2953,7 @@ UI.expandVNT = (open) => {
 };
 $('#vnt-toggle').addEventListener('click', () => UI.expandVNT($('#vnt').classList.contains('collapsed')));
 UI.demoPump = () => {
-  CTRL.mode = 'manual'; const t0 = performance.now();
+  cancelN75Test(); CTRL.mode = 'manual'; const t0 = performance.now();
   const f = () => { const k = (performance.now() - t0) / 1600; CTRL.vac = 0.6 * Math.min(1, k); vacIn.value = CTRL.vac; if (k < 1 && CTRL.mode === 'manual') requestAnimationFrame(f); };
   f();
 };
@@ -2683,6 +2961,7 @@ UI.flashN75 = () => { FX.n75Flash = 0.14; };
 UI.onTest = (ph, T) => {
   const note = $('#n75-note'), btn = $('#n75test');
   if (ph === 'start') { btn.disabled = true; note.textContent = 'Идёт тест: пять импульсов на N75…'; return; }
+  if (ph === 'cancel') { btn.disabled = false; note.textContent = 'Тест прерван. Нажмите «Тест N75», чтобы повторить.'; return; }
   btn.disabled = false;
   const off = !T.run, sc = CTRL.scen;
   let msg;
@@ -2701,6 +2980,7 @@ UI.setToggle = (k, on) => {
   if (k === 'sig') { FX.sigOn = on; sigGroup.visible = on; }
   if (k === 'cut') { FX.cutOn = on; setCut(on); if (on) { if (SEL.asm) clearSelection({fly: false}); const f = focusSphere(W.asm.get('turbo'), 0); flyTo(f.c, f.r * 1.4, [-0.3, 0.35, -1]); } }
   if (k === 'joints') { FX.jointsOn = on; syncJointLabels(); }
+  if (k === 'fast') { FX.fastOn = on; paint(); }
   if (k === 'xray') { FX.xray = on; if (!SEL.asm) for (const id of ENGINE_IDS) setAsmGhost(W.asm.get(id), on); syncAsmLabels(); }
   if (k === 'labels') { FX.labelsOn = on; stage.classList.toggle('hide-labels', !on); syncAsmLabels(); }
   if (k === 'spin') { autoSpin = on; controls.autoRotate = on; controls.autoRotateSpeed = 0.7; }
@@ -2712,7 +2992,7 @@ $('#views').addEventListener('click', e => { const b = e.target.closest('button'
 /* --- вкладки и мобильная панель --- */
 UI.tab = (p) => {
   $$('#left .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.pane === p)));
-  for (const k of ['parts', 'diag', 'scen']) $('#pane-' + k).hidden = k !== p;
+  for (const k of ['parts', 'diag', 'scen', 'data']) $('#pane-' + k).hidden = k !== p;
   if (p === 'scen') requestAnimationFrame(UI.redrawCharts);
   if (isNarrow()) UI.mobileShow(p);
 };
@@ -2721,12 +3001,155 @@ UI.mobileShow = (m) => {
   if (!isNarrow()) return;
   document.body.classList.remove('sheet-min');
   document.body.classList.toggle('m-right', m === 'info');
-  if (m !== 'info' && m !== 'min') { for (const k of ['parts', 'diag', 'scen']) $('#pane-' + k).hidden = k !== m; $$('#left .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.pane === m))); }
+  if (m !== 'info' && m !== 'min') { for (const k of ['parts', 'diag', 'scen', 'data']) $('#pane-' + k).hidden = k !== m; $$('#left .tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.pane === m))); }
   if (m === 'min') document.body.classList.add('sheet-min');
   $$('#mtabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.m === m)));
   if (m === 'scen') requestAnimationFrame(UI.redrawCharts);
 };
 $('#mtabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) UI.mobileShow(b.dataset.m); });
+
+/* ================== ИМПОРТ: лог VCDS (CSV) и 3D-скан ================== */
+const CSV = {
+  cols: [], rows: [], map: {rpm: -1, spec: -1, act: -1, gs: -1, ga: -1},
+  pts(kind) {
+    const m = this.map, key = {act: 'act', spec: 'spec', ga: 'ga', gs: 'gs'}[kind];
+    if (m.rpm < 0 || m[key] < 0) return [];
+    const out = [];
+    for (const r of this.rows) {
+      const x = r[m.rpm]; let y = r[m[key]];
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      if ((kind === 'act' || kind === 'spec') && y < 10) y *= 1000; // бар → гПа
+      out.push([x, y]);
+    }
+    return out;
+  },
+};
+function parseCsv(text) {
+  const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim());
+  const sample = lines.slice(0, 12).join('\n');
+  const delim = [';', '\t', ','].map(d => [d, sample.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const cells = lines.map(l => l.split(delim).map(c => c.trim().replace(/^"|"$/g, '')));
+  const toNum = (c) => { if (c === '') return NaN; const v = delim === ';' ? c.replace(',', '.') : c; return /^[-+]?\d*[.,]?\d+(e[-+]?\d+)?$/i.test(v) ? parseFloat(v) : NaN; };
+  let start = cells.findIndex(r => r.filter(c => Number.isFinite(toNum(c))).length >= 3);
+  if (start < 0) throw new Error('В файле не найдено строк с числами');
+  const width = Math.max(...cells.slice(start, start + 20).map(r => r.length));
+  const head = cells.slice(Math.max(0, start - 4), start);
+  const cols = [];
+  for (let i = 0; i < width; i++) {
+    const parts = head.map(r => r[i] || '').filter(Boolean);
+    cols.push(parts.join(' · ') || `Колонка ${i + 1}`);
+  }
+  const rows = cells.slice(start).map(r => r.map(toNum));
+  return {cols, rows};
+}
+function guessCols(cols) {
+  const f = (re, re2, not) => cols.findIndex(c => re.test(c) && (!re2 || re2.test(c)) && (!not || !not.test(c)));
+  const boost = /(lade|boost|suralim|наддув|charge press|pression)/i, spec = /(soll|spec|consigne|задан|nominal|théor|theor|target)/i, act = /(ist\b|actual|réel|reel|факт|mesur|real)/i;
+  const pos = /(steller|actuator|position|positionn|положен|vtg|vnt|g581)/i;
+  return {
+    rpm: f(/(rpm|\/min|drehzahl|régime|regime|tr\/m|обор)/i),
+    spec: f(boost, spec, pos), act: f(boost, act, pos),
+    gs: f(pos, spec), ga: f(pos, act),
+  };
+}
+UI.initCsv = () => {
+  const inp = $('#csv-file'), box = $('#csv-map');
+  inp.addEventListener('change', async () => {
+    const f = inp.files[0]; if (!f) return;
+    try {
+      const {cols, rows} = parseCsv(await f.text());
+      Object.assign(CSV, {cols, rows, map: guessCols(cols)});
+      renderMap(f.name);
+    } catch (e) { box.hidden = false; box.innerHTML = `<p class="src" style="color:var(--crit)">Не удалось прочитать файл: ${esc(e.message)}. Нужен CSV из VCDS или ODIS.</p>`; }
+    inp.value = '';
+  });
+  function renderMap(name) {
+    const opt = (sel) => `<option value="-1">—</option>` + CSV.cols.map((c, i) => `<option value="${i}" ${i === sel ? 'selected' : ''}>${esc(c.slice(0, 60))}</option>`).join('');
+    const rowsN = CSV.rows.length;
+    box.hidden = false;
+    box.innerHTML = `<p class="src">${esc(name)} · ${num(rowsN)} строк. Проверьте колонки:</p>
+      <div class="mapgrid">
+        <label for="csv-rpm">Обороты</label><select id="csv-rpm" data-k="rpm">${opt(CSV.map.rpm)}</select>
+        <label for="csv-spec">Наддув задано</label><select id="csv-spec" data-k="spec">${opt(CSV.map.spec)}</select>
+        <label for="csv-act">Наддув факт</label><select id="csv-act" data-k="act">${opt(CSV.map.act)}</select>
+        <label for="csv-gs">G581 задано</label><select id="csv-gs" data-k="gs">${opt(CSV.map.gs)}</select>
+        <label for="csv-ga">G581 факт</label><select id="csv-ga" data-k="ga">${opt(CSV.map.ga)}</select>
+      </div>
+      <div class="row"><button class="btn sm" id="csv-clear">Убрать лог с графиков</button></div>`;
+    box.onchange = e => { const s = e.target.closest('select'); if (s) { CSV.map[s.dataset.k] = +s.value; UI.redrawCharts(); } };
+    $('#csv-clear').onclick = () => { CSV.rows = []; CSV.cols = []; box.hidden = true; UI.redrawCharts(); };
+    UI.redrawCharts();
+  }
+};
+
+/* --- 3D-скан --- */
+const SCAN = {root: null, units: 'm', s: 1, rx: 0, ry: 0, rz: 0, x: 0, y: 0, z: 0, op: 1, hide: false, base: V3()};
+const UNIT = {m: 10, cm: 0.1, mm: 0.01, dm: 1};
+UI.initScan = () => {
+  const inp = $('#scan-file'), box = $('#scan-ctl');
+  inp.addEventListener('change', async () => {
+    const f = inp.files[0]; if (!f) return;
+    box.hidden = false; box.innerHTML = '<p class="src">Загружаю скан…</p>';
+    try { await loadScan(f); renderScanCtl(f.name); }
+    catch (e) { box.innerHTML = `<p class="src" style="color:var(--crit)">Не удалось открыть скан: ${esc(e.message || e)}. Поддерживаются GLB (одним файлом), OBJ, STL, PLY.</p>`; }
+    inp.value = '';
+  });
+  async function loadScan(file) {
+    const ext = file.name.split('.').pop().toLowerCase(), buf = await file.arrayBuffer();
+    let obj;
+    if (ext === 'glb' || ext === 'gltf') {
+      const {GLTFLoader} = await import('three/addons/loaders/GLTFLoader.js');
+      obj = await new Promise((res, rej) => new GLTFLoader().parse(buf, '', g => res(g.scene), rej));
+    } else if (ext === 'obj') {
+      const {OBJLoader} = await import('three/addons/loaders/OBJLoader.js');
+      obj = new OBJLoader().parse(new TextDecoder().decode(buf));
+      obj.traverse(m => { if (m.isMesh) m.material = new THREE.MeshStandardMaterial({color: 0x9aa3ad, roughness: 0.75, side: THREE.DoubleSide}); });
+    } else if (ext === 'stl') {
+      const {STLLoader} = await import('three/addons/loaders/STLLoader.js');
+      const g = new STLLoader().parse(buf); g.computeVertexNormals();
+      obj = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color: 0x9aa3ad, roughness: 0.75, side: THREE.DoubleSide}));
+    } else if (ext === 'ply') {
+      const {PLYLoader} = await import('three/addons/loaders/PLYLoader.js');
+      const g = new PLYLoader().parse(buf), col = !!g.attributes.color;
+      if (g.index) { if (!g.attributes.normal) g.computeVertexNormals(); obj = new THREE.Mesh(g, new THREE.MeshStandardMaterial({vertexColors: col, color: col ? 0xffffff : 0x9aa3ad, roughness: 0.8, side: THREE.DoubleSide})); }
+      else obj = new THREE.Points(g, new THREE.PointsMaterial({size: 0.03, vertexColors: col, color: col ? 0xffffff : 0x9aa3ad}));
+    } else throw new Error('неизвестный формат .' + ext);
+    if (SCAN.root) scene.remove(SCAN.root);
+    const root = new THREE.Group(); const inner = new THREE.Group(); inner.add(obj); root.add(inner);
+    const box3 = new THREE.Box3().setFromObject(obj), size = box3.getSize(V3()).length();
+    inner.position.copy(box3.getCenter(V3()).negate());
+    SCAN.units = size < 20 ? 'm' : size < 2000 ? 'cm' : 'mm';
+    Object.assign(SCAN, {root, s: 1, rx: 0, ry: 0, rz: 0, x: -0.8, y: 1.2, z: 0.4, op: 1});
+    root.traverse(m => { if (m.material) { m.material = m.material.clone(); m.material.transparent = true; } });
+    scene.add(root); applyScan();
+    const f = focusSphere({g: root, parts: []}, 0); flyTo(f.c, f.r);
+  }
+  function renderScanCtl(name) {
+    const sl = (id, label, min, max, step, v, unit = '') => `<label for="sc-${id}">${label}</label><input type="range" id="sc-${id}" min="${min}" max="${max}" step="${step}" value="${v}"><span class="val" id="scv-${id}">${num(+v, step < 1 ? 2 : 0)}${unit}</span>`;
+    box.innerHTML = `<p class="src">${esc(name)}</p>
+      <div class="mapgrid"><label for="sc-units">Единицы файла</label><select id="sc-units">${[['m', 'метры'], ['cm', 'сантиметры'], ['mm', 'миллиметры'], ['dm', 'дециметры']].map(([k, t]) => `<option value="${k}" ${k === SCAN.units ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="ctlgrid">
+        ${sl('s', 'Масштаб', 0.5, 2, 0.01, SCAN.s, '×')}${sl('rx', 'Наклон X', -180, 180, 1, 0, '°')}${sl('ry', 'Поворот Y', -180, 180, 1, 0, '°')}${sl('rz', 'Наклон Z', -180, 180, 1, 0, '°')}
+        ${sl('x', 'Сдвиг X', -10, 10, 0.05, SCAN.x)}${sl('y', 'Сдвиг Y', -10, 10, 0.05, SCAN.y)}${sl('z', 'Сдвиг Z', -10, 10, 0.05, SCAN.z)}${sl('op', 'Прозрачность', 0.1, 1, 0.05, 1)}
+      </div>
+      <div class="row"><label style="display:flex;gap:6px;align-items:center;font-size:12.5px"><input type="checkbox" id="sc-hide"> Скрыть нашу модель</label><button class="btn sm" id="sc-del">Убрать скан</button></div>`;
+    box.oninput = box.onchange = e => {
+      const t = e.target; if (!t.id) return;
+      if (t.id === 'sc-units') SCAN.units = t.value;
+      else if (t.id === 'sc-hide') { SCAN.hide = t.checked; for (const a of W.asm.values()) a.g.visible = !SCAN.hide; syncAsmLabels(); }
+      else { const k = t.id.replace('sc-', ''); SCAN[k] = +t.value; const v = $('#scv-' + k); if (v) v.textContent = num(+t.value, +t.step < 1 ? 2 : 0) + ({s: '×', rx: '°', ry: '°', rz: '°'}[k] || ''); }
+      applyScan();
+    };
+    $('#sc-del').onclick = () => { scene.remove(SCAN.root); SCAN.root = null; box.hidden = true; for (const a of W.asm.values()) a.g.visible = true; syncAsmLabels(); };
+  }
+};
+function applyScan() {
+  const r = SCAN.root; if (!r) return;
+  r.scale.setScalar(UNIT[SCAN.units] * SCAN.s);
+  r.rotation.set(SCAN.rx * DEG, SCAN.ry * DEG, SCAN.rz * DEG);
+  r.position.set(SCAN.x, SCAN.y, SCAN.z);
+  r.traverse(m => { if (m.material) { m.material.opacity = SCAN.op; m.material.depthWrite = SCAN.op > 0.95; } });
+}
 
 /* ================== ЦИКЛ ОТРИСОВКИ И ЗАПУСК ================== */
 const clock = new THREE.Clock();
@@ -2767,7 +3190,7 @@ function update(dt) {
   }
   const s = currentSample(), live = !!CTRL.play || boostMode === 'sim';
   let c;
-  if (CTRL.mode === 'test' && CTRL.test) c = stepTest(dt);
+  if (CTRL.test) c = stepTest(dt);
   else if (CTRL.mode === 'manual') {
     if (CTRL.scen === 'membrane' && CTRL.vac > 0) { CTRL.vac = Math.max(0, CTRL.vac - dt * 0.09); vacIn.value = CTRL.vac; }
     ST.vacAct += (CTRL.vac - ST.vacAct) * Math.min(1, dt / 0.15); c = actuatorResponse(ST.vacAct);
@@ -2811,7 +3234,7 @@ function frame() {
 }
 
 /* --- запуск --- */
-UI.buildTree(); UI.buildDiag(); UI.buildScen();
+UI.buildTree(); UI.buildDiag(); UI.buildScen(); UI.buildData(); UI.initCsv(); UI.initScan();
 syncTheme(); resize();
 flyTo(HOME.target, HOME.radius, VIEWS.iso); camTween.dur = 0.001;
 camera.position.copy(camTween.p1); controls.target.copy(camTween.t1); camTween = null; controls.update();
