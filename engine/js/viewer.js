@@ -8,7 +8,8 @@ import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { createMaterials, studioEnvironment, backdrop, glowTexture } from './mats.js';
 import { Model, mesh } from './model.js';
-import { E, bp, cycle, FIRE } from './spec.js';
+import { createFlows } from './flows.js';
+import { E, bp, outer, cycle } from './spec.js';
 import { extrudeY, roundRect, clamp, ease, DEG } from './util.js';
 import { buildBlock } from './parts/block.js';
 import { buildCrank } from './parts/crank.js';
@@ -18,17 +19,20 @@ import { buildExhaust } from './parts/exhaust.js';
 import { buildFront } from './parts/front.js';
 import { buildLube } from './parts/lube.js';
 import { buildClutch } from './parts/clutch.js';
+import { buildElectronics, buildExternal } from './parts/extra.js';
 
 const BUILDERS = [
-  ['Блок цилиндров', buildBlock],
-  ['Кривошипно-шатунный механизм', buildCrank],
-  ['Головки блока', buildHeads],
-  ['Впускная система', buildIntake],
-  ['Топливная система', buildFuel],
-  ['Выпускные коллекторы', buildExhaust],
-  ['Привод ГРМ и навесное оборудование', buildFront],
-  ['Система смазки', buildLube],
-  ['Маховик и сцепление', buildClutch],
+  ['Блок цилиндров', 'Cylinder block', buildBlock],
+  ['Кривошипно-шатунный механизм', 'Crank train', buildCrank],
+  ['Головки блока', 'Cylinder heads', buildHeads],
+  ['Впускная система', 'Intake system', buildIntake],
+  ['Топливная система', 'Fuel system', buildFuel],
+  ['Выпускные коллекторы', 'Exhaust manifolds', buildExhaust],
+  ['Привод ГРМ и навесное оборудование', 'Timing drive and accessories', buildFront],
+  ['Система смазки', 'Lubrication system', buildLube],
+  ['Маховик и сцепление', 'Flywheel and clutch', buildClutch],
+  ['Электроника и проводка', 'Electronics and wiring', buildElectronics],
+  ['Масляный бак и радиатор', 'Oil tank and radiator', buildExternal],
 ];
 
 export async function createViewer(canvas, opts = {}) {
@@ -85,7 +89,7 @@ export async function createViewer(canvas, opts = {}) {
   model.root.position.y = E.root;
   scene.add(model.root);
   for (let i = 0; i < BUILDERS.length; i++) {
-    const [name, fn] = BUILDERS[i];
+    const [ru, en, fn] = BUILDERS[i], name = opts.lang === 'en' ? en : ru;
     progress(name, i / BUILDERS.length);
     await new Promise(r => setTimeout(r, 0));
     try { fn(model); } catch (err) { console.error('Ошибка сборки узла', name, err); }
@@ -98,7 +102,7 @@ export async function createViewer(canvas, opts = {}) {
     const proto = Object.getPrototypeOf(m);
     m.raycast = function (r, out) { const k = this.material; this.material = DS; proto.raycast.call(this, r, out); this.material = k; };
   }
-  progress('Готово', 1);
+  progress(opts.lang === 'en' ? 'Ready' : 'Готово', 1);
 
   // вспышки сгорания (видны в рентгене при работе)
   const glowTex = glowTexture();
@@ -109,6 +113,10 @@ export async function createViewer(canvas, opts = {}) {
     model.root.add(sp);
     glows.push({ sp, no: (s > 0 ? 1 : 5) + i });
   });
+  // потоки воздуха, выхлопа, масла и топлива
+  const flows = createFlows(model, glowTex);
+  model.root.add(flows.group);
+  flows.setTheme(dark);
 
   // ---------------------------------------------------------------- управление камерой
   const controls = new OrbitControls(camera, canvas);
@@ -159,6 +167,7 @@ export async function createViewer(canvas, opts = {}) {
   const S = {
     open: null, sel: null, hover: null, xray: false, running: false, rpm: 40,
     exploded: false, amount: 0.7, autoRotate: false, phi: 28, insets: { left: 0, right: 0, top: 0, bottom: 0 },
+    flows: true, section: null, cut: 0.5, mark: null,
   };
   let needs = true;
   const invalidate = () => { needs = true; };
@@ -233,10 +242,10 @@ export async function createViewer(canvas, opts = {}) {
     }
     return d;
   }
-  function frameBox(box, dir, dur) {
+  function frameBox(box, dir, dur, k = 1) {
     const center = box.getCenter(new THREE.Vector3());
     const d = dir ? dir.clone().normalize() : camera.position.clone().sub(controls.target).normalize();
-    const dist = clamp(fitBoxDistance(box, d), controls.minDistance, controls.maxDistance);
+    const dist = clamp(fitBoxDistance(box, d) * k, controls.minDistance, controls.maxDistance);
     flyTo(center, center.clone().addScaledVector(d, dist), dur);
   }
   function worldTargetBox(filter) {
@@ -252,10 +261,19 @@ export async function createViewer(canvas, opts = {}) {
     left: new THREE.Vector3(0, 0.12, -1),
     top: new THREE.Vector3(0.001, 1, 0.0005),
     bottom: new THREE.Vector3(0.12, -0.8, 0.25),
+    photo: new THREE.Vector3(0.68, 0.47, 0.57),
+    cutX: new THREE.Vector3(1, 0.38, 0.3),
+    cutBank: new THREE.Vector3(0.3, 0.32, 1),
   };
+  // Без открытого узла кадрируем сам двигатель: бак и радиатор стенда могут выйти за край.
+  const core = pc => pc.part.asm.id !== 'ext';
+  const CUT_ASMS = new Set(['block', 'crank', 'headR', 'headL', 'intake']);
+  const inCut = pc => CUT_ASMS.has(pc.part.asm.id);
+  const framingFilter = () => S.exploded ? () => true : S.open ? pc => pc.part.asm === S.open : S.section ? inCut : core;
   function frameCurrent(dir, dur) {
-    const f = S.exploded ? () => true : S.open ? pc => pc.part.asm === S.open : () => true;
-    frameBox(worldTargetBox(f), dir, dur);
+    const box = worldTargetBox(framingFilter());
+    if (S.section === 'x') box.max.x = Math.min(box.max.x, cut.constant + 0.02);
+    frameBox(box, dir, dur);
   }
 
   // Подъём двигателя над подиумом, если разобранные детали уходят вниз.
@@ -268,6 +286,7 @@ export async function createViewer(canvas, opts = {}) {
   // ---------------------------------------------------------------- действия
   function openAssembly(a) {
     if (a === S.open && !S.exploded) return;
+    if (S.section) setSection(null);
     if (S.running) setRunning(false);
     S.open = a;
     S.sel = null;
@@ -278,6 +297,7 @@ export async function createViewer(canvas, opts = {}) {
   }
   function selectPart(p) {
     if (p && S.running) setRunning(false);
+    if (p && S.section) setSection(null);
     if (p && !S.exploded && S.open !== p.asm) { S.open = p.asm; for (const x of model.asms) x.eT = x === p.asm ? 1 : 0; refreshGhosts(); frameCurrent(null, 1.1); }
     S.sel = p;
     selPass.selectedObjects = p ? p.meshes : [];
@@ -293,6 +313,7 @@ export async function createViewer(canvas, opts = {}) {
   }
   function setExploded(on, amount = S.amount) {
     if (on && S.running) setRunning(false);
+    if (on && S.section) setSection(null);
     S.exploded = on;
     S.amount = amount;
     model.gT = on ? amount : 0;
@@ -320,10 +341,97 @@ export async function createViewer(canvas, opts = {}) {
     }
     S.running = v;
     for (const g of glows) g.sp.visible = false;
+    flows.group.visible = v && S.flows;
     emit('change', S);
     invalidate();
   }
   function setRpm(v) { S.rpm = v; emit('change', S); }
+  function setFlows(v) { S.flows = v; flows.group.visible = S.running && v; emit('change', S); invalidate(); }
+
+  // ---------------------------------------------------------------- разрез
+  renderer.localClippingEnabled = true;
+  const cut = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0);
+  M.ghost.clipping = true;
+  const clipMats = [...Object.values(M).filter(m => m !== M.pedestal && m !== M.wood), ...flows.materials, ...glows.map(g => g.sp.material), gtao.normalMaterial];
+  const side0 = new Map(clipMats.map(m => [m, m.side]));
+  const BANK_N = outer(1).negate();
+  function updateCut() {
+    if (!S.section) return;
+    const y = model.root.position.y;
+    if (S.section === 'x') cut.set(new THREE.Vector3(-1, 0, 0), -0.2 + S.cut * 0.5);
+    else cut.set(BANK_N, -BANK_N.y * y + (S.cut - 0.5) * 0.12);
+  }
+  function setSection(mode, pos) {
+    mode = mode || null;
+    const was = S.section;
+    if (pos !== undefined) S.cut = pos;
+    else if (mode && mode !== was) S.cut = mode === 'x' ? 0.528 : 0.5;
+    S.section = mode;
+    if (mode && (S.exploded || S.open)) {
+      S.exploded = false; model.gT = 0; model.lsT = 1; S.open = null; S.sel = null;
+      for (const a of model.asms) a.eT = 0;
+      refreshGhosts();
+    }
+    if (!!was !== !!mode) for (const m of clipMats) {
+      m.clippingPlanes = mode ? [cut] : null;
+      m.clipShadows = !!mode;
+      if (m !== gtao.normalMaterial && !m.isSpriteMaterial && !m.isPointsMaterial) m.side = mode ? THREE.DoubleSide : side0.get(m);
+      m.needsUpdate = true;
+    }
+    updateCut();
+    if (mode && was !== mode) frameCurrent(mode === 'x' ? VIEWS.cutX : VIEWS.cutBank, 1.2);
+    emit('change', S);
+    invalidate();
+  }
+  function setCut(v) { S.cut = v; updateCut(); invalidate(); }
+
+  // ---------------------------------------------------------------- метка для викторины
+  const MARK = { target: null, right: 0x2fbf71, wrong: 0xff5a4a };
+  function mark(p, how = 'target') {
+    S.mark = p ? { part: p, how } : null;
+    if (p) {
+      selPass.selectedObjects = p.meshes.filter(m => !m.userData.piece.ghost);
+      if (MARK[how]) { selPass.visibleEdgeColor.set(MARK[how]); selPass.hiddenEdgeColor.set(MARK[how]).multiplyScalar(0.5); }
+      else themeColors();
+    } else { selPass.selectedObjects = []; themeColors(); }
+    invalidate();
+  }
+
+  // ---------------------------------------------------------------- снимок в PNG
+  async function snapshot({ width = 2400, caption = '' } = {}) {
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    const pr0 = renderer.getPixelRatio(), ins0 = S.insets, ao0 = gtao.enabled, hov = hoverPass.selectedObjects;
+    const pr = clamp(width / W, 1, 3);
+    // Кадр без панелей: сохраняем направление и приближение пользователя относительно кадрирования.
+    const cam0 = camera.position.clone(), dir = cam0.clone().sub(controls.target).normalize();
+    const box = worldTargetBox(framingFilter());
+    const fitA = fitBoxDistance(box, dir);
+    S.insets = { left: 0, right: 0, top: 0, bottom: 0 };
+    const k = fitBoxDistance(box, dir) / fitA;
+    camera.position.sub(controls.target).multiplyScalar(k).add(controls.target);
+    hoverPass.selectedObjects = [];
+    gtao.enabled = true;
+    renderer.setPixelRatio(pr);
+    applySize();
+    controls.update();
+    composer.render(0);
+    const out = document.createElement('canvas');
+    out.width = canvas.width; out.height = canvas.height;
+    const g = out.getContext('2d');
+    g.drawImage(canvas, 0, 0);
+    S.insets = ins0; hoverPass.selectedObjects = hov; gtao.enabled = ao0;
+    camera.position.copy(cam0);
+    renderer.setPixelRatio(pr0);
+    applySize();
+    if (caption) {
+      const k = out.width / 1200, pad = 28 * k;
+      g.font = `600 ${15 * k}px "Roboto Condensed", "Arial Narrow", sans-serif`;
+      g.fillStyle = dark ? 'rgba(233,236,240,.72)' : 'rgba(17,21,26,.66)';
+      g.textBaseline = 'bottom';
+      g.fillText(caption, pad, out.height - pad);
+    }
+    return new Promise(r => out.toBlob(r, 'image/png'));
+  }
   function setAutoRotate(v) { S.autoRotate = v; controls.autoRotate = v; emit('change', S); invalidate(); }
   function setView(name) {
     frameCurrent(name ? VIEWS[name] || VIEWS.iso : null, 1.2);
@@ -343,6 +451,7 @@ export async function createViewer(canvas, opts = {}) {
     dark = isDark;
     const old = scene.background; scene.background = backdrop(dark); old.dispose();
     themeColors();
+    flows.setTheme(dark);
     invalidate();
   }
   function setInsets(ins) {
@@ -362,10 +471,11 @@ export async function createViewer(canvas, opts = {}) {
     ray.setFromCamera(ndc, camera);
     const live = [], ghost = [];
     for (const m of allMeshes) (m.userData.piece.ghost ? ghost : live).push(m);
-    let h = ray.intersectObjects(live, false)[0];
+    const first = list => S.section ? list.find(h => cut.distanceToPoint(h.point) >= 0) : list[0];
+    let h = first(ray.intersectObjects(live, false));
     if (h) return { piece: h.object.userData.piece, ghost: false, point: h.point };
     if (!S.exploded && S.open) {
-      h = ray.intersectObjects(ghost, false)[0];
+      h = first(ray.intersectObjects(ghost, false));
       if (h) return { piece: h.object.userData.piece, ghost: true, point: h.point };
     }
     return null;
@@ -428,10 +538,11 @@ export async function createViewer(canvas, opts = {}) {
     if (controls.update()) active = true;
     if (model.update(dt)) active = true;
     const rt = rootTarget();
-    if (Math.abs(rt - rootY) > 1e-4) { rootY += (rt - rootY) * Math.min(1, dt * 5); if (Math.abs(rt - rootY) < 1e-4) rootY = rt; model.root.position.y = rootY; active = true; }
+    if (Math.abs(rt - rootY) > 1e-4) { rootY += (rt - rootY) * Math.min(1, dt * 5); if (Math.abs(rt - rootY) < 1e-4) rootY = rt; model.root.position.y = rootY; updateCut(); active = true; }
     if (S.running) {
       S.phi += dt * S.rpm * 6;
       pose(S.phi);
+      if (flows.group.visible) flows.update(S.phi, dt, S.rpm / 40);
       if (S.xray) for (const g of glows) {
         const a = cycle(g.no, S.phi);
         const k = a < 50 ? Math.exp(-a / 14) : 0;
@@ -484,6 +595,7 @@ export async function createViewer(canvas, opts = {}) {
     on: (k, f) => on[k].push(f),
     pick, hoverTarget, setHover, click, openAssembly, selectPart, closeAll, focusPart, intro,
     setExploded, setAmount, setXray, setRunning, setRpm, setAutoRotate, setView, setTheme, setInsets,
+    setFlows, setSection, setCut, mark, snapshot, flows,
     invalidate, pose, frameBox, worldTargetBox, VIEWS,
     renderNow: () => { controls.update(); composer.render(0); },
     settle() {
@@ -491,7 +603,7 @@ export async function createViewer(canvas, opts = {}) {
       model.g = model.gT; model.ls = model.lsT;
       for (const a of model.asms) a.e = a.eT;
       model.update(0);
-      rootY = rootTarget(); model.root.position.y = rootY;
+      rootY = rootTarget(); model.root.position.y = rootY; updateCut();
       controls.update();
       invalidate();
     },

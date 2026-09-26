@@ -6,6 +6,8 @@ import { merge, put, mat, alignY, lathe, cyl, ring, tube, crv, extrudeX, extrude
 import { roundBox } from './block.js';
 
 export const PUMP = { y: -0.06, z: 0.212, fx: -0.212, r: 0.036, x0: 0.024, x1: 0.30 };
+// Центр нагнетающей (задней) секции насоса.
+export const PUMP_P = PUMP.x0 + (PUMP.x1 - PUMP.x0) / 8;
 const HTD = { x: 0.347, rc: 0.040, rp: 0.068 };
 const along = (g, x0) => put(g, mat([x0, 0, 0], [0, 0, -Math.PI / 2]));
 
@@ -61,6 +63,11 @@ export function buildLube(model) {
     // порты: нагнетание сверху передней секции, откачка — наружу у трёх остальных
     body.push(put(cyl(0.013, 0.012, 24, PUMP.r - 0.004), mat([sec[0], 0, 0])));
     blue.push(put(anEnd(0.02, 0.0095), mat([sec[0], PUMP.r + 0.008, 0])));
+    // вход из масляного бака снизу и общий выход откачки в бак с торца
+    body.push(put(cyl(0.013, 0.012, 24, PUMP.r - 0.004), mat([sec[0], 0, 0], [Math.PI, 0, 0])));
+    blue.push(put(anEnd(0.02, 0.0105), mat([sec[0], -(PUMP.r + 0.008), 0], [Math.PI, 0, 0])));
+    body.push(put(cyl(0.013, 0.016, 24, 0), mat([PUMP.x0 - 0.004, 0, 0], [0, 0, Math.PI / 2])));
+    blue.push(put(anEnd(0.02, 0.0105), mat([PUMP.x0 - 0.02, 0, 0], [0, 0, Math.PI / 2])));
     for (let k = 1; k < 4; k++) {
       body.push(put(cyl(0.014, 0.012, 24, PUMP.r - 0.004), mat([sec[k], 0, 0], [Math.PI / 2, 0, 0])));
       blue.push(put(anEnd(0.02, 0.0105), mat([sec[k], 0, PUMP.r + 0.008], [Math.PI / 2, 0, 0])));
@@ -108,6 +115,10 @@ export function buildLube(model) {
       const a = v3(x, -0.112, 0.196), b = v3(xp, PUMP.y, PUMP.z + PUMP.r + 0.028);
       const c = crv([a, v3(x, -0.112, 0.235), v3((x + xp) / 2, -0.1, 0.285), v3(xp, -0.075, 0.29), b]);
       hoses.push(tube(c, 80, 0.0088, 16));
+      const P = [v3(x, -0.105, 0.12), v3(x, -0.112, 0.17)];
+      for (let k = 0; k <= 12; k++) P.push(c.getPoint(k / 12));
+      P.push(v3(xp, PUMP.y, PUMP.z));
+      model.flow('oil', P);
       for (const [t, sgn] of [[0, -1], [1, 1]]) {
         const p = c.getPoint(t), d = c.getTangent(t).multiplyScalar(sgn);
         blue.push(put(merge([lathe([[0, 0], [0.0108, 0, 1], [0.0108, 0.02, 1], [0.0092, 0.022, 1], [0, 0.022]], 20)]), alignY(p.clone().addScaledVector(d, -0.018), d)));
@@ -117,6 +128,7 @@ export function buildLube(model) {
     const fh = FILTER;
     const c = crv([v3(sec[0], PUMP.y + PUMP.r + 0.028, PUMP.z), v3(sec[0] - 0.01, 0.0, PUMP.z + 0.005), v3(0.1, 0.02, 0.236), v3(0.0, 0.012, 0.236), v3(fh.x + 0.05, fh.y, fh.z)]);
     hoses.push(tube(c, 90, 0.0078, 16));
+    { const P = [v3(sec[0], PUMP.y, PUMP.z)]; for (let k = 0; k <= 14; k++) P.push(c.getPoint(k / 14)); P.push(v3(fh.x, fh.y, fh.z), v3(fh.x, fh.y + 0.004, 0.17), v3(fh.x, 0.0, 0.12)); model.flow('oil', P); }
     for (const [t, sgn] of [[0, -1], [1, 1]]) {
       const p = c.getPoint(t), d = c.getTangent(t).multiplyScalar(sgn);
       blue.push(put(lathe([[0, 0], [0.0098, 0, 1], [0.0098, 0.02, 1], [0.0082, 0.022, 1], [0, 0.022]], 20), alignY(p.clone().addScaledVector(d, -0.018), d)));

@@ -1,7 +1,7 @@
 // Выпускные коллекторы 4-в-1 из титана: фланец, первичные трубы со сварными швами,
 // сборник, лямбда-зонд, шпильки. Правый ряд строится в мировых координатах, левый — зеркалом.
 import * as THREE from 'three';
-import { E, bankFrame, outer } from '../spec.js';
+import { E, bankFrame, outer, bp, cylNo } from '../spec.js';
 import { mesh } from '../model.js';
 import { merge, put, mat, alignY, lathe, cyl, tube, crv, extrude, roundRect, circlePath, hexBolt, studNut, paint, v3, smooth } from '../util.js';
 import { exhaustPort, PORT } from './head.js';
@@ -66,6 +66,14 @@ function buildSide(model, s) {
     f.add(mesh(merge(g), M.copper));
     A.add('exh.studs', f, outV.clone().multiplyScalar(0.035), { delay: 0.6 });
   }
+
+  // путь выхлопа: цилиндр → канал → первичная труба → сборник
+  xs.forEach((x, i) => {
+    const c = primaryCurve(x, i), P = [bp(1, x, 0, 0.2), bp(1, x, 0.02, 0.232), bp(1, x, 0.06, 0.272)];
+    for (let k = 0; k <= 16; k++) P.push(c.getPoint(k / 16));
+    P.push(v3(COL.x - 0.1, COL.y, COL.z), v3(COL.x - 0.22, COL.y, COL.z));
+    model.flow('exh', P.map(p => { p.z *= s; return p; }), { no: cylNo(s, i) });
+  });
 
   // ---- первичные трубы со сварными швами
   {

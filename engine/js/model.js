@@ -29,6 +29,8 @@ export class Model {
   }
   asm(id) { return this.byId.get(id); }
   mover(fn) { this.movers.push(fn); }
+  // Путь для анимации потоков (точки в системе двигателя).
+  flow(kind, pts, opt = {}) { (this.flows ||= []).push({ kind, pts, ...opt }); }
   get pieces() { return this.asms.flatMap(a => a.parts.flatMap(p => p.pieces)); }
   get parts() { return this.asms.flatMap(a => a.parts); }
 

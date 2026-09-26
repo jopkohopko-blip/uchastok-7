@@ -1,6 +1,6 @@
 // Впуск (патрубки, дроссельные заслонки, раструбы, привод) и топливная система.
 import * as THREE from 'three';
-import { E } from '../spec.js';
+import { E, bp, cylNo } from '../spec.js';
 import { mesh } from '../model.js';
 import { merge, put, mat, alignY, lathe, cyl, tube, Helix, bez, crv, extrudeX, extrudeY, polyShape, circlePath, roundRect, hexBolt, DEG, v3 } from '../util.js';
 import { intakePort } from './head.js';
@@ -9,12 +9,23 @@ import { roundBox } from './block.js';
 const TILT = 12 * DEG;
 const T = new THREE.Vector3(0, Math.cos(TILT), Math.sin(TILT));
 const TB_Y = 0.405, TB_Z = 0.030, TB_H = 0.04;
-const RAIL = { y: 0.462, z: 0.106 };
+export const RAIL = { y: 0.462, z: 0.106 };
 const tbBase = x => new THREE.Vector3(x, TB_Y, TB_Z);
 const tbTop = x => tbBase(x).addScaledVector(T, TB_H);
 
 // Правый ряд строится в мировых координатах, левый — зеркалом по Z.
 function side(s) { const g = new THREE.Group(); if (s < 0) g.scale.z = -1; return g; }
+
+const mz = (p, s) => { p.z *= s; return p; };
+
+// Положение форсунки: кончик в патрубке, направление к рампе, длина.
+export function injectorFrame(x) {
+  const q = runnerCurve(x).getPoint(0.62);
+  const top = new THREE.Vector3(x, RAIL.y - 0.0095, RAIL.z);
+  const d = top.clone().sub(q).normalize();
+  const tip = q.clone().addScaledVector(d, 0.02);
+  return { tip, d, L: top.distanceTo(tip), m: alignY(tip, d) };
+}
 
 function runnerCurve(x) {
   const port = intakePort(1, x);
@@ -30,6 +41,14 @@ export function buildIntake(model) {
     const xs = E.cyl[s];
     const xmin = Math.min(...xs) - 0.036, xmax = Math.max(...xs) + 0.036;
     const out = new THREE.Vector3(0, 0, s);
+    // путь воздуха: раструб → заслонка → патрубок → канал → цилиндр
+    xs.forEach((x, i) => {
+      const P = [tbTop(x).addScaledVector(T, 0.13), tbTop(x).addScaledVector(T, 0.03), tbBase(x)];
+      const rc = runnerCurve(x);
+      for (let k = 1; k <= 10; k++) P.push(rc.getPoint(1 - k / 10));
+      P.push(bp(1, x, -0.07, 0.285), bp(1, x, -0.03, 0.255), bp(1, x, -0.01, 0.228), bp(1, x, 0, 0.19));
+      model.flow('air', P.map(p => mz(p, s)), { no: cylNo(s, i) });
+    });
 
     // ---- патрубки (карбон) с фланцами
     {
@@ -149,12 +168,7 @@ export function buildFuel(model) {
       const g = side(s);
       const blk = [], blue = [], grey = [];
       for (const x of xs) {
-        const q = runnerCurve(x).getPoint(0.62);
-        const top = new THREE.Vector3(x, RAIL.y - 0.0095, RAIL.z);
-        const d = top.clone().sub(q).normalize();
-        const tip = q.clone().addScaledVector(d, 0.02);
-        const L = top.distanceTo(tip);
-        const m = alignY(tip, d);
+        const { L, m } = injectorFrame(x);
         blk.push(put(lathe([[0, 0], [0.0042, 0, 1], [0.0048, 0.01, 1], [0.0072, 0.012, 1], [0.0072, L - 0.02, 1], [0.0058, L - 0.018, 1], [0.0058, L, 1], [0, L]], 24), m));
         blue.push(put(new THREE.TorusGeometry(0.0062, 0.0014, 8, 24), m.clone().multiply(mat([0, L - 0.008, 0], [Math.PI / 2, 0, 0]))));
         blue.push(put(new THREE.TorusGeometry(0.0046, 0.0012, 8, 20), m.clone().multiply(mat([0, 0.006, 0], [Math.PI / 2, 0, 0]))));
@@ -189,6 +203,14 @@ export function buildFuel(model) {
       crv([v3(fpr.x + 0.039, fpr.y + 0.03, fpr.z), v3(fpr.x + 0.07, fpr.y + 0.028, fpr.z - 0.01), v3(0.35, RAIL.y - 0.06, -RAIL.z - 0.06), v3(0.36, RAIL.y - 0.09, -RAIL.z - 0.1)]),
     ];
     const braid = hoses.map(c => tube(c, 80, 0.0068, 16));
+    // путь топлива: подача → правая рампа → перемычка → левая рампа → регулятор → слив
+    const F = [];
+    for (let k = 0; k <= 8; k++) F.push(hoses[1].getPoint(1 - k / 8));
+    F.push(v3(R.xf, RAIL.y, RAIL.z), v3((R.xf + R.xr) / 2, RAIL.y, RAIL.z), v3(R.xr, RAIL.y, RAIL.z));
+    for (let k = 0; k <= 12; k++) F.push(hoses[0].getPoint(k / 12));
+    F.push(v3(L.xr, RAIL.y, -RAIL.z), v3((L.xf + L.xr) / 2, RAIL.y, -RAIL.z), v3(L.xf, RAIL.y, -RAIL.z), v3(fpr.x, fpr.y + 0.016, fpr.z), v3(fpr.x, fpr.y + 0.03, fpr.z));
+    for (let k = 0; k <= 8; k++) F.push(hoses[2].getPoint(k / 8));
+    model.flow('fuel', F);
     const blue = [];
     for (const c of hoses) for (const t of [0, 1]) {
       const p = c.getPoint(t), d = c.getTangent(t).multiplyScalar(t ? 1 : -1);
