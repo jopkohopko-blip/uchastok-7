@@ -393,6 +393,18 @@ export function initUI(V, { isDark, setDark }) {
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   }
+  // Файл рядом со страницей; если сервер не отдаёт такой тип, берём копию в base64 (<имя>.b64.txt).
+  async function fetchFile(src, magic) {
+    const ok = async b => (await b.slice(0, magic.length).text()) === magic;
+    try { const r = await fetch(src); if (r.ok) { const b = await r.blob(); if (await ok(b)) return b; } } catch (e) { /* пробуем копию */ }
+    const r = await fetch(`${src}.b64.txt`);
+    if (!r.ok) throw new Error(r.status);
+    const bin = atob((await r.text()).trim()), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    const b = new Blob([u]);
+    if (!(await ok(b))) throw new Error('bad file');
+    return b;
+  }
   let busy = false;
   async function download(kind, btn) {
     if (busy) return;
@@ -408,10 +420,8 @@ export function initUI(V, { isDark, setDark }) {
         await saveFile(`V8-5.0_${stamp}.png`, blob);
       } else {
         const src = kind === 'pdf' ? `spec/v8-spec-${L}.pdf` : 'spec/v8-spec.xlsx';
-        const r = await fetch(src);
-        if (!r.ok) throw new Error(r.status);
         const name = kind === 'pdf' ? (L === 'en' ? 'V8-5.0_specification.pdf' : 'V8-5.0_specifikaciya.pdf') : 'V8-5.0_specification.xlsx';
-        await saveFile(name, await r.blob());
+        await saveFile(name, await fetchFile(src, kind === 'pdf' ? '%PDF' : 'PK'));
       }
     } catch (e) {
       console.error(e);
