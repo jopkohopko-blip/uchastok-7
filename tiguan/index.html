@@ -108,7 +108,7 @@ p{margin:0}
 /* stage */
 .stage{position:relative;min-height:0;min-width:0;overflow:hidden;background:radial-gradient(120% 95% at 50% 36%,var(--stage-hi),var(--stage-lo))}
 .stage>canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
-#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
 .lbl{pointer-events:auto;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:3px 8px 3px 6px;border-radius:999px;background:var(--label-bg);color:var(--label-ink);border:1px solid var(--line);font:500 11.5px/1.2 var(--f-body);white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.12);transform:translateY(-14px)}
 .lbl i{width:8px;height:8px;border-radius:50%;flex:none}
 .lbl b{font:600 11px var(--f-mono)}
@@ -120,14 +120,14 @@ p{margin:0}
 .lbl.leak{border-color:var(--crit)}
 .hide-labels #labels .lbl:not(.num):not(.jt){display:none}
 
-.viewbar{position:absolute;top:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none;align-items:flex-start}
+.viewbar{position:absolute;z-index:5;top:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:8px;pointer-events:none;align-items:flex-start}
 .seg{pointer-events:auto;display:flex;flex-wrap:wrap;background:var(--label-bg);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
 .seg button{border:0;background:none;padding:5px 9px;border-radius:6px;font:500 12px var(--f-body);color:var(--ink-2);white-space:nowrap}
 .seg button:hover{background:var(--panel-3)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .seg .sep{width:1px;background:var(--line);margin:3px 2px}
 
-.hud{position:absolute;left:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;max-width:min(372px,calc(100% - 24px));pointer-events:none}
+.hud{position:absolute;z-index:4;left:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;max-width:min(372px,calc(100% - 24px));pointer-events:none}
 .card{pointer-events:auto;background:var(--label-bg);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);backdrop-filter:blur(8px)}
 .boost{padding:10px 12px;display:grid;grid-template-columns:repeat(3,auto);gap:4px 18px;align-items:end}
 .boost .hd{grid-column:1/-1;display:flex;align-items:center;gap:8px;justify-content:space-between}
@@ -145,7 +145,7 @@ p{margin:0}
 .mini-seg button{border:0;background:none;padding:3px 8px;border-radius:5px;font:500 11.5px var(--f-body);color:var(--ink-2)}
 .mini-seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 
-.vnt{position:absolute;right:12px;bottom:12px;width:292px;display:flex;flex-direction:column;pointer-events:none}
+.vnt{position:absolute;right:12px;bottom:12px;width:292px;display:flex;flex-direction:column;pointer-events:none;z-index:4}
 .vnt>*{pointer-events:auto}
 .vnt .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px 7px 12px;background:var(--label-bg);border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
 .vnt h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase}
@@ -171,12 +171,12 @@ p{margin:0}
 .vnt-toggle{display:inline-flex}
 
 .hint{pointer-events:none;font-size:12px;color:var(--ink-2);background:var(--label-bg);border:1px solid var(--line);padding:5px 12px;border-radius:999px;box-shadow:var(--shadow);transition:opacity .6s;max-width:100%}
-.tip{position:absolute;pointer-events:none;padding:6px 9px;border-radius:8px;background:var(--label-bg);border:1px solid var(--line);box-shadow:var(--shadow);font-size:12.5px;max-width:260px;z-index:5}
+.tip{position:absolute;z-index:6;pointer-events:none;padding:6px 9px;border-radius:8px;background:var(--label-bg);border:1px solid var(--line);box-shadow:var(--shadow);font-size:12.5px;max-width:260px;z-index:5}
 .tip b{display:block;font-weight:600}
 .tip span{color:var(--muted);font:500 11px var(--f-mono)}
-.fatal{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink-2)}
+.fatal{position:absolute;z-index:8;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--ink-2)}
 .fatal div{max-width:420px;display:flex;flex-direction:column;gap:8px}
-.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font:500 13px var(--f-mono);pointer-events:none}
+.loading{position:absolute;z-index:7;inset:0;display:grid;place-items:center;color:var(--muted);font:500 13px var(--f-mono);pointer-events:none}
 
 /* inspector */
 .insp{padding:16px 18px 28px;display:flex;flex-direction:column;gap:14px}
@@ -239,6 +239,31 @@ table.spec td:last-child{text-align:right;font-family:var(--f-mono);white-space:
 .pp-row .g{grid-column:1/-1;font:600 10.5px var(--f-disp);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .pill.vw,.pill.you{background:var(--good-bg);color:var(--good)}
 .pill.cat{background:var(--warn-bg);color:var(--warn)}
+/* лупа крепежа */
+.loupe{position:relative;height:260px;border:1px solid var(--line);border-radius:10px;background:radial-gradient(120% 100% at 50% 32%,var(--stage-hi),var(--stage-lo));overflow:hidden;margin:6px 0 2px}
+.lp-view{position:absolute;inset:0}
+.lp-canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.lp-canvas:active{cursor:grabbing}
+.lp-ov{position:absolute;left:10px;right:10px;bottom:8px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;pointer-events:none;font-size:11px;color:var(--ink-2)}
+.lp-scale{display:flex;flex-direction:column;gap:3px;font:600 11px var(--f-mono);color:var(--ink)}
+.lp-scale i{display:block;height:5px;border:1.5px solid var(--ink);border-top:0;min-width:10px}
+.lp-hint{text-align:right;max-width:58%}
+.lp-btns{position:absolute;top:8px;right:8px;display:flex;gap:6px}
+.fnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px;font-size:13px;color:var(--ink-2)}
+.fnav b{color:var(--ink);font-variant-numeric:tabular-nums}
+table.fspec{table-layout:fixed}
+table.fspec td:nth-child(1){width:30%;color:var(--ink-2)}
+table.fspec td:nth-child(2){text-align:left;font-family:var(--f-body);white-space:normal;padding-left:10px}
+table.fspec td:nth-child(3){width:78px;text-align:right;white-space:nowrap;padding-left:6px}
+table.fspec .pill,table.fast .pill{font-size:9.5px;letter-spacing:.03em;padding:1px 6px}
+.fnote{font-size:13px;color:var(--ink-2);border-left:3px solid var(--accent);padding:2px 0 2px 10px;margin:8px 0}
+svg.thr{width:100%;height:auto;max-width:380px;display:block;margin-top:4px}
+svg.thr .prof{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round}
+svg.thr .axis{stroke:var(--line-2);stroke-width:1;stroke-dasharray:4 3;fill:none}
+svg.thr .dim{fill:none;stroke:var(--muted);stroke-width:1}
+svg.thr .lbl{fill:var(--ink-2);font:500 11px var(--f-mono)}
+svg.thr .cap{fill:var(--muted);font:500 10px var(--f-body)}
+.plist small{color:var(--muted);font-size:11px;margin-left:4px}
 .pill.model{background:var(--crit-bg);color:var(--crit)}
 .pp-row .pill{align-self:start;white-space:nowrap;font-size:10px}
 table.fast{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -561,19 +586,24 @@ renderer.setClearColor(0x000000, 0);
 stage.prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
+/* Модель описана в координатах, где +X — сторона ГРМ, +Z — вперёд, +Y — вверх. В реальном автомобиле
+   (правая тройка осей) при Y вверх и Z вперёд ось +X смотрит влево, поэтому весь узел отражён по X:
+   ГРМ — справа по ходу машины, коробка — слева, как в жизни. */
+const ROOT = new THREE.Group(); ROOT.scale.x = -1; scene.add(ROOT); ROOT.updateMatrixWorld(true);
+const m2w = v => V3(-v.x, v.y, v.z);   // точка или направление модели → мир
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 scene.environmentIntensity = 0.85;
 
 const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 400);
-camera.position.set(-14, 11, -15);
+camera.position.set(14, 11, -15);
 
 const labelRenderer = new CSS2DRenderer({element: $('#labels')});
 
 const hemi = new THREE.HemisphereLight(0xe4ecf5, 0x3b352f, 0.55);
 scene.add(hemi);
 const key = new THREE.DirectionalLight(0xffffff, 1.7);
-key.position.set(-9, 16, -7);
+key.position.set(9, 16, -7);
 key.castShadow = true;
 key.shadow.mapSize.set(isNarrow() ? 1024 : 2048, isNarrow() ? 1024 : 2048);
 Object.assign(key.shadow.camera, {left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 50});
@@ -581,10 +611,10 @@ key.shadow.bias = -0.0004;
 key.shadow.normalBias = 0.02;
 scene.add(key);
 const fill = new THREE.DirectionalLight(0xdfe9ff, 0.55);
-fill.position.set(10, 6, 12);
+fill.position.set(-10, 6, 12);
 scene.add(fill);
 const rim = new THREE.DirectionalLight(0xfff1e0, 0.45);
-rim.position.set(6, 4, -14);
+rim.position.set(-6, 4, -14);
 scene.add(rim);
 
 const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 64), new THREE.ShadowMaterial({opacity: 0.2}));
@@ -633,10 +663,22 @@ const TX = {
     for (let y = 0; y < h; y += 8) { g.fillStyle = '#5a5a5a'; g.fillRect(0, y, w, 2); g.fillStyle = '#d0d0d0'; g.fillRect(0, y + 3, w, 1); }
   }, {repeat: [1, 6]}),
 };
+/* надписи на деталях: сцена отражена по X, поэтому текст рисуется зеркально — на экране читается */
 function textTex(text, {w = 256, h = 64, bg = '#1c1f23', fg = '#e8e8e8', font = '600 34px "IBM Plex Mono", monospace'} = {}) {
   return canvasTex(w, h, (g) => {
-    g.fillStyle = bg; g.fillRect(0, 0, w, h); g.fillStyle = fg; g.font = font;
+    g.fillStyle = bg; g.fillRect(0, 0, w, h); g.translate(w, 0); g.scale(-1, 1); g.fillStyle = fg; g.font = font;
     g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, h / 2 + 2);
+  }, {srgb: true});
+}
+
+/* наклейка с номером детали и штрихкодом */
+function labelTex(lines, {w = 512, h = 220, bar = false} = {}) {
+  return canvasTex(w, h, (g) => {
+    g.fillStyle = '#f2f1ec'; g.fillRect(0, 0, w, h); g.translate(w, 0); g.scale(-1, 1);
+    g.fillStyle = '#16181b'; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.font = '700 58px "IBM Plex Sans Condensed", Arial, sans-serif'; g.fillText(lines[0], 22, 72);
+    g.font = '500 30px "IBM Plex Mono", monospace'; (lines.slice(1)).forEach((t, i) => g.fillText(t, 22, 116 + i * 36));
+    if (bar) { const r = rnd(11); let x = 22; while (x < w - 30) { const bw = 2 + Math.floor(r() * 5); g.fillRect(x, 150, bw, 54); x += bw + 2 + Math.floor(r() * 4); } }
   }, {srgb: true});
 }
 
@@ -731,31 +773,11 @@ function rodBetween(a, b, r, material, seg = 12) {
 }
 /* шестигранник (гайка/штуцер) вдоль оси Y */
 function hexGeo(r, h) { return new THREE.CylinderGeometry(r, r, h, 6); }
-/* хомут: лента + винтовой замок; ось вдоль Y, центр в нуле */
-function clampObj(r, w = 0.09) {
-  const g = new THREE.Group();
-  g.add(mesh(new THREE.CylinderGeometry(r, r, w, 40, 1, true), 'steel'));
-  const lock = mesh(rbox(w * 1.1, 0.07, 0.16, 0.01), 'steel'); lock.position.set(r + 0.03, 0, 0); g.add(lock);
-  const screw = mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.22, 10), 'steelDark'); screw.rotation.x = Math.PI / 2; screw.position.set(r + 0.07, 0, 0); g.add(screw);
-  const head = mesh(hexGeo(0.035, 0.03), 'steelDark'); head.rotation.x = Math.PI / 2; head.position.set(r + 0.07, 0, 0.12); g.add(head);
-  return g;
-}
 /* уплотнительное кольцо вокруг оси Y */
 function oringObj(r, tube = 0.022) { return mesh(new THREE.TorusGeometry(r, tube, 12, 48).rotateX(Math.PI / 2), 'oring'); }
-/* крепёж: ось Y — наружу (головкой к мастеру); s — масштаб */
-function fastenerObj(kind, p, dir, s = 1) {
-  const g = new THREE.Group();
-  if (kind === 'nut') { g.add(mesh(hexGeo(0.045 * s, 0.05 * s), 'steel')); g.add(mesh(cylY(0.021 * s, 0.07 * s, 10).translate(0, 0.045 * s, 0), 'steelDark')); }
-  else if (kind === 'bolt') { g.add(mesh(hexGeo(0.04 * s, 0.035 * s), 'steel')); g.add(mesh(cylY(0.052 * s, 0.01 * s, 18).translate(0, -0.022 * s, 0), 'steel')); }
-  else if (kind === 'torx') { g.add(mesh(cylY(0.04 * s, 0.03 * s, 18), 'steelDark')); g.add(mesh(cylY(0.018 * s, 0.012 * s, 6).translate(0, 0.02 * s, 0), 'steel')); }
-  else if (kind === 'screw') { g.add(mesh(cylY(0.03 * s, 0.028 * s, 16), 'steelDark')); }
-  else if (kind === 'banjo') { g.add(mesh(hexGeo(0.058 * s, 0.05 * s), 'brass')); g.add(mesh(cylY(0.05 * s, 0.012 * s, 18).translate(0, -0.035 * s, 0), 'copper')); }
-  else if (kind === 'union') { g.add(mesh(hexGeo(0.055 * s, 0.075 * s), 'brass')); }
-  alignY(g, dir.clone().normalize()); g.position.copy(p);
-  return g;
-}
 /* ориентировать объект так, чтобы его ось Y смотрела вдоль dir */
 function alignY(obj, dir) { obj.quaternion.setFromUnitVectors(V3(0, 1, 0), dir.clone().normalize()); return obj; }
+function placeAlong(obj, p, dir) { obj.position.copy(p); alignY(obj, dir); return obj; }
 
 /* спиральная улитка (турбина/компрессор) вокруг оси X.
    theta: угол по окружности, сечение растёт от r0 до r1; внутренний край на радиусе R0 */
@@ -831,7 +853,7 @@ class Asm {
     this.id = id; this.sys = sys; this.parts = []; this.e = 0; this.et = 0;
     this.g = new THREE.Group(); this.g.name = id; this.g.position.copy(pos);
     this.anchor = V3(); this.visible = true;
-    W.asm.set(id, this); scene.add(this.g);
+    W.asm.set(id, this); ROOT.add(this.g);
   }
   part(pid, obj, ex = [0, 0, 0]) {
     obj.userData.pid = pid; obj.userData.home = obj.position.clone(); obj.userData.ex = V3(...ex);
@@ -841,7 +863,7 @@ class Asm {
   }
   tag(o, pid) {
     o.userData.asm = this.id; o.userData.pid = pid; o.userData.baseMat = o.material;
-    o.castShadow = true; o.receiveShadow = true; W.pick.push(o);
+    o.castShadow = !o.userData.noShadow; o.receiveShadow = true; W.pick.push(o);
   }
   partObj(pid) { return this.parts.find(p => p.userData.pid === pid); }
   worldAnchor() { return this.g.localToWorld(this.anchor.clone()); }
@@ -849,12 +871,412 @@ class Asm {
 const cutPlane = new THREE.Plane(V3(0, 0, 1), 2.85);
 function cuttable(o) { o.traverse(m => { if (m.isMesh) { m.material.side = THREE.DoubleSide; W.cutMats.push(m.material); } }); return o; }
 
+/* ================== КРЕПЁЖ: РЕЗЬБА ISO 68-1, ГОЛОВКИ, ШЛИЦЫ, МАРКИРОВКА ==================
+   Размеры задаются в миллиметрах; в сцену крепёж масштабируется MM (1 ед. сцены = 1 дм).
+   Сцена отражена по X (ROOT), поэтому в сцене резьба строится левой, а надписи — зеркально:
+   на экране резьба получается правой, маркировка читается. В лупе — без отражения. */
+const MM = 0.01;
+const ISO = (d, P) => ({d, P, H: 0.8660254 * P, d2: d - 0.6495191 * P, d3: d - 1.2268653 * P, D1: d - 1.0825318 * P, h3: 0.6134 * P});
+const LOD = [{n: 10, sub: 2, seg: 16, tex: 128}, {n: 44, sub: 10, seg: 64, tex: 512}];
+
+function prepGeo(g) {
+  if (g.attributes.uv) g.deleteAttribute('uv');
+  if (!g.attributes.normal) g.computeVertexNormals();
+  if (!g.index) { const n = g.attributes.position.count, idx = new Uint32Array(n); for (let i = 0; i < n; i++) idx[i] = i; g.setIndex(new THREE.BufferAttribute(idx, 1)); }
+  return g;
+}
+const mergeF = (list) => mergeGeometries(list.filter(Boolean).map(prepGeo), false);
+const lathe = (pts, seg) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(Math.max(r, 1e-4), y)), seg);
+const tY = (g, y) => { g.translate(0, y, 0); return g; };
+
+/* наружная резьба по оси Y на участке [y0, y1]: профиль ISO 68-1 (60°), шаг P;
+   hand: 1 — правая, −1 — левая; tip: 'lo' | 'hi' — конец с заходной фаской 45° */
+function threadGeo(d, P, y0, y1, {n = 16, hand = 1, tip = 'lo'} = {}) {
+  const R = d / 2, h = 0.6134 * P, r0 = R - h, fl = h * Math.tan(Math.PI / 6), cw = P / 8, rw = Math.max(0.02, P - cw - 2 * fl);
+  const crisp = n > 20;   // в лупе грани резьбы острые, в сцене — упрощённый профиль
+  const prof = crisp ? [[R, 0], [R, cw], [R, cw], [r0, cw + fl], [r0, cw + fl], [r0, cw + fl + rw], [r0, cw + fl + rw], [R, P]]
+    : [[R, 0], [R, cw], [r0, cw + fl], [r0, cw + fl + rw], [R, P]];
+  const J = prof.length, turns = Math.ceil((y1 - y0) / P) + 2, steps = turns * n;
+  const pos = new Float32Array((steps + 1) * J * 3), raw = new Float32Array((steps + 1) * J), idx = [];
+  let q = 0;
+  for (let k = 0; k <= steps; k++) {
+    const th = k / n * TAU, ax = y0 - 2 * P + k / n * P, c = Math.cos(th), s = Math.sin(th) * hand;
+    for (let j = 0; j < J; j++) {
+      let r = prof[j][0], y = prof[j][1] + ax; raw[k * J + j] = y;
+      if (y < y0) { y = y0; r = r0; } else if (y > y1) { y = y1; r = r0; }
+      r = Math.min(r, r0 + (tip === 'lo' ? y - y0 : y1 - y));
+      pos[q++] = r * c; pos[q++] = y; pos[q++] = -r * s;
+    }
+  }
+  for (let k = 0; k < steps; k++) for (let j = 0; j < J - 1; j += crisp ? 2 : 1) {
+    const a = k * J + j, b = a + J;
+    const lo = Math.min(raw[a], raw[a + 1], raw[b], raw[b + 1]), hi = Math.max(raw[a], raw[a + 1], raw[b], raw[b + 1]);
+    if (hi <= y0 || lo >= y1) continue;
+    if (hand > 0) idx.push(a, b, a + 1, a + 1, b, b + 1); else idx.push(a, a + 1, b, a + 1, b + 1, b);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  const cap = (y, up) => { const c = new THREE.CircleGeometry(r0 + 0.005, Math.max(12, n)); c.rotateX(up ? -Math.PI / 2 : Math.PI / 2); return tY(c, y); };
+  return mergeF([g, cap(y1, true), cap(y0, false)]);
+}
+/* шестигранник «под ключ» s высотой h по оси Y (0…h); фаска 30° на углах; hole — отверстие */
+function hexGeo2(s, h, {top = true, bot = false, sub = 4, dw = 0.95, hole = 0, capTop = true} = {}) {
+  const Rc = s / Math.sqrt(3), rT = dw * s / 2, k = Math.sqrt(3), cz = Math.min(h / 2.2, (Rc - rT) / k);
+  const ys = [0, h]; if (bot) ys.push(cz * 0.33, cz * 0.66, cz); if (top) ys.push(h - cz, h - cz * 0.66, h - cz * 0.33);
+  ys.sort((a, b) => a - b);
+  const lim = y => Math.min(top ? rT + (h - y) * k : 1e9, bot ? rT + y * k : 1e9);
+  const pos = [], idx = [], S = sub + 1;
+  for (let f = 0; f < 6; f++) {
+    const a0 = f * Math.PI / 3, a1 = a0 + Math.PI / 3, base = pos.length / 3;
+    for (const y of ys) for (let c = 0; c <= sub; c++) {
+      const t = c / sub, x = Rc * lerp(Math.cos(a0), Math.cos(a1), t), z = Rc * lerp(Math.sin(a0), Math.sin(a1), t);
+      const m = Math.min(1, lim(y) / Math.hypot(x, z)); pos.push(x * m, y, z * m);
+    }
+    for (let i = 0; i < ys.length - 1; i++) for (let c = 0; c < sub; c++) { const a = base + i * S + c, b = a + S; idx.push(a, b, a + 1, a + 1, b, b + 1); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  const face = (y, up, cham) => {
+    const r = cham ? rT : Rc, seg = cham ? 48 : 6;
+    const c = hole ? new THREE.RingGeometry(hole, r, seg, 1) : new THREE.CircleGeometry(r, seg);
+    c.rotateX(up ? -Math.PI / 2 : Math.PI / 2); return tY(c, y);
+  };
+  return mergeF([g, capTop ? face(h, true, top) : null, face(0, false, bot)]);
+}
+/* звёздочка-шлиц в плоскости XY: Torx (6 лепестков), XZN (12 зубьев), шестигранник */
+const TORX = {T20: [3.86, 2.75], T25: [4.43, 3.18], T30: [5.5, 3.95], T40: [6.6, 4.75], T45: [7.78, 5.6]};
+function driveShape(kind, size) {
+  const s = new THREE.Shape(), pts = [];
+  if (kind === 'torx') {
+    const [A, B] = TORX[size], rm = (A + B) / 4, ra = (A - B) / 4;
+    for (let i = 0; i < 96; i++) { const t = i / 96 * TAU, c = Math.cos(6 * t); pts.push([(rm + ra * Math.sign(c) * Math.pow(Math.abs(c), 0.7)) * Math.cos(t), (rm + ra * Math.sign(c) * Math.pow(Math.abs(c), 0.7)) * Math.sin(t)]); }
+  } else if (kind === 'xzn') {
+    const ro = size / 2, ri = ro * 0.86;
+    for (let i = 0; i < 24; i++) { const t = i / 24 * TAU + Math.PI / 24, r = i % 2 ? ri : ro; pts.push([r * Math.cos(t), r * Math.sin(t)]); }
+  } else { const r = size / Math.sqrt(3); for (let i = 0; i < 6; i++) { const t = i / 6 * TAU; pts.push([r * Math.cos(t), r * Math.sin(t)]); } }
+  pts.forEach(([x, y], i) => i ? s.lineTo(x, y) : s.moveTo(x, y)); s.closePath();
+  return s;
+}
+/* верх головки с шлицем: торец (кольцо со звёздочкой, UV 0…1 для маркировки) и колодец шлица */
+function driveTop(R, y, kind, size, depth) {
+  const sh = new THREE.Shape(); sh.absarc(0, 0, R, 0, TAU, false);
+  const hole = driveShape(kind, size); sh.holes.push(new THREE.Path(hole.getPoints()));
+  const top = new THREE.ShapeGeometry(sh, 48);
+  const uv = top.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / (2 * R) + 0.5, uv.getY(i) / (2 * R) + 0.5);
+  top.rotateX(-Math.PI / 2); tY(top, y);
+  const well = new THREE.ExtrudeGeometry(hole, {depth, bevelEnabled: false, curveSegments: 12});
+  well.rotateX(-Math.PI / 2); tY(well, y - depth);
+  const sz = kind === 'torx' ? TORX[size][0] : size;
+  const cone = new THREE.ConeGeometry(sz * 0.36, sz * 0.2, 20, 1, true); cone.rotateX(Math.PI); tY(cone, y - depth - sz * 0.1);
+  return {top, well: mergeF([well, cone])};
+}
+
+/* ---------- маркировка на торце головки (рельеф через bump-карту) ---------- */
+const MARK_TEX = new Map();
+function markTex(lines, {res = 256, mirror = false, base = '#a9afb5', ring = 0} = {}) {
+  const key = [lines.join('/'), res, mirror, base, ring].join('|');
+  if (MARK_TEX.has(key)) return MARK_TEX.get(key);
+  const draw = (bump) => canvasTex(res, res, (g, w, h) => {
+    g.fillStyle = bump ? '#7f7f7f' : base; g.fillRect(0, 0, w, h);
+    if (!bump) { // лёгкие концентрические следы высадки
+      for (let r = w * 0.08; r < w * 0.5; r += w * 0.035) { g.strokeStyle = `rgba(0,0,0,${0.035 + 0.02 * Math.sin(r)})`; g.lineWidth = w * 0.006; g.beginPath(); g.arc(w / 2, h / 2, r, 0, TAU); g.stroke(); }
+    }
+    if (mirror) { g.translate(w, 0); g.scale(-1, 1); }
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach(([txt, fy, fs]) => {
+      g.font = `700 ${Math.round(w * fs)}px "IBM Plex Sans Condensed", "IBM Plex Sans", Arial, sans-serif`;
+      const x = w / 2, y = h * fy;
+      if (bump) { g.fillStyle = '#ffffff'; g.fillText(txt, x, y); }
+      else { g.fillStyle = 'rgba(255,255,255,.55)'; g.fillText(txt, x - w * 0.006, y - w * 0.006); g.fillStyle = 'rgba(0,0,0,.45)'; g.fillText(txt, x + w * 0.008, y + w * 0.008); g.fillStyle = base; g.fillText(txt, x, y); }
+    });
+  }, {srgb: !bump});
+  const t = {map: draw(false), bump: draw(true)};
+  t.map.wrapS = t.map.wrapT = t.bump.wrapS = t.bump.wrapT = THREE.ClampToEdgeWrapping;
+  MARK_TEX.set(key, t); return t;
+}
+
+/* ---------- материалы крепежа ---------- */
+const FCOLR = {zinc: 0x9ea4aa, black: 0x2e3135, copper: 0xa9673f, steel: 0x9ea5ac, stud: 0x6a6059, band: 0xc9cdd0, rubber: 0x1a1b1d, brass: 0xb58d4a, plastic: 0x1d1f22, ceramic: 0xd8d2c4};
+const FMR = {zinc: [.72, .42], black: [.5, .42], copper: [.95, .36], steel: [.95, .3], stud: [.75, .52], band: [.9, .28], rubber: [0, .6], brass: [.95, .34], plastic: [0, .5], ceramic: [0, .8]};
+const hexCss = n => '#' + n.toString(16).padStart(6, '0');
+function fMat(kind, {side = THREE.DoubleSide, mark = null, mirror = false, res = 128} = {}) {
+  const [metalness, roughness] = FMR[kind];
+  const m = new THREE.MeshStandardMaterial({color: FCOLR[kind], metalness, roughness, side});
+  if (mark) {
+    const t = markTex(mark, {res, mirror, base: hexCss(FCOLR[kind])});
+    m.color.set(0xffffff); m.map = t.map; m.bumpMap = t.bump; m.bumpScale = res > 200 ? 2.2 : 1.2;
+  }
+  return m;
+}
+
+/* ---------- сборки крепежа: список {g, m, side?, mark?} в мм, ось Y — наружу ---------- */
+const FB = {
+  /* болт с шестигранной головкой и фланцем (EN 1665) */
+  hexFlange(o, L, hand) {
+    const {d, P, s, k = d, dc = s * 1.4, len, b = len * 0.7} = o, t = 1.1;
+    const body = mergeF([
+      lathe([[d / 2, 0], [dc / 2, 0], [dc / 2, t], [s * 0.5, t + 0.8], [s * 0.45, t + 0.8]], L.seg),
+      tY(hexGeo2(s, k - t, {sub: L.sub, capTop: false}), t),
+      len > b ? tY(new THREE.CylinderGeometry(d * 0.49, d * 0.49, len - b, L.seg, 1, true), -(len - b) / 2) : null,
+      threadGeo(d, P, -len, -(len - b) + 0.01, {n: L.n, hand, tip: 'lo'}),
+    ]);
+    const cap = tY(new THREE.CircleGeometry(0.95 * s / 2, 48).rotateX(-Math.PI / 2), k + 0.001);
+    return [{g: body, m: o.coat || 'zinc'}, {g: cap, m: o.coat || 'zinc', mark: [[o.mark || '8.8', o.maker ? 0.4 : 0.5, 0.3], ...(o.maker ? [[o.maker, 0.72, 0.16]] : [])]}];
+  },
+  /* болт с цилиндрической/сферической головкой и шлицем Torx или XZN */
+  socket(o, L, hand) {
+    const {d, P, dk, k, len, b = len * 0.8, drive = ['torx', 'T30'], flange = 0} = o;
+    const R = dk / 2, depth = k * 0.55;
+    const prof = flange ? [[d / 2, 0], [flange / 2, 0], [flange / 2, 0.9], [R, 1.3], [R, k - 0.7], [R - 0.7, k]] : [[d / 2, 0], [R, 0], [R, k - 0.8], [R - 0.8, k]];
+    const {top, well} = driveTop(R - (flange ? 0.7 : 0.8) + 0.001, k, drive[0], drive[0] === 'torx' ? drive[1] : drive[1], depth);
+    const body = mergeF([lathe(prof, L.seg),
+      len > b ? tY(new THREE.CylinderGeometry(d * 0.49, d * 0.49, len - b, L.seg, 1, true), -(len - b) / 2) : null,
+      threadGeo(d, P, -len, -(len - b) + 0.01, {n: L.n, hand, tip: 'lo'})]);
+    return [{g: body, m: o.coat || 'zinc'}, {g: well, m: o.coat || 'zinc', side: THREE.BackSide}, {g: top, m: o.coat || 'zinc', mark: [[o.mark || '8.8', 0.82, 0.16]]}];
+  },
+  /* самоконтрящаяся гайка с фланцем на шпильке (шпилька — в лупе) */
+  lockNut(o, L, hand, withStud) {
+    const {d, P, s, m, dc = s * 1.35} = o, t = 1.3;
+    const parts = [
+      lathe([[d / 2 * 1.02, 0], [dc / 2, 0], [dc / 2, t], [s * 0.5, t + 0.9], [d / 2 * 1.02, t + 0.9]], L.seg),
+      tY(hexGeo2(s, m - t, {sub: L.sub, hole: d / 2 * 1.02, top: true, bot: false, capTop: false}), t),
+      tY(new THREE.CylinderGeometry(d / 2 * 1.02, d / 2 * 1.02, m, L.seg, 1, true), m / 2),
+    ];
+    const dents = [];
+    for (let i = 0; i < 3; i++) { const a = (i * 2 + 0.5) * Math.PI / 3, r = s / 2 * 0.99; const sp = new THREE.SphereGeometry(1.1, 10, 6); sp.scale(0.5, 1, 1.4); sp.rotateY(-a); sp.translate(r * Math.cos(a), m - 1.3, r * Math.sin(a)); dents.push(sp); }
+    const out = [{g: mergeF(parts), m: o.coat || 'zinc'}, {g: mergeF(dents), m: 'stud'},
+      {g: tY(new THREE.RingGeometry(d / 2 * 1.03, 0.95 * s / 2, 48, 1).rotateX(-Math.PI / 2), m + 0.001), m: o.coat || 'zinc', mark: [[o.mark || '8', 0.2, 0.2]]}];
+    if (withStud) out.push({g: threadGeo(d, P, -14, m + (o.stick ?? 5), {n: L.n, hand, tip: 'hi'}), m: 'stud'});
+    return out;
+  },
+  /* обычная шестигранная гайка (на штоке актуатора); в лупе — на отрезке резьбы */
+  nut(o, L, hand, withStud) {
+    const {d, P, s, m} = o;
+    const out = [{g: mergeF([hexGeo2(s, m, {sub: L.sub, hole: d / 2 * 1.02, bot: true, capTop: false}), tY(new THREE.CylinderGeometry(d / 2 * 1.02, d / 2 * 1.02, m, L.seg, 1, true), m / 2)]), m: o.coat || 'zinc'},
+      {g: tY(new THREE.RingGeometry(d / 2 * 1.03, 0.95 * s / 2, 48, 1).rotateX(-Math.PI / 2), m + 0.001), m: o.coat || 'zinc', mark: [[o.mark || '', 0.2, 0.2]]}];
+    if (withStud) out.push({g: threadGeo(d, P, -10, m + 6, {n: L.n, hand, tip: 'hi'}), m: 'steel'});
+    return out;
+  },
+  /* шпилька (в ГБЦ): резьба по всей длине; нижний конец утоплен */
+  stud(o, L, hand) { return [{g: threadGeo(o.d, o.P, -o.below, o.above, {n: L.n, hand, tip: 'hi'}), m: 'stud'}]; },
+  /* полый болт маслопровода с кольцами (у VW здесь O-ring разного диаметра) и кольцом-«глазком» трубки */
+  banjo(o, L, hand) {
+    const {d, P, s, k, len} = o, eye = o.eye || d * 1.9, eyeH = o.eyeH || d * 1.1;
+    const body = mergeF([
+      tY(hexGeo2(s, k, {sub: L.sub, capTop: false, bot: true}), 0.2),
+      lathe([[d / 2 * 1.1, 0.25], [s * 0.52, 0.25], [s * 0.52, 0]], L.seg),
+      tY(new THREE.CylinderGeometry(d * 0.44, d * 0.44, len * 0.6, L.seg, 1, true), -len * 0.3),
+      threadGeo(d, P, -len, -len * 0.6 + 0.01, {n: L.n, hand, tip: 'lo'}),
+    ]);
+    const hole = tY(new THREE.CylinderGeometry(d * 0.2, d * 0.2, d * 0.9, 12).rotateZ(Math.PI / 2), -eyeH * 0.55);
+    const bore = tY(new THREE.CylinderGeometry(d * 0.22, d * 0.22, 0.4, 16), -len - 0.1);
+    const eyeG = mergeF([tY(new THREE.CylinderGeometry(eye / 2, eye / 2, eyeH, L.seg, 1, false), -eyeH / 2 - 1.2),
+      tY(new THREE.CylinderGeometry(eye * 0.22, eye * 0.22, eye * 0.9, 16).rotateX(Math.PI / 2).translate(0, 0, eye * 0.45), -eyeH / 2 - 1.2)]);
+    const oring = (y, r) => tY(new THREE.TorusGeometry(r, 0.85, 8, 32).rotateX(Math.PI / 2), y);
+    return [{g: body, m: o.coat || 'zinc'}, {g: mergeF([hole, bore]), m: 'black'}, {g: eyeG, m: 'steel'},
+      {g: mergeF([oring(-0.35, d * 0.62), oring(-eyeH - 2.1, d * 0.66)]), m: 'rubber'},
+      {g: tY(new THREE.CircleGeometry(0.95 * s / 2, 48).rotateX(-Math.PI / 2), k + 0.201), m: o.coat || 'zinc', mark: [[o.mark || '8.8', 0.5, 0.28]]}];
+  },
+  /* накидная гайка трубки маслоподвода на резьбовом штуцере */
+  union(o, L, hand) {
+    const {d, P, s, m, tube = 8} = o;
+    return [{g: mergeF([hexGeo2(s, m, {sub: L.sub, hole: tube / 2 + 0.3, bot: true}),
+      tY(new THREE.CylinderGeometry(tube / 2 + 0.3, tube / 2 + 0.3, m, L.seg, 1, true), m / 2)]), m: o.coat || 'zinc'},
+      {g: tY(new THREE.CylinderGeometry(tube / 2, tube / 2, 16, L.seg, 1, false), m + 7), m: 'steel'},
+      {g: threadGeo(d, P, -7, 0.2, {n: L.n, hand, tip: 'lo'}), m: 'steel'}];
+  },
+  /* винт для пластиковых деталей: сферическая головка Torx с прессшайбой */
+  plastic(o, L, hand) {
+    const {d, P, dk, k, len, drive = ['torx', 'T25'], washer = dk * 1.5} = o;
+    const R = dk / 2;
+    const {top, well} = driveTop(R * 0.78, k, drive[0], drive[1], k * 0.6);
+    const body = mergeF([lathe([[d / 2, 0], [R, 0], [R, k * 0.45], [R * 0.93, k * 0.8], [R * 0.78, k]], L.seg),
+      threadGeo(d, P, -len, 0.01, {n: L.n, hand, tip: 'lo'})]);
+    const w = mergeF([lathe([[d / 2 + 0.2, -0.8], [washer / 2, -0.8], [washer / 2, 0], [d / 2 + 0.2, 0]], L.seg)]);
+    return [{g: body, m: o.coat || 'black'}, {g: well, m: o.coat || 'black', side: THREE.BackSide}, {g: top, m: o.coat || 'black', mark: [[o.mark || '', 0.8, 0.14]]}, {g: w, m: 'zinc'}];
+  },
+  /* винтовой хомут (Schraubschelle): лента с просечками, замок, червячный винт SW 7 со шлицем */
+  worm(o, L) {
+    const {D, w} = o, R = D / 2, th = 0.6;
+    const outer = new THREE.CylinderGeometry(R + th, R + th, w, L.seg * 2, 1, true);
+    const band = mergeF([new THREE.CylinderGeometry(R, R, w, L.seg * 2, 1, true),
+      tY(new THREE.RingGeometry(R, R + th, L.seg * 2, 1).rotateX(-Math.PI / 2), w / 2), tY(new THREE.RingGeometry(R, R + th, L.seg * 2, 1).rotateX(Math.PI / 2), -w / 2)]);
+    const hL = 22, hx = R + 3.2, sx = hx + 1.2;
+    const house = mergeF([new RoundedBoxGeometry(6.2, w + 2.4, hL, 2, 1.2).translate(hx, 0, 0)]);
+    const scr = threadGeo(5.5, 1.4, -hL / 2 + 1, hL / 2 + 0.5, {n: Math.max(10, L.n - 4), hand: 1, tip: 'lo'}).rotateX(Math.PI / 2).translate(sx, 0, 0);
+    const washer = lathe([[2.6, 0], [5.8, 0], [5.8, 1], [2.6, 1]], L.seg).rotateX(Math.PI / 2).translate(sx, 0, hL / 2);
+    const head = hexGeo2(7, 4.5, {sub: L.sub, capTop: true, bot: true}).rotateX(Math.PI / 2).translate(sx, 0, hL / 2 + 1);
+    const slot = new THREE.BoxGeometry(1.1, 7.6, 1.6).translate(sx, 0, hL / 2 + 1 + 4.5 - 0.6);
+    return [{g: outer, m: 'band', slots: true, keepUV: true}, {g: band, m: 'band'}, {g: house, m: 'band'}, {g: mergeF([scr, head, washer]), m: 'zinc'}, {g: slot, m: 'black'}];
+  },
+  /* пружинный хомут (Federbandschelle): лента и два язычка */
+  spring(o, L) {
+    const {D, w} = o, R = D / 2, th = 1.1;
+    const band = mergeF([new THREE.CylinderGeometry(R + th, R + th, w, L.seg * 2, 1, true, 0.18, TAU - 0.1), new THREE.CylinderGeometry(R, R, w, L.seg * 2, 1, true, 0.18, TAU - 0.1)]);
+    const tab = (a, dy) => new RoundedBoxGeometry(14, w * 0.45, 1.4, 2, 0.6).translate(R + 7, dy, 0).rotateY(a);
+    return [{g: band, m: 'black'}, {g: mergeF([tab(-0.12, w * 0.26), tab(0.05, -w * 0.26)]), m: 'black'}];
+  },
+  /* V-образный хомут фланца турбины (V-band) со стяжным болтом и гайкой */
+  vband(o, L, hand) {
+    const {D} = o, R = D / 2, bx = R + 9;
+    const ring = lathe([[R + 1, -5], [R + 6.5, -2.2], [R + 7.5, -2.2], [R + 7.5, 2.2], [R + 6.5, 2.2], [R + 1, 5]], L.seg * 2);
+    const lugs = mergeF([new RoundedBoxGeometry(5, 12, 12, 2, 1).translate(bx, 0, 6.5), new RoundedBoxGeometry(5, 12, 12, 2, 1).translate(bx, 0, -6.5)]);
+    const bolt = threadGeo(6, 1, -13, 21, {n: Math.max(10, L.n - 4), hand, tip: 'hi'}).rotateX(Math.PI / 2).translate(bx, 0, 0);
+    const nut = hexGeo2(10, 6, {sub: L.sub, hole: 3.1, bot: true}).rotateX(Math.PI / 2).translate(bx, 0, 12.5);
+    const head = hexGeo2(10, 5, {sub: L.sub, bot: true}).rotateX(-Math.PI / 2).translate(bx, 0, -12.5);
+    return [{g: ring, m: 'band'}, {g: lugs, m: 'band'}, {g: mergeF([bolt, nut, head]), m: 'zinc'}];
+  },
+  /* стопорная скоба (C-clip) на штоке актуатора */
+  clip(o, L) {
+    const r = o.d / 2 + 0.6;
+    const g = new THREE.TorusGeometry(r, 0.55, 8, 32, TAU * 0.8); g.rotateZ(TAU * 0.1); g.rotateX(Math.PI / 2);
+    const lug = (a) => new THREE.SphereGeometry(0.9, 10, 8).translate(r * Math.cos(a), 0, r * Math.sin(a));
+    return [{g: mergeF([g, lug(TAU * 0.1), lug(-TAU * 0.1)]), m: 'black'}];
+  },
+  /* датчик температуры ОГ: шестигранник SW 17 с резьбой, щуп и выход провода */
+  sensor(o, L, hand) {
+    const {d, P, s} = o;
+    return [{g: mergeF([hexGeo2(s, 7, {sub: L.sub, bot: true}), tY(new THREE.CylinderGeometry(4.2, 5.2, 9, L.seg), 11.5),
+      threadGeo(d, P, -11, 0.01, {n: L.n, hand, tip: 'lo'})]), m: 'steel'},
+      {g: tY(new THREE.CylinderGeometry(3, 3, 24, L.seg), -23), m: 'steel'},
+      {g: tY(new THREE.CylinderGeometry(2.4, 2.4, 22, 12), 27), m: 'plastic'}];
+  },
+};
+const FGEO = new Map();
+function fastParts(key, lod, hand, withStud) {
+  const ck = key + '|' + lod + '|' + hand + '|' + !!withStud;
+  if (!FGEO.has(ck)) { const f = FS[key]; FGEO.set(ck, FB[f.kind](f.g, LOD[lod], hand, withStud)); }
+  return FGEO.get(ck);
+}
+/* текстура просечек ленты хомута */
+TX.slots = canvasTex(64, 32, (g, w, h) => { g.fillStyle = '#c9cdd0'; g.fillRect(0, 0, w, h); g.fillStyle = '#3a3d40'; for (let x = 2; x < w; x += 8) g.fillRect(x, h * 0.28, 4, h * 0.44); }, {repeat: [18, 1]});
+
+/* экземпляр крепежа: p — точка опорной поверхности, dir — ось наружу; spin — поворот вокруг своей оси */
+function FST(key, p, dir, {spin = Math.random() * TAU} = {}) {
+  const f = FS[key]; if (!f) throw new Error('нет крепежа ' + key);
+  const outer = new THREE.Group(), inner = new THREE.Group(); inner.rotation.y = spin; outer.add(inner);
+  for (const it of fastParts(key, 0, -1)) {
+    const m = fMat(it.m, {side: it.side, mark: it.mark, mirror: true, res: LOD[0].tex});
+    if (it.slots) { m.map = TX.slots; m.color.set(0xffffff); }
+    const me = new THREE.Mesh(it.g, m); me.userData.noShadow = true; me.userData.fastRoot = outer; me.castShadow = false; me.receiveShadow = true; inner.add(me);
+  }
+  outer.scale.setScalar(MM); alignY(outer, dir); outer.position.copy(p);
+  outer.userData.fast = key;
+  return outer;
+}
+/* группа одинакового крепежа: [[p, dir], ...] */
+const FSTS = (key, list) => group(...list.map(([p, d, o]) => FST(key, p, d, o)));
+
+/* ================== СПРАВОЧНИК КРЕПЕЖА ==================
+   g — размеры для 3D (мм); info — строки карточки [что, значение, источник].
+   Источник: vw — руководство VW по ремонту Tiguan 2.0 TDI CR; field — фото деталей и опыт
+   демонтажа на двигателях того же семейства EA189 CR (CJAA/CBEA); cat — каталог, набор прокладок;
+   model — условно: типовое значение, нужно подтвердить по номеру N… в ETKA. */
+const FSTAT = {vw: ['руководство VW', 'vw', 'VW'], field: ['фото, практика EA189 CR', 'cat', 'практика'], cat: ['каталог, набор', 'cat', 'каталог'], model: ['условно', 'model', 'условно'], iso: ['стандарт ISO', 'vw', 'ISO']};
+const M6 = {d: 6, P: 1, s: 10, k: 6, dc: 13.5}, M8 = {d: 8, P: 1.25, s: 13, k: 8, dc: 17};
+const FS = {
+  /* ---------- турбина, коллектор ---------- */
+  mani_nut: {t: 'Гайка турбины (коллектора) к ГБЦ', kind: 'lockNut', g: {d: 8, P: 1.25, s: 12, m: 9, dc: 16, coat: 'copper', mark: '8', stick: 5},
+    info: [['Резьба', 'M8×1,25, на шпильке ГБЦ', 'model'], ['Под ключ', '12 мм', 'field'], ['Тип', 'самоконтрящаяся с фланцем', 'vw'], ['Покрытие', 'омеднённая, жаростойкая', 'cat'],
+      ['Количество', '10: восемь держат фланец, две — ещё и теплозащитный экран', 'field'], ['Момент', '24 Н·м', 'vw'], ['Повторно', 'нельзя, только новые', 'vw'], ['Маркировка', 'класс «8» и знак изготовителя', 'model']],
+    note: 'Прокладка коллектора — только новая. Турбину снимают вниз вместе с коллектором, повернув впуском вниз.'},
+  mani_stud: {t: 'Шпилька ГБЦ под выпускной коллектор', kind: 'stud', g: {d: 8, P: 1.25, below: 26, above: 14},
+    info: [['Резьба', 'M8×1,25', 'model'], ['Где', 'ввёрнута в ГБЦ, коллектор надевается на шпильки', 'field'], ['Замена', 'только при повреждённой резьбе', 'model']]},
+  egr_mani_nut: {t: 'Гайка трубки EGR на коллекторе', kind: 'lockNut', g: {d: 8, P: 1.25, s: 12, m: 9, dc: 16, coat: 'copper', mark: '8', stick: 4},
+    info: [['Резьба', 'M8×1,25', 'model'], ['Под ключ', '12 мм', 'field'], ['Тип', 'самоконтрящаяся', 'vw'], ['Количество', '2', 'field'], ['Момент', '17 Н·м', 'vw'], ['Повторно', 'нельзя; прокладку тоже новую', 'vw']],
+    note: 'Трубка с развязывающим сильфоном: сильфон не гнуть — треснет.'},
+  oil_union: {t: 'Накидная гайка маслоподвода', kind: 'union', g: {d: 14, P: 1.5, s: 17, m: 11, tube: 8},
+    info: [['Резьба', 'M14×1,5', 'model'], ['Под ключ', '17 мм', 'field'], ['Момент', '22 Н·м', 'vw'], ['Перед сборкой', 'залить моторное масло в штуцер турбины', 'vw'], ['Трубку', 'проверить на проходимость, заломленную не ставить', 'vw']],
+    note: 'После установки турбины мотор около минуты работает на холостых, сразу не газовать.'},
+  banjo40: {t: 'Полый болт маслоподвода, 40 Н·м', kind: 'banjo', g: {d: 14, P: 1.5, s: 19, k: 9, len: 30, mark: '8.8'},
+    info: [['Резьба', 'M14×1,5', 'model'], ['Под ключ', '19 мм', 'model'], ['Уплотнение', 'уплотнительные кольца разного диаметра', 'vw'], ['Момент', '40 Н·м', 'vw'], ['Кольца', 'только новые', 'vw']]},
+  banjo30: {t: 'Полый болт маслоподвода, 30 Н·м', kind: 'banjo', g: {d: 12, P: 1.5, s: 17, k: 8, len: 26, mark: '8.8'},
+    info: [['Резьба', 'M12×1,5', 'model'], ['Под ключ', '17 мм', 'model'], ['Уплотнение', 'уплотнительные кольца', 'vw'], ['Момент', '30 Н·м', 'vw'], ['Кольца', 'только новые', 'vw']]},
+  sup_bolt: {t: 'Болт опоры турбины', kind: 'hexFlange', g: {...M6, len: 25, b: 16, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Под ключ', '10 мм', 'model'], ['Момент', '9 Н·м', 'vw'],
+      ['Уточнить', 'в перечне рядом с опорой и G235 есть позиция 20 Н·м без подписи — какой болт какой, по рисунку ELSA', 'vw']]},
+  puls_bolt: {t: 'Болт гасителя пульсаций', kind: 'socket', g: {d: 6, P: 1, dk: 10, k: 5, len: 20, b: 16, drive: ['torx', 'T30'], flange: 12.5, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Шлиц', 'Torx T30', 'field'], ['Количество', '2', 'field'], ['Момент', '9 Н·м', 'vw'], ['Там же', 'стопорное кольцо встаёт в одном положении, O-ring — новый', 'vw']]},
+  stub_screw: {t: 'Невыпадающий винт впускного патрубка', kind: 'socket', g: {d: 6, P: 1, dk: 10, k: 5, len: 24, b: 12, drive: ['torx', 'T30'], flange: 12.5, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Шлиц', 'Torx T30', 'field'], ['Количество', 'один; после него патрубок поворачивают назад и снимают', 'field'], ['Момент', '9 Н·м', 'vw'], ['Особенность', 'винт не выпадает из патрубка', 'vw'], ['O-ring патрубка', 'новый', 'vw']]},
+  drain_bolt: {t: 'Болт фланца маслослива', kind: 'hexFlange', g: {...M6, len: 18, b: 14, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Под ключ', '10 мм', 'field'], ['Количество', '2, фланец на прокладке', 'field'], ['Прокладка', 'новая', 'vw'],
+      ['Момент', 'в перечне VW рядом с маслосливом — 24 Н·м; к какому болту, сверить по рисунку ELSA (на CJAA эти болты — 15 Н·м)', 'model']]},
+  wire_bolt: {t: 'Болт держателя проводов', kind: 'hexFlange', g: {...M8, len: 16, b: 12, mark: '8.8'},
+    info: [['Резьба', 'M8×1,25', 'model'], ['Момент', '15 Н·м', 'vw'], ['Держит', 'провода G235 и G581 подальше от горячего корпуса', 'model']]},
+  g235: {t: 'Датчик температуры ОГ 1 G235', kind: 'sensor', g: {d: 14, P: 1.5, s: 17},
+    info: [['Резьба', 'M14×1,5', 'model'], ['Под ключ', '17 мм, головка из набора T10395', 'vw'], ['Момент', '45 Н·м', 'vw'], ['Резьбу', 'смазать высокотемпературной пастой', 'vw'],
+      ['Доступ', 'снизу', 'vw'], ['Положение', 'изогнутый щуп — 3…5 мм до болта опоры турбины', 'vw'], ['Разъём', 'двухконтактный', 'field']]},
+  act_bolt: {t: 'Болт кронштейна вакуумной камеры', kind: 'hexFlange', g: {...M6, len: 12, b: 10, mark: '8.8', coat: 'black'},
+    info: [['Резьба', 'M6×1', 'model'], ['Под ключ', '10 мм', 'model'], ['Количество', '3', 'field'], ['Момент', 'VW не даёт: камера отдельно не меняется, турбина — в сборе с коллектором и камерой', 'vw']]},
+  rod_nut: {t: 'Гайка штока актуатора', kind: 'nut', g: {d: 6, P: 1, s: 10, m: 5, mark: ''},
+    info: [['Резьба', 'M6×1', 'model'], ['Под ключ', '10 мм', 'field'], ['Количество', '2: верхняя задаёт длину штока, нижняя держит шток на рычаге', 'field'], ['Фиксация', 'клей-фиксатор резьбы', 'field'],
+      ['Не трогать', 'верхнюю гайку — это заводская длина штока', 'field'], ['После замены турбины', 'базовая установка тестером', 'vw']]},
+  rod_clip: {t: 'Стопорная скоба штока', kind: 'clip', g: {d: 6},
+    info: [['Тип', 'C-образная скоба на штоке у рычага VNT', 'field'], ['Снимать', 'тонкогубцами или отвёрткой', 'field']]},
+  comp_bolt: {t: 'Болт прижимной пластины корпуса компрессора', kind: 'hexFlange', g: {...M6, len: 16, b: 12, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Назначение', 'прижимает корпус компрессора к картриджу; корпус можно повернуть при сборке турбины', 'field'], ['Момент', 'VW не даёт: турбина меняется только в сборе', 'vw']]},
+  vband: {t: 'Хомут фланца турбины к сажевому фильтру', kind: 'vband', g: {D: 72},
+    info: [['Тип', 'V-образный хомут со стяжным болтом', 'field'], ['Гайка', 'M6, под ключ 10 мм', 'model'], ['Момент', 'по ELSA, раздел очистки ОГ (не загружен); на CJAA — около 7 Н·м', 'field']]},
+  /* ---------- вакуум ---------- */
+  vp_bolt: {t: 'Болт вакуумного насоса', kind: 'hexFlange', g: {...M6, len: 30, b: 16, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Количество', '3 по модели', 'model'], ['Момент', 'по ELSA, раздел насоса не загружен', 'model']]},
+  n75_bolt: {t: 'Болт кронштейна N75', kind: 'hexFlange', g: {...M6, len: 16, b: 12, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', 'по ELSA', 'model']]},
+  n345_bolt: {t: 'Болт держателя N345', kind: 'hexFlange', g: {...M6, len: 16, b: 12, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '9 Н·м', 'vw'], ['Клапан', 'вставлен в держатель на защёлке', 'vw']]},
+  /* ---------- фильтр, G70 ---------- */
+  ab_top: {t: 'Винт крышки воздушного фильтра', kind: 'plastic', g: {d: 5, P: 0.8, dk: 9, k: 3.5, len: 18, drive: ['torx', 'T25']},
+    info: [['Резьба', 'M5', 'model'], ['Шлиц', 'Torx T25', 'model'], ['Момент', '1,5 Н·м', 'vw']]},
+  ab_bot: {t: 'Болт корпуса воздушного фильтра', kind: 'hexFlange', g: {...M6, len: 25, b: 16, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '8 Н·м', 'vw'], ['С ним', 'втулка и шайба', 'vw']]},
+  maf_screw: {t: 'Винт расходомера G70', kind: 'plastic', g: {d: 5, P: 0.8, dk: 8, k: 3.2, len: 16, drive: ['torx', 'T20']},
+    info: [['Резьба', 'M5', 'model'], ['Количество', '2', 'vw'], ['Момент', '1,5 Н·м', 'vw'], ['O-ring G70', 'новый, на смазке без силикона', 'vw']]},
+  spring_duct: {t: 'Пружинный хомут патрубка к турбине', kind: 'spring', g: {D: 56, w: 12},
+    info: [['Тип', 'пружинный, Federbandschelle', 'vw'], ['Инструмент', 'клещи для пружинных хомутов', 'model'], ['Момент', 'нет, держит пружина', 'vw']]},
+  /* ---------- тракт наддува ---------- */
+  clamp13: {t: 'Винтовой хомут, лента 13 мм', kind: 'worm', g: {D: 44, w: 13},
+    info: [['Лента', '13 мм', 'vw'], ['Где', 'в модели — горячая сторона; какой хомут где, по рисунку ELSA', 'model'], ['Момент', '5,5 Н·м', 'vw'], ['Винт', 'шестигранник 7 мм со шлицем', 'model'], ['Внимание', 'и недотяг, и перетяг — патрубок соскочит с рифлёного штуцера', 'vw'],
+      ['Старый хомут', 'червяк смочить растворителем ржавчины', 'vw'], ['Замена', 'только хомут серийного образца', 'vw']]},
+  clamp9: {t: 'Винтовой хомут, лента 9 мм', kind: 'worm', g: {D: 44, w: 9},
+    info: [['Лента', '9 мм', 'vw'], ['Где', 'в модели — холодная сторона; какой хомут где, по рисунку ELSA', 'model'], ['Момент', '3 Н·м', 'vw'], ['Винт', 'шестигранник 7 мм со шлицем', 'model'], ['Замена', 'только хомут серийного образца', 'vw']]},
+  pipe_bolt: {t: 'Болт крепления левой трубы', kind: 'hexFlange', g: {...M6, len: 30, b: 16, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '9 Н·м', 'vw'], ['С ним', 'втулка и резиновая тюлька, тюльку менять при повреждении', 'vw']]},
+  ic_bolt: {t: 'Болт интеркулера', kind: 'hexFlange', g: {...M6, len: 20, b: 14, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '5 Н·м', 'vw'], ['Уплотнения патрубков', 'новые', 'vw']]},
+  g31_screw: {t: 'Винт датчика G31/G42', kind: 'plastic', g: {d: 5, P: 0.8, dk: 8.5, k: 3.4, len: 14, drive: ['torx', 'T25']},
+    info: [['Резьба', 'M5', 'model'], ['Момент', '5 Н·м', 'vw'], ['O-ring датчика', 'новый', 'vw'], ['Доступ', 'снизу', 'vw']]},
+  thr_bolt: {t: 'Болт заслонки J338', kind: 'hexFlange', g: {...M6, len: 30, b: 16, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '8 и 9 Н·м: два вида болтов, какой где — по рисунку ELSA', 'vw'], ['O-ring заслонки', 'новый', 'vw']]},
+  thr_sup_bolt: {t: 'Болт опоры заслонки', kind: 'hexFlange', g: {...M8, len: 20, b: 14, mark: '8.8'},
+    info: [['Резьба', 'M8×1,25', 'model'], ['Опора', 'между J338 и блоком, снимается вместе с коллектором', 'vw'], ['Момент', 'по ELSA', 'model']]},
+  im_bolt: {t: 'Болт впускного коллектора', kind: 'socket', g: {d: 6, P: 1, dk: 10.5, k: 6, len: 45, b: 20, drive: ['torx', 'T30'], flange: 13, mark: '10.9'},
+    info: [['Резьба', 'M6×1', 'model'], ['Шлиц', 'Torx T30, головка T10405', 'vw'], ['Порядок', 'отворачивать снаружи внутрь, затягивать изнутри наружу крест-накрест', 'vw'],
+      ['Момент', 'в перечне коллектора 20 Н·м стоит у прокладки — вероятно, это болты коллектора; сверить по ELSA', 'model'], ['Прокладки', 'новые', 'vw']]},
+  im_egr_bolt: {t: 'Болт патрубка EGR на коллекторе', kind: 'hexFlange', g: {...M6, len: 20, b: 14, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', '8 Н·м', 'vw'], ['Уплотнительное кольцо', 'новое', 'vw']]},
+  /* ---------- EGR ---------- */
+  egr_clamp: {t: 'Хомут соединительной трубки EGR', kind: 'worm', g: {D: 28, w: 9},
+    info: [['Момент', '5 Н·м', 'vw'], ['Повторно', 'нельзя, только новый', 'vw']]},
+  egr_pipe_bolt: {t: 'Болт фланца трубки EGR', kind: 'socket', g: {d: 6, P: 1, dk: 10, k: 5.5, len: 22, b: 14, drive: ['xzn', 8], flange: 13, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Шлиц', '12-гранный XZN M8 («triple square»)', 'field'], ['Момент', '9 Н·м', 'vw'], ['Прокладки', 'новые', 'vw']]},
+  egr_cooler_bolt: {t: 'Болт модуля охладителя EGR', kind: 'hexFlange', g: {...M8, len: 30, b: 18, mark: '8.8'},
+    info: [['Резьба', 'M8×1,25', 'model'], ['Момент', '9 или 24 Н·м — какой болт какой, по рисунку ELSA', 'vw']]},
+  /* ---------- ЭБУ ---------- */
+  ecu_bolt: {t: 'Болт держателя ЭБУ', kind: 'hexFlange', g: {...M6, len: 16, b: 12, mark: '8.8'},
+    info: [['Резьба', 'M6×1', 'model'], ['Момент', 'болты ЭБУ — 7 Н·м, гайки держателя — 6 Н·м', 'vw']]},
+};
+/* значение строки карточки по подписи и краткая строка для подсказок */
+const fsRow = (F, label) => (F.info.find(r => r[0] === label) || [])[1];
+function fastBrief(F) {
+  const thr = fsRow(F, 'Резьба'), key = fsRow(F, 'Под ключ') || fsRow(F, 'Шлиц'), tq = fsRow(F, 'Момент');
+  return [thr && thr.split(', ')[0].split(' (')[0], key && key.split(', ')[0], tq && tq.length < 16 ? tq : null].filter(Boolean).join(' · ');
+}
+
 /* ================== КОМПОНОВКА (дм; X — вдоль коленвала, +X — сторона ГРМ; +Z — вперёд к радиатору) ================== */
 const L = {
   cyl: [-1.32, -0.44, 0.44, 1.32],
-  deck: 2.3, headTop: 3.3, exhZ: -1.52, intZ: 1.52, portY: 2.86,
-  tAx: {y: 2.25, z: -2.85},
-  tx: {inlet: -1.98, compWheel: -1.36, compBack: -1.13, chra0: -1.1, chra1: -0.64, lever: -0.6, ring: -0.5, turbWheel: -0.3, out: 0.28},
+  deck: 2.3, headTop: 3.6, exhZ: -1.52, intZ: 1.52, portY: 2.86, up: 0.3,
+  tAx: {y: 3.45, z: -2.85},   // ось турбины выше выпускных окон (фото турбины на коллекторе)
+  tx: {inlet: -1.56, compWheel: -1.24, compBack: -1.02, chra0: -1.02, chra1: -0.56, lever: -0.86, ring: -0.5, turbWheel: -0.3, out: 0.05},
 };
 const TA = (x) => V3(x, L.tAx.y, L.tAx.z);
 
@@ -877,7 +1299,7 @@ function roundedRectShape(w, h, r) {
 /* ---------------- Двигатель: блок, ГБЦ, крышка, поддон ---------------- */
 {
   const a = new Asm('engine', 'engine');
-  a.anchor.set(0.2, 4.1, -0.2);
+  a.anchor.set(0.2, 4.55, -0.2);
   const block = group(mesh(extrudeZY([[-1.22, -0.62], [1.22, -0.62], [1.5, 0.35], [1.5, L.deck], [-1.5, L.deck], [-1.5, 0.35]], -2.25, 2.25, 0.05), 'block'));
   for (const x of [-1.76, -0.88, 0, 0.88, 1.76]) { // рёбра жёсткости
     block.add(mesh(rbox(0.1, 1.55, 0.08, 0.03), 'block', V3(x, 1.1, 1.54)));
@@ -889,11 +1311,11 @@ function roundedRectShape(w, h, r) {
   const head = group(mesh(extrudeZY([[-1.5, L.deck + 0.04], [1.5, L.deck + 0.04], [1.56, L.headTop], [-1.56, L.headTop]], -2.3, 2.3, 0.05), 'alu'));
   for (const x of L.cyl) head.add(mesh(rbox(0.5, 0.36, 0.08, 0.04), 'alu', V3(x, L.portY, L.exhZ - 0.02))); // фланцы выпускных окон
   a.part('head', head, [0, 0.9, 0]);
-  const cover = group(mesh(rbox(4.35, 0.52, 2.15, 0.16, 4), 'plastic', V3(0, 3.56, -0.36)));
-  for (let i = -3; i <= 3; i++) cover.add(mesh(rbox(0.06, 0.07, 1.7, 0.02), 'plastic', V3(i * 0.55, 3.84, -0.36)));
-  cover.add(mesh(cylY(0.17, 0.12, 24), 'plasticGrey', V3(1.35, 3.88, 0.15)));
-  const pcv = mesh(rbox(1.25, 0.22, 0.52, 0.08), 'plasticGrey', V3(-0.75, 3.93, -0.95)); cover.add(pcv);
-  const pcvNip = mesh(cylX(0.07, 0.3, 16), 'plasticGrey', V3(-1.5, 3.93, -1.05)); cover.add(pcvNip);
+  const cover = group(mesh(rbox(4.35, 0.62, 2.15, 0.16, 4), 'plastic', V3(0, 3.9, -0.36)));
+  for (let i = -3; i <= 3; i++) cover.add(mesh(rbox(0.06, 0.07, 1.7, 0.02), 'plastic', V3(i * 0.55, 4.23, -0.36)));
+  cover.add(mesh(cylY(0.17, 0.12, 24), 'plasticGrey', V3(1.35, 4.27, 0.15)));
+  const pcv = mesh(rbox(1.25, 0.22, 0.52, 0.08), 'plasticGrey', V3(-0.75, 4.32, -0.95)); cover.add(pcv);
+  const pcvNip = mesh(cylX(0.07, 0.3, 16), 'plasticGrey', V3(-1.5, 4.32, -1.05)); cover.add(pcvNip);
   a.part('cover', cover, [0, 1.8, 0]);
   const pan = group(mesh(rbox(4.05, 1.3, 2.46, 0.16, 4), 'alu', V3(0, -1.32, 0)));
   pan.add(mesh(hexGeo(0.09, 0.08), 'steel', V3(0.9, -2.0, 0.4)));
@@ -909,7 +1331,7 @@ function roundedRectShape(w, h, r) {
   a.anchor.set(2.5, 3.2, 0.6);
   const up = new THREE.ExtrudeGeometry(roundedRectShape(2.6, 1.9, 0.5), {depth: 0.24, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04, bevelSegments: 2});
   up.rotateY(Math.PI / 2);
-  a.part('beltcover_up', mesh(up, 'plastic', V3(2.28, 2.55, 0)), [0.9, 0.4, 0]);
+  a.part('beltcover_up', mesh(up, 'plastic', V3(2.28, 2.75, 0)), [0.9, 0.4, 0]);
   const lo = new THREE.ExtrudeGeometry(roundedRectShape(2.2, 1.9, 0.6), {depth: 0.22, bevelEnabled: true, bevelSize: 0.04, bevelThickness: 0.04, bevelSegments: 2});
   lo.rotateY(Math.PI / 2);
   a.part('beltcover_lo', mesh(lo, 'plastic', V3(2.28, 0.55, 0)), [0.9, -0.3, 0]);
@@ -939,262 +1361,353 @@ function roundedRectShape(w, h, r) {
 /* ---------------- Common Rail (для контекста) ---------------- */
 {
   const a = new Asm('rail', 'engine');
-  a.anchor.set(0, 3.9, 1.45);
-  a.part('rail', group(mesh(cylX(0.12, 3.9, 24), 'steel', V3(0, 3.55, 1.48)), ...[-1.95, 1.95].map(x => mesh(cylX(0.14, 0.08, 24), 'steel', V3(x, 3.55, 1.48)))), [0, 0.8, 0.6]);
-  a.part('g247', group(mesh(hexGeo(0.1, 0.1), 'steel', V3(2.06, 3.55, 1.48)).rotateZ(Math.PI / 2), mesh(cylX(0.08, 0.2, 16), 'plastic', V3(2.2, 3.55, 1.48))), [0.9, 0.8, 0.6]);
+  a.anchor.set(0, 4.2, 1.45);
+  a.part('rail', group(mesh(cylX(0.12, 3.9, 24), 'steel', V3(0, 3.85, 1.48)), ...[-1.95, 1.95].map(x => mesh(cylX(0.14, 0.08, 24), 'steel', V3(x, 3.85, 1.48)))), [0, 0.8, 0.6]);
+  a.part('g247', group(mesh(hexGeo(0.1, 0.1), 'steel', V3(2.06, 3.85, 1.48)).rotateZ(Math.PI / 2), mesh(cylX(0.08, 0.2, 16), 'plastic', V3(2.2, 3.85, 1.48))), [0.9, 0.8, 0.6]);
   const inj = group();
   for (const x of L.cyl) {
-    inj.add(mesh(cylY(0.085, 0.8, 20), 'steel', V3(x, 3.35, 0.98)));
-    inj.add(mesh(rbox(0.2, 0.2, 0.26, 0.04), 'plastic', V3(x, 3.82, 0.98)));
-    inj.add(mesh(rbox(0.06, 0.08, 0.5, 0.02), 'steelDark', V3(x + 0.14, 3.42, 0.78)));
+    inj.add(mesh(cylY(0.085, 0.8, 20), 'steel', V3(x, 3.65, 0.98)));
+    inj.add(mesh(rbox(0.2, 0.2, 0.26, 0.04), 'plastic', V3(x, 4.12, 0.98)));
+    inj.add(mesh(rbox(0.06, 0.08, 0.5, 0.02), 'steelDark', V3(x + 0.14, 3.72, 0.78)));
   }
   a.part('injectors', inj, [0, 1.3, 0]);
   const hp = group();
-  for (const x of L.cyl) hp.add(mesh(tubeGeo([[x + 0.1, 3.55, 1.38], [x + 0.14, 3.64, 1.2], [x + 0.1, 3.6, 1.05]], 0.025, 12, 8), 'steel'));
+  for (const x of L.cyl) hp.add(mesh(tubeGeo([[x + 0.1, 3.85, 1.38], [x + 0.14, 3.94, 1.2], [x + 0.1, 3.9, 1.05]], 0.025, 12, 8), 'steel'));
   a.part('hplines', hp, [0, 1.05, 0.3]);
 }
 
-/* ================== ТУРБОКОМПРЕССОР VNT (локальные координаты: ось вала = X, начало на оси) ================== */
-const TX0 = L.tx;
-const LEVER_P = V3(TX0.lever, 0.3, -0.45);     // ось рычага VNT
+/* ================== ТУРБОКОМПРЕССОР BV40 (VNT) С ВЫПУСКНЫМ КОЛЛЕКТОРОМ ==================
+   Локальные координаты узла: ось вала = X (компрессор в сторону −X, к коробке), начало на оси.
+   Пропорции — по фото турбины 03L 253 010 J: от фланца турбины до входа компрессора ≈ 161 мм,
+   колёса Ø46 и Ø40 мм, ось турбины выше выпускных окон, вакуумная камера сверху. */
+const LEVER_P = V3(-0.86, 0.28, -0.42);   // ось наружного рычага VNT (валик проходит через картридж)
 const LEVER_LEN = 0.3;
-const CAN_C = V3(TX0.lever, 1.3, -0.78);       // центр вакуумной камеры актуатора
-const VANES = 11, VANE_R = 0.33;
+const CAN_C = V3(-0.86, 0.86, -0.12);     // центр вакуумной камеры (плоскость мембраны)
+const VANES = 10, VANE_R = 0.31;          // 10 лопаток — по фото соплового аппарата BV40
+const TY = L.tAx.y, TZ = L.tAx.z;
+const loc = (x, y, z) => V3(x, y - TY, z - TZ);   // точка модели → локальная точка узла турбины
+const EXH = {                              // шпильки выпускного фланца (мм по фото фланца → дм)
+  pads: [[1.32, [[0.28, 0.27], [-0.3, -0.32]]], [0.44, [[-0.28, 0.28], [0.19, -0.33]]], [-0.44, [[-0.28, 0.28], [0.05, -0.33]]], [-1.32, [[0.21, 0.33], [-0.35, -0.33]]]],
+  egr: {x: -2.02, y: -0.05, studs: [[-0.3, 0.09], [0.1, -0.29]]},
+  face: L.exhZ, back: L.exhZ - 0.136,
+};
+EXH.studs = [...EXH.pads.flatMap(([x, st]) => st.map(([dx, dy]) => V3(x + dx, L.portY + dy, 0))), ...EXH.egr.studs.map(([dx, dy]) => V3(EXH.egr.x + dx, L.portY + EXH.egr.y + dy, 0))];
+function obround(w, h) { const s = new THREE.Shape(), r = h / 2, a = w / 2 - r; s.moveTo(-a, -r); s.lineTo(a, -r); s.absarc(a, 0, r, -Math.PI / 2, Math.PI / 2, false); s.lineTo(-a, r); s.absarc(-a, 0, r, Math.PI / 2, Math.PI * 1.5, false); return s; }
+function roundRect(w, h, r) { const s = new THREE.Shape(), x = -w / 2, y = -h / 2; s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0); s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2); s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI); s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5); return s; }
+const holePath = (shape) => new THREE.Path(shape.getPoints(24));
+function circlePath(x, y, r) { const p = new THREE.Path(); p.absarc(x, y, r, 0, TAU, true); return p; }
+/* плоская фигура в плоскости XY, выдавленная по −Z от z0 на depth (для фланцев у ГБЦ) */
+function slabZ(shape, z0, depth, material, cx = 0, cy = 0) {
+  const g = new THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.008, bevelSegments: 1, curveSegments: 16});
+  g.translate(cx, cy, -depth - 0.008); g.translate(0, 0, z0);
+  return mesh(g, material);
+}
 {
   const a = new Asm('turbo', 'boost', TA(0));
-  a.anchor.set(-0.5, 0.95, 0.25);
+  a.anchor.set(-0.55, 1.05, 0.1);
+  a.focus = (e) => ({c: TA(0).add(V3(-0.55, -0.1 + 0.15 * e, 0.15)), r: 1.35 + 0.9 * e});
 
-  /* --- корпус компрессора (холодная улитка) --- */
+  /* --- корпус компрессора: алюминий; три прилива у входа (винт + байонет), улитка, выход назад-вниз --- */
   const ch = new THREE.Group();
-  ch.add(mesh(latheX([[-1.99, 0.2], [-1.99, 0.265], [-1.94, 0.265], [-1.93, 0.24], [-1.72, 0.245], [-1.6, 0.28], [-1.5, 0.33], [-1.42, 0.42], [-1.34, 0.5], [-1.27, 0.56], [-1.22, 0.6]], 56), 'alu'));
-  ch.add(mesh(latheX([[-1.93, 0.2], [-1.7, 0.2], [-1.62, 0.185], [-1.5, 0.2], [-1.36, 0.245], [-1.26, 0.265]], 56), 'aluBright'));
-  const cv = voluteGeo({R0: 0.3, r0: 0.07, r1: 0.19, x0: -1.24, th0: -Math.PI / 2 + 0.9 * TAU, dir: -1});
+  ch.add(mesh(latheX([[-1.56, 0.18], [-1.56, 0.252], [-1.53, 0.262], [-1.46, 0.266], [-1.38, 0.29], [-1.3, 0.34], [-1.22, 0.4], [-1.14, 0.43], [-1.06, 0.45], [-1.03, 0.49], [-1.005, 0.49], [-1.005, 0.3]], 64), 'alu'));
+  ch.add(mesh(latheX([[-1.56, 0.18], [-1.4, 0.178], [-1.37, 0.176], [-1.25, 0.19], [-1.15, 0.222], [-1.1, 0.238], [-1.09, 0.33]], 64), 'aluBright'));
+  W.anim.compVol = {R0: 0.33, r0: 0.045, r1: 0.12, x0: -1.13, th0: -Math.PI / 2 + 0.9 * TAU, dir: -1, span: 0.9 * TAU};
+  const cv = voluteGeo(W.anim.compVol);
   ch.add(mesh(cv.geo, 'alu'));
   const cOut = cv.end.clone(), cDir = cv.tan.clone();
-  const cOutEnd = cOut.clone().addScaledVector(cDir, 0.42);
-  ch.add(mesh(tubeGeo([cOut, cOut.clone().addScaledVector(cDir, 0.2), cOutEnd], 0.165, 12, 24), 'alu'));
-  ch.add(mesh(new THREE.TorusGeometry(0.17, 0.018, 10, 32).rotateX(Math.PI / 2), 'alu', cOutEnd.clone().addScaledVector(cDir, -0.05)));
-  ch.add(mesh(rbox(0.22, 0.34, 0.06, 0.02), 'alu', V3(-1.1, 0.58, -0.48), [0.5, 0, 0])); // прилив кронштейна актуатора
-  a.part('comp_housing', cuttable(ch), [-1.5, 0, 0]);
-  W.anim.compOut = {p: cOutEnd, d: cDir};
+  const cFl = cOut.clone().addScaledVector(cDir, 0.16);
+  ch.add(mesh(tubeGeo([cOut, cOut.clone().addScaledVector(cDir, 0.08), cFl], 0.118, 10, 24), 'alu'));
+  const flange = mesh(cylY(0.15, 0.04, 36), 'alu'); alignY(flange, cDir); flange.position.copy(cFl).addScaledVector(cDir, -0.02); ch.add(flange);
+  for (const s of [-1, 1]) ch.add(mesh(rbox(0.1, 0.05, 0.09, 0.02), 'alu', cFl.clone().add(V3(s * 0.19, 0.02, 0))));
+  const ears = [0, TAU / 3, -TAU / 3];     // вверху — прилив под винт, два других — байонет
+  ears.forEach((t, i) => ch.add(mesh(rbox(0.07, 0.12, 0.11, 0.025), 'alu', V3(-1.525, 0.3 * Math.cos(t), 0.3 * Math.sin(t)), [t, 0, 0])));
+  /* этикетка с номером (по фото — белая наклейка на корпусе компрессора) */
+  { const t = -Math.PI / 2 - 0.55, r = 0.3, lbl = mesh(new THREE.PlaneGeometry(0.2, 0.085), new THREE.MeshStandardMaterial({map: labelTex(['03L 253 010 J', 'BV40 · 5440 988 0035'], {bar: true}), roughness: .6}));
+    lbl.position.set(-1.39, (r + 0.012) * Math.cos(t), (r + 0.012) * Math.sin(t)); lbl.lookAt(lbl.position.clone().add(V3(0.35, Math.cos(t), Math.sin(t)))); ch.add(lbl); }
+  for (const [bx, bz] of [[CAN_C.x - 0.33, CAN_C.z - 0.19], [CAN_C.x - 0.33, CAN_C.z + 0.15], [CAN_C.x - 0.2, CAN_C.z + 0.19]]) ch.add(mesh(cylY(0.05, 0.2, 16), 'alu', V3(bx, CAN_C.y - 0.33, bz)));
+  a.part('comp_housing', cuttable(ch), [-0.75, 0, 0]);
+  W.anim.compOut = {p: cFl, d: cDir};
+  a.part('f_comp', FSTS('comp_bolt', [0.8, 2.35, 3.95, 5.5].map(t => [V3(-1.03, 0.47 * Math.cos(t), 0.47 * Math.sin(t)), V3(-1, 0, 0)])), [-1.0, 0.2, 0]);
 
-  /* --- гаситель пульсаций на выходе компрессора (стопорное кольцо, O-ring, винт 9 Н·м) --- */
+  /* --- гаситель пульсаций: стопорное кольцо (одно положение), O-ring, 2 болта Torx T30, 9 Н·м --- */
+  const pdTop = cFl.clone().addScaledVector(cDir, 0.02);
   const pd = new THREE.Group();
-  const pdGeo = new THREE.LatheGeometry([[0.155, -0.56], [0.172, -0.52], [0.16, -0.5], [0.172, -0.47], [0.16, -0.45], [0.172, -0.42], [0.172, -0.4], [0.22, -0.36], [0.235, -0.3], [0.235, -0.1], [0.2, -0.05], [0.172, -0.03], [0.172, 0.02]].map(([r, y]) => new THREE.Vector2(r, y)), 40);
-  pd.add(mesh(pdGeo, 'alu', cOutEnd.clone()));
-  pd.add(mesh(new THREE.TorusGeometry(0.178, 0.012, 8, 36).rotateX(Math.PI / 2), 'steel', cOutEnd.clone().add(V3(0, -0.01, 0))));
-  pd.add(mesh(rbox(0.1, 0.05, 0.12, 0.02), 'alu', cOutEnd.clone().add(V3(0.22, -0.06, 0))));
+  const pdGeo = new THREE.LatheGeometry([[0.1, -0.5], [0.112, -0.47], [0.1, -0.45], [0.112, -0.42], [0.1, -0.4], [0.112, -0.37], [0.112, -0.34], [0.14, -0.31], [0.15, -0.26], [0.15, -0.08], [0.13, -0.04], [0.14, -0.02], [0.14, 0.0], [0.1, 0.0]].map(([r, y]) => new THREE.Vector2(r, y)), 40);
+  pd.add(mesh(pdGeo, 'alu', pdTop.clone()));
+  pd.add(mesh(rbox(0.52, 0.03, 0.12, 0.02), 'alu', pdTop.clone().add(V3(0, -0.015, 0))));
   pd.children[0].material.side = THREE.DoubleSide;
-  a.part('puls', pd, [0, -0.7, -0.25]);
-  a.part('puls_oring', at(oringObj(0.166, 0.014), cOutEnd.x, cOutEnd.y + 0.01, cOutEnd.z), [0.25, -0.45, -0.25]);
-  a.part('f_puls', fastenerObj('bolt', cOutEnd.clone().add(V3(0.22, -0.03, 0)), V3(0, 1, 0)), [0.35, -0.3, -0.25]);
-  W.anim.pulsEnd = cOutEnd.clone().add(V3(0, -0.56, 0));
+  a.part('puls', pd, [-0.1, -0.6, -0.2]);
+  a.part('puls_ring', at(mesh(new THREE.TorusGeometry(0.146, 0.009, 8, 40, TAU * 0.92).rotateX(Math.PI / 2), 'steel'), pdTop.x, pdTop.y - 0.035, pdTop.z), [0.05, -0.42, -0.35]);
+  a.part('puls_oring', at(oringObj(0.128, 0.011), pdTop.x, pdTop.y + 0.004, pdTop.z), [0.12, -0.3, -0.2]);
+  a.part('f_puls', FSTS('puls_bolt', [-1, 1].map(s => [pdTop.clone().add(V3(s * 0.19, -0.03, 0)), V3(0, -1, 0)])), [0.05, -0.85, -0.4]);
+  W.anim.pulsEnd = pdTop.clone().add(V3(0, -0.5, 0));
 
-  /* --- впускной патрубок турбины (Ansaugstutzen): вставляется в корпус компрессора через O-ring, 2 винта 9 Н·м --- */
+  /* --- впускной патрубок (Ansaugstutzen): вставлен в корпус через O-ring, один невыпадающий винт T30, 9 Н·м;
+         после винта патрубок поворачивают назад — байонет — и снимают --- */
   const st = new THREE.Group();
-  st.add(mesh(latheX([[-2.36, 0.24], [-2.34, 0.255], [-2.3, 0.245], [-2.27, 0.255], [-2.23, 0.245], [-2.02, 0.25], [-2.02, 0.33], [-1.99, 0.33], [-1.99, 0.21], [-1.9, 0.2]], 48), 'plasticGrey'));
+  const stubPath = curveOf([[-1.52, 0, 0], [-1.72, 0, 0], [-1.9, 0.03, 0.08], [-2.02, 0.07, 0.24], [-2.08, 0.1, 0.4]]);
+  st.add(mesh(varTubeGeo(stubPath, t => t < 0.12 ? 0.172 : 0.205 + bellow(t, 0.86, 1, 3, 0.01), 60, 28), 'plasticGrey'));
   st.children[0].material.side = THREE.DoubleSide;
-  st.add(mesh(rbox(0.04, 0.16, 0.1, 0.02), 'plasticGrey', V3(-2.0, 0.36, 0.0)), mesh(rbox(0.04, 0.16, 0.1, 0.02), 'plasticGrey', V3(-2.0, -0.36, 0.0)));
-  a.part('intake_stub', st, [-1.1, 0, 0]);
-  a.part('stub_oring', at(oringObj(0.205, 0.014).rotateZ(Math.PI / 2), -1.95, 0, 0), [-0.75, 0.3, 0]);
-  a.part('f_stub', group(fastenerObj('screw', V3(-2.03, 0.4, 0), V3(-1, 0, 0)), fastenerObj('screw', V3(-2.03, -0.4, 0), V3(-1, 0, 0))), [-1.35, 0.25, 0]);
+  st.add(mesh(latheX([[-1.585, 0.2], [-1.585, 0.25], [-1.57, 0.255], [-1.57, 0.2]], 48), 'plasticGrey'));
+  ears.forEach((t, i) => st.add(mesh(rbox(0.05, 0.1, 0.12, 0.02), 'plasticGrey', V3(-1.61, 0.3 * Math.cos(t), 0.3 * Math.sin(t)), [t, 0, 0])));
+  a.part('intake_stub', st, [-1.25, 0.05, 0.05]);
+  a.part('stub_oring', at(oringObj(0.176, 0.012).rotateZ(Math.PI / 2), -1.54, 0, 0), [-0.95, 0.25, 0]);
+  a.part('f_stub', FSTS('stub_screw', [[V3(-1.64, 0.3, 0), V3(-1, 0, 0)]]), [-1.5, 0.3, 0]);
   W.anim.stubPart = a.partObj('intake_stub'); W.anim.stubScrews = a.partObj('f_stub');
+  W.anim.stubEnd = stubPath.getPointAt(1); W.anim.stubDir = stubPath.getTangentAt(1); W.anim.stubCurve = stubPath;
 
-  /* --- колесо компрессора --- */
+  /* --- колесо компрессора Ø46 / 34,4 мм, 6 + 6 лопаток, гайка на валу --- */
   const cw = wheelObj({
-    hubProfile: [[-1.66, 0.0], [-1.66, 0.03], [-1.6, 0.058], [-1.46, 0.085], [-1.33, 0.145], [-1.25, 0.205], [-1.2, 0.23], [-1.17, 0.23], [-1.16, 0.03]],
-    hub: m => [-1.6 + 0.4 * Math.sin(m * Math.PI / 2), 0.06 + 0.17 * (1 - Math.cos(m * Math.PI / 2))],
-    shr: m => [-1.63 + 0.37 * Math.sin(m * Math.PI / 2), 0.172 + 0.058 * (1 - Math.cos(m * Math.PI / 2))],
-    n: 6, splitters: true, twist: 1.0, thick: 0.01, material: 'aluBright',
+    hubProfile: [[-1.4, 0.0], [-1.4, 0.028], [-1.36, 0.052], [-1.28, 0.075], [-1.19, 0.13], [-1.13, 0.2], [-1.1, 0.23], [-1.085, 0.23], [-1.08, 0.03], [-1.08, 0]],
+    hub: m => [-1.36 + 0.26 * Math.sin(m * Math.PI / 2), 0.055 + 0.17 * (1 - Math.cos(m * Math.PI / 2))],
+    shr: m => [-1.38 + 0.28 * Math.sin(m * Math.PI / 2), 0.172 + 0.058 * (1 - Math.cos(m * Math.PI / 2))],
+    n: 6, splitters: true, twist: -0.9, thick: 0.008, material: 'aluBright',
   });
-  cw.add(mesh(hexGeo(0.04, 0.05).rotateZ(Math.PI / 2), 'steel', V3(-1.69, 0, 0)));
-  a.part('comp_wheel', cw, [-0.95, 0, 0]);
+  cw.add(mesh(hexGeo(0.036, 0.04).rotateZ(Math.PI / 2), 'steel', V3(-1.42, 0, 0)));
+  a.part('comp_wheel', cw, [-0.5, 0, 0]);
   W.anim.compWheel = cw;
 
-  /* --- корпус подшипников (картридж) --- */
+  /* --- картридж: корпус подшипников со штуцерами масла и втулкой валика VNT --- */
   const chra = new THREE.Group();
-  chra.add(mesh(latheX([[-1.145, 0.0], [-1.145, 0.52], [-1.1, 0.52], [-1.09, 0.3], [-0.98, 0.26], [-0.76, 0.26], [-0.69, 0.34], [-0.645, 0.5], [-0.58, 0.5], [-0.58, 0.0]], 56), 'iron'));
-  chra.add(mesh(cylY(0.08, 0.2, 18), 'iron', V3(-0.86, 0.34, 0)));
-  chra.add(mesh(rbox(0.26, 0.1, 0.26, 0.03), 'iron', V3(-0.86, -0.3, 0)));
-  a.part('chra', cuttable(chra), [0, 0.12, 0]);
+  chra.add(mesh(latheX([[-1.02, 0.0], [-1.02, 0.49], [-0.995, 0.49], [-0.985, 0.3], [-0.92, 0.27], [-0.66, 0.27], [-0.61, 0.34], [-0.585, 0.5], [-0.56, 0.5], [-0.56, 0.0]], 64), 'iron'));
+  chra.add(mesh(cylY(0.075, 0.1, 24), 'iron', V3(-0.72, 0.3, 0)));
+  chra.add(mesh(rbox(0.26, 0.08, 0.2, 0.02), 'iron', V3(-0.72, -0.31, 0)));
+  chra.add(mesh(cylX(0.055, 0.36, 18), 'iron', V3(-0.78, LEVER_P.y, LEVER_P.z)));
+  a.part('chra', cuttable(chra), [0, 0.6, 0.05]);
 
   /* --- вал ротора --- */
-  const sh = group(mesh(cylX(0.034, 1.3, 16), 'steel', V3(-1.02, 0, 0)), mesh(cylX(0.06, 0.05, 20), 'steel', V3(-1.08, 0, 0)));
-  a.part('shaft', sh, [-0.2, -0.75, 0]);
+  const sh = group(mesh(cylX(0.03, 0.98, 16), 'steel', V3(-0.93, 0, 0)), mesh(cylX(0.05, 0.04, 20), 'steel', V3(-1.0, 0, 0)));
+  a.part('shaft', sh, [0, -0.5, 0]);
   W.anim.shaft = sh;
 
-  /* --- колесо турбины --- */
+  /* --- колесо турбины Ø40 / 35,6 мм, 9 лопаток (приварено к валу) --- */
   const tw = wheelObj({
-    hubProfile: [[-0.49, 0.0], [-0.49, 0.2], [-0.455, 0.2], [-0.39, 0.145], [-0.28, 0.095], [-0.16, 0.065], [-0.09, 0.052], [-0.07, 0.0]],
-    hub: m => [-0.09 - 0.36 * Math.sin(m * Math.PI / 2), 0.055 + 0.145 * (1 - Math.cos(m * Math.PI / 2))],
-    shr: m => [-0.09 - 0.3 * Math.sin(m * Math.PI / 2), 0.178 + 0.022 * (1 - Math.cos(m * Math.PI / 2))],
-    n: 9, splitters: false, twist: 0.7, thick: 0.014, material: 'inconel', wrapPow: 1.6,
+    hubProfile: [[-0.53, 0.0], [-0.53, 0.2], [-0.505, 0.2], [-0.44, 0.15], [-0.34, 0.1], [-0.22, 0.068], [-0.15, 0.056], [-0.13, 0.0]],
+    hub: m => [-0.15 - 0.33 * Math.sin(m * Math.PI / 2), 0.058 + 0.142 * (1 - Math.cos(m * Math.PI / 2))],
+    shr: m => [-0.15 - 0.3 * Math.sin(m * Math.PI / 2), 0.178 + 0.022 * (1 - Math.cos(m * Math.PI / 2))],
+    n: 9, splitters: false, twist: -0.7, thick: 0.012, material: 'inconel', wrapPow: 1.6,
   });
-  a.part('turb_wheel', tw, [0.95, 0, 0]);
+  a.part('turb_wheel', tw, [0.75, 0, 0]);
   W.anim.turbWheel = tw;
 
-  /* --- сопловой аппарат VNT: кольцо с поворотными лопатками --- */
+  /* --- сопловой аппарат VNT: кольцо, 10 поворотных лопаток, рычажки, крышка на 5 распорках --- */
   const noz = new THREE.Group();
-  noz.add(mesh(latheX([[-0.53, 0.25], [-0.53, 0.47], [-0.505, 0.47], [-0.505, 0.25], [-0.53, 0.25]], 64), 'steelDark'));
-  const vShape = new THREE.Shape();
-  const chord = 0.15, th = 0.032, piv = 0.35;
-  const pts = [];
-  for (let i = 0; i <= 16; i++) { const x = i / 16, t = 5 * th * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1015 * x ** 4); pts.push([x * chord - piv * chord, t]); }
-  pts.forEach(([x, y], i) => i ? vShape.lineTo(x, y) : vShape.moveTo(x, y));
-  for (let i = pts.length - 1; i >= 0; i--) vShape.lineTo(pts[i][0], -pts[i][1] * 0.7 - 0.004);
-  const vGeo = new THREE.ExtrudeGeometry(vShape, {depth: 0.068, bevelEnabled: false});
-  vGeo.rotateY(Math.PI / 2); vGeo.rotateX(Math.PI / 2); vGeo.translate(-0.505, 0, 0);
+  noz.add(mesh(latheX([[-0.555, 0.235], [-0.555, 0.42], [-0.527, 0.42], [-0.527, 0.235], [-0.555, 0.235]], 72), 'steelDark'));
+  noz.add(mesh(latheX([[-0.456, 0.24], [-0.456, 0.4], [-0.442, 0.4], [-0.442, 0.24], [-0.456, 0.24]], 72), 'stainless'));
+  for (let i = 0; i < 5; i++) { const t = i / 5 * TAU + 0.3; noz.add(mesh(cylX(0.012, 0.075, 10), 'steel', V3(-0.49, 0.39 * Math.cos(t), 0.39 * Math.sin(t)))); }
+  const vShape = new THREE.Shape(); { const chord = 0.14, th = 0.03, piv = 0.35, pts = [];
+    for (let i = 0; i <= 16; i++) { const x = i / 16, t = 5 * th * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1015 * x ** 4); pts.push([x * chord - piv * chord, t]); }
+    pts.forEach(([x, y], i) => i ? vShape.lineTo(x, y) : vShape.moveTo(x, y)); for (let i = pts.length - 1; i >= 0; i--) vShape.lineTo(pts[i][0], -pts[i][1] * 0.7 - 0.004); }
+  const vGeo = new THREE.ExtrudeGeometry(vShape, {depth: 0.07, bevelEnabled: false}); vGeo.rotateY(Math.PI / 2); vGeo.rotateX(Math.PI / 2); vGeo.translate(-0.526, 0, 0);
+  const LEV0 = 1.0;                       // поворот рычажка относительно лопатки
+  const lvShape = new THREE.Shape(); lvShape.absarc(0, 0, 0.032, Math.PI / 2, Math.PI * 1.5, false); lvShape.lineTo(0.12, -0.018); lvShape.lineTo(0.15, -0.026); lvShape.lineTo(0.15, -0.006); lvShape.lineTo(0.13, -0.006); lvShape.lineTo(0.13, 0.006); lvShape.lineTo(0.15, 0.006); lvShape.lineTo(0.15, 0.026); lvShape.lineTo(0.12, 0.018); lvShape.closePath();
+  const lvGeo = new THREE.ExtrudeGeometry(lvShape, {depth: 0.014, bevelEnabled: false}); lvGeo.rotateY(-Math.PI / 2); lvGeo.rotateX(-Math.PI / 2); lvGeo.translate(-0.558, 0, 0);
   const vanes = [];
   for (let i = 0; i < VANES; i++) {
     const phi = i / VANES * TAU;
     const pv = new THREE.Group(); pv.position.set(0, VANE_R * Math.cos(phi), VANE_R * Math.sin(phi));
     pv.add(mesh(vGeo, 'stainless'));
-    pv.add(mesh(cylX(0.012, 0.09, 8), 'steel', V3(-0.53, 0, 0)));
-    const lv = mesh(rbox(0.018, 0.11, 0.022, 0.006), 'steel', V3(-0.548, 0, 0)); lv.geometry.translate(0, 0.055, 0); lv.rotation.x = -0.96; pv.add(lv);
+    pv.add(mesh(cylX(0.012, 0.05, 10), 'steel', V3(-0.55, 0, 0)));
+    const lv = mesh(lvGeo, 'steel'); lv.rotation.x = -LEV0; pv.add(lv);
+    pv.add(mesh(cylX(0.022, 0.012, 14), 'steel', V3(-0.578, 0, 0)));
     pv.userData.phi = phi; vanes.push(pv); noz.add(pv);
   }
-  a.part('nozzle', noz, [0.5, 0, 0]);
+  a.part('nozzle', noz, [0.1, 0.8, 0.5]);
   W.anim.vanes = vanes;
 
-  /* --- регулировочное кольцо --- */
+  /* --- регулировочное кольцо с пазами под вилки рычажков и приводной кривошип --- */
   const uni = new THREE.Group();
-  uni.add(mesh(latheX([[-0.565, 0.43], [-0.565, 0.5], [-0.54, 0.5], [-0.54, 0.43], [-0.565, 0.43]], 72), 'steel'));
-  for (let i = 0; i < VANES; i++) { const t = i / VANES * TAU + 0.12; uni.add(mesh(rbox(0.03, 0.035, 0.035, 0.008), 'steelDark', V3(-0.552, 0.465 * Math.cos(t), 0.465 * Math.sin(t)))); }
-  a.part('unison', uni, [0.28, 0, 0]);
+  uni.add(mesh(latheX([[-0.582, 0.43], [-0.582, 0.5], [-0.566, 0.5], [-0.566, 0.43], [-0.582, 0.43]], 80), 'steel'));
+  for (let i = 0; i < VANES; i++) { const t = i / VANES * TAU; uni.add(mesh(cylX(0.011, 0.03, 8), 'steelDark', V3(-0.566, 0.444 * Math.cos(t), 0.444 * Math.sin(t)))); }
+  const drvA = Math.atan2(LEVER_P.z, LEVER_P.y);
+  uni.add(mesh(rbox(0.014, 0.11, 0.05, 0.01), 'steel', V3(-0.575, 0.47 * Math.cos(drvA), 0.47 * Math.sin(drvA)), [drvA, 0, 0]));
+  a.part('unison', uni, [-0.05, 1.05, 0.3]);
   W.anim.unison = uni;
 
-  /* --- наружный рычаг VNT с валиком --- */
+  /* --- наружный рычаг VNT на валике; шток проходит через отверстие в конце рычага --- */
   const lev = new THREE.Group(); lev.position.copy(LEVER_P);
-  lev.add(mesh(cylX(0.04, 0.18, 14), 'steel', V3(0.03, 0, 0)));
+  lev.add(mesh(cylX(0.045, 0.1, 16), 'steel', V3(0.06, 0, 0)));
   const arm = new THREE.Group(); lev.add(arm);
-  const armBar = mesh(rbox(0.04, 0.08, LEVER_LEN + 0.08, 0.02), 'steelDark', V3(-0.06, 0, -LEVER_LEN / 2)); arm.add(armBar);
-  arm.add(mesh(cylX(0.022, 0.12, 10), 'steel', V3(-0.06, 0, -LEVER_LEN)));
-  a.part('vnt_lever', lev, [-0.2, 0.55, -0.35]);
+  arm.add(mesh(rbox(0.035, 0.03, LEVER_LEN + 0.1, 0.012), 'steelDark', V3(0, 0, LEVER_LEN / 2)));
+  arm.add(mesh(new THREE.TorusGeometry(0.02, 0.01, 8, 16).rotateX(Math.PI / 2), 'steelDark', V3(0, 0, LEVER_LEN)));
+  a.part('vnt_lever', lev, [-0.15, 0.55, -0.45]);
   W.anim.leverArm = arm;
 
-  /* --- корпус турбины, отлитый заодно с выпускным коллектором --- */
+  /* --- корпус турбины и выпускной коллектор — одна отливка --- */
   const thg = new THREE.Group();
-  const tv = voluteGeo({R0: 0.44, r0: 0.2, r1: 0.075, x0: -0.35, th0: 0, dir: -1});
+  W.anim.turbVol = {R0: 0.405, r0: 0.1, r1: 0.035, x0: -0.49, th0: Math.PI / 2, dir: -1, span: 0.9 * TAU};
+  const tv = voluteGeo(W.anim.turbVol);
   thg.add(mesh(tv.geo, 'hotIron'));
+  thg.add(mesh(latheX([[-0.575, 0.52], [-0.555, 0.53], [-0.5, 0.5], [-0.44, 0.42], [-0.38, 0.3], [-0.28, 0.255], [-0.12, 0.245], [-0.03, 0.27], [-0.03, 0.36], [0.05, 0.36], [0.05, 0.188], [-0.14, 0.182], [-0.3, 0.19], [-0.44, 0.205]], 64), 'hotIron'));
+  thg.add(mesh(rbox(0.16, 0.2, 0.16, 0.04), 'hotIron', V3(-0.3, -0.5, 0.02)));          // прилив опоры
+  /* впускная горловина турбины: от улитки вниз к коллектору */
   const inl = tv.start.clone();
-  thg.add(mesh(tubeGeo([inl, inl.clone().add(V3(0, 0, 0.3)), V3(-0.34, 0.63, 0.62)], 0.2, 10, 24), 'hotIron'));
-  thg.add(mesh(latheX([[-0.44, 0.3], [-0.4, 0.27], [-0.3, 0.235], [-0.12, 0.205], [0.18, 0.22], [0.2, 0.31], [0.28, 0.31], [0.28, 0.2]], 56), 'hotIron'));
-  thg.add(mesh(latheX([[-0.58, 0.46], [-0.58, 0.62], [-0.5, 0.64], [-0.44, 0.52], [-0.44, 0.3]], 56), 'hotIron'));
-  for (let i = 0; i < 4; i++) { const t = i / 4 * TAU + 0.4; thg.add(mesh(hexGeo(0.035, 0.04).rotateZ(Math.PI / 2), 'steelDark', V3(0.29, 0.26 * Math.cos(t), 0.26 * Math.sin(t)))); }
-  const run = [];
-  for (const x of L.cyl) run.push(mesh(tubeGeo([[x, 0.61, 1.35], [x * 0.7, 0.63, 1.05], [-0.34 + x * 0.18, 0.64, 0.78], [-0.34, 0.63, 0.6]], 0.13, 28, 16), 'hotIron'));
-  run.forEach(r => thg.add(r));
-  thg.add(mesh(rbox(3.35, 0.46, 0.08, 0.04), 'hotIron', V3(0, 0.61, 1.34)));
-  for (const x of [-1.62, -0.88, 0, 0.88, 1.62]) thg.add(mesh(hexGeo(0.045, 0.06).rotateX(Math.PI / 2), 'steel', V3(x, 0.86, 1.28)));
-  thg.add(mesh(cylZ(0.08, 0.14, 14), 'hotIron', V3(-1.05, 0.45, 0.98)));
-  a.part('turb_housing', cuttable(thg), [1.3, 0.35, -1.0]);
+  const LOGY = 2.97 - TY, LOGZ = -2.08 - TZ;
+  thg.add(mesh(tubeGeo([inl, inl.clone().addScaledVector(tv.tan0, 0.18), V3(-0.46, LOGY + 0.16, LOGZ - 0.02), V3(-0.42, LOGY, LOGZ)], 0.13, 16, 24), 'hotIron'));
+  /* коллектор: общий канал и короткие патрубки к окнам */
+  thg.add(mesh(tubeGeo([V3(-1.62, LOGY + 0.02, LOGZ), V3(-0.8, LOGY, LOGZ - 0.01), V3(0.4, LOGY, LOGZ), V3(1.4, LOGY + 0.02, LOGZ + 0.01)], 0.165, 40, 22), 'hotIron'));
+  for (const s of [-1.62, 1.4]) thg.add(mesh(new THREE.SphereGeometry(0.165, 20, 14), 'hotIron', V3(s, LOGY + 0.02, LOGZ)));
+  for (const x of L.cyl) thg.add(mesh(tubeGeo([loc(x, L.portY, EXH.back + 0.02), loc(x, L.portY + 0.03, EXH.back - 0.18), V3(x * 0.97, LOGY, LOGZ + 0.02)], 0.135, 12, 20), 'hotIron'));
+  thg.add(mesh(tubeGeo([loc(EXH.egr.x, L.portY + EXH.egr.y, EXH.back + 0.02), loc(EXH.egr.x + 0.1, L.portY, EXH.back - 0.2), V3(-1.62, LOGY + 0.02, LOGZ)], 0.1, 12, 18), 'hotIron'));
+  /* фланцы к ГБЦ: четыре овальных окна и круглое окно у 4-го цилиндра (по фото фланца и прокладки) */
+  EXH.pads.forEach(([x, st]) => {
+    const band = roundRect(0.6, 0.46, 0.12); band.holes.push(holePath(obround(0.42, 0.3)));
+    thg.add(slabZ(band, EXH.face - TZ, 0.12, 'hotIron', x, L.portY - TY));
+    st.forEach(([dx, dy]) => thg.add(mesh(cylZ(0.1, 0.136, 20), 'hotIron', loc(x + dx, L.portY + dy, EXH.face - 0.068))));
+  });
+  { const e = EXH.egr, band = roundRect(0.46, 0.36, 0.12); band.holes.push(circlePath(0, 0, 0.11));
+    thg.add(slabZ(band, EXH.face - TZ, 0.12, 'hotIron', e.x, L.portY + e.y - TY));
+    e.studs.forEach(([dx, dy]) => thg.add(mesh(cylZ(0.1, 0.136, 20), 'hotIron', loc(e.x + dx, L.portY + e.y + dy, EXH.face - 0.068)))); }
+  /* прилив под фланец трубки EGR (снизу коллектора) и под датчик G235 */
+  const egrFl = V3(-1.2, LOGY - 0.2, LOGZ);
+  thg.add(mesh(rbox(0.36, 0.08, 0.24, 0.04), 'hotIron', egrFl.clone().add(V3(0, 0.04, 0))));
+  const g235P = V3(-0.3, LOGY - 0.2, LOGZ - 0.05), g235D = V3(0, -1, -0.35).normalize();
+  thg.add(mesh(cylY(0.09, 0.12, 20), 'hotIron', g235P.clone().addScaledVector(g235D, -0.05)));
+  a.part('turb_housing', cuttable(thg), [0.2, -0.2, -0.35]);
+  W.anim.egrFlange = TA(0).add(egrFl);
 
-  /* --- маслоподвод и маслослив --- */
-  const feed = group(mesh(tubeGeo([[-0.2, -0.35, 1.33], [-0.24, 0.55, 0.95], [-0.62, 0.62, 0.3], [-0.86, 0.6, 0.12], [-0.86, 0.44, 0]], 0.032, 40, 10), 'steel'));
-  a.part('oil_feed', feed, [0, 0.65, 0.2]);
-  const drain = group(mesh(tubeGeo([[-0.86, -0.35, 0], [-0.86, -0.75, 0.25], [-0.86, -1.1, 0.9], [-0.86, -1.35, 1.34]], 0.058, 30, 14), 'steel'));
-  drain.add(mesh(cylY(0.075, 0.22, 16), 'rubber', V3(-0.86, -0.95, 0.52)));
-  a.part('oil_drain', drain, [0, -0.7, -0.2]);
+  /* --- крепёж фланца: шпильки в ГБЦ остаются, самоконтрящиеся гайки 24 Н·м (новые) --- */
+  const studs = EXH.studs.map(s => loc(s.x, s.y, EXH.back));
+  a.part('mani_studs', FSTS('mani_stud', studs.map(p => [p, V3(0, 0, -1)])), [0, 0, 0]);
+  a.part('f_mani', FSTS('mani_nut', studs.map(p => [p, V3(0, 0, -1)])), [0, 0.15, -0.6]);
+  /* --- прокладка коллектора: многослойная стальная; рамки окон с выштамповкой, ушки под шпильки, перемычки --- */
+  { const gk = new THREE.Group(), z0 = EXH.face - TZ + 0.01, gy = L.portY - TY;
+    const ring = (w, h, x, y) => { const pts = obround(w, h).getPoints(40).map(v => V3(x + v.x, y + v.y, z0 + 0.004)); return mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 80, 0.007, 6, true), 'stainless'); };
+    const ear = (x, y) => { const e = new THREE.Shape(); e.absarc(0, 0, 0.085, 0, TAU, false); e.holes.push(circlePath(0, 0, 0.045)); return slabZ(e, z0, 0.004, 'stainless', x, y); };
+    EXH.pads.forEach(([x, st]) => {
+      const f = roundRect(0.56, 0.42, 0.12); f.holes.push(holePath(obround(0.44, 0.32)));
+      gk.add(slabZ(f, z0, 0.004, 'stainless', x, gy), ring(0.5, 0.37, x, gy));
+      st.forEach(([dx, dy]) => gk.add(ear(x + dx, gy + dy)));
+    });
+    { const e = EXH.egr, f = roundRect(0.36, 0.34, 0.12); f.holes.push(circlePath(0, 0, 0.12));
+      gk.add(slabZ(f, z0, 0.004, 'stainless', e.x, gy + e.y), mesh(new THREE.TorusGeometry(0.145, 0.007, 6, 40), 'stainless', V3(e.x, gy + e.y, z0 + 0.004)));
+      e.studs.forEach(([dx, dy]) => gk.add(ear(e.x + dx, gy + e.y + dy))); }
+    const xs = [EXH.egr.x, ...EXH.pads.map(p => p[0]).reverse()];
+    for (let i = 0; i < xs.length - 1; i++) { const w = xs[i + 1] - xs[i] - 0.5; if (w > 0.02) gk.add(slabZ(roundRect(w + 0.04, 0.12, 0.03), z0, 0.004, 'stainless', (xs[i] + xs[i + 1]) / 2 + (i === 0 ? -0.05 : 0), gy - 0.12)); }
+    a.part('mani_gasket', gk, [0, 0.1, 0.35]); }
+  /* --- теплозащитный экран коллектора: держится под двумя гайками фланца --- */
+  const hs = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 2.6, 28, 1, true, Math.PI * 0.3, Math.PI * 0.5), MATS.heat());
+  hs.material.side = THREE.DoubleSide; hs.rotation.z = Math.PI / 2; hs.position.set(-0.05, LOGY + 0.04, LOGZ + 0.03);
+  const hsG = group(hs); for (const i of [2, 4]) hsG.add(mesh(rbox(0.16, 0.14, 0.02, 0.02), 'heat', studs[i].clone().add(V3(0, 0, -0.005))));
+  a.part('heat_shield', hsG, [0, 0.55, -0.1]);
+  /* --- опора турбины: к приливу корпуса турбины и к блоку --- */
+  const supTop = V3(-0.3, -0.5, -0.07), supBot = loc(-0.3, 1.5, -1.54);
+  const sup = group(rodBetween(supTop, supBot, 0.045, 'steelDark'), mesh(rbox(0.14, 0.1, 0.03, 0.01), 'steelDark', supTop.clone().add(V3(0, 0, -0.03))), mesh(rbox(0.14, 0.14, 0.03, 0.01), 'steelDark', supBot.clone().add(V3(0, 0, -0.015))));
+  a.part('support', sup, [0.25, -0.45, 0]);
+  a.part('f_support', FSTS('sup_bolt', [[supTop.clone().add(V3(0, 0, -0.045)), V3(0, 0, -1)], [supBot.clone().add(V3(0, 0, -0.03)), V3(0, 0, -1)]]), [0.25, -0.45, -0.3]);
+  /* --- маслоподвод: накидная гайка на турбине 22 Н·м; полые болты 40 и 30 Н·м с кольцами --- */
+  const feedPath = [V3(-0.72, 0.36, 0), V3(-0.72, 0.5, 0.1), V3(-0.6, 0.52, 0.42), V3(-0.4, 0.2, 0.66), V3(-0.28, -0.4, 0.8), V3(-0.3, -1.0, 0.95), V3(-0.32, -1.62, 1.28)];
+  a.part('oil_feed', group(mesh(tubeGeo(feedPath, 0.032, 60, 10), 'steel')), [0, 0.35, 0.2]);
+  a.part('f_union', FSTS('oil_union', [[V3(-0.72, 0.35, 0), V3(0, 1, 0)]]), [0, 0.7, 0.1]);
+  a.part('f_banjo', group(FST('banjo40', feedPath[6].clone().add(V3(0, 0, 0.02)), V3(0, 0, -1)), FST('banjo30', V3(-0.3, -1.0, 0.95), V3(-1, 0, 0))), [0, -0.25, 0.4]);
+  /* --- маслослив: фланец с прокладкой на двух болтах, трубка с резиновой вставкой к блоку --- */
+  const drain = group(mesh(tubeGeo([V3(-0.72, -0.36, 0), V3(-0.72, -0.75, 0.12), V3(-0.72, -1.25, 0.65), V3(-0.7, -1.88, 1.3)], 0.055, 36, 14), 'steel'));
+  drain.add(mesh(rbox(0.26, 0.03, 0.18, 0.02), 'steel', V3(-0.72, -0.365, 0)));
+  drain.add(mesh(cylY(0.072, 0.24, 16), 'rubber', V3(-0.72, -1.02, 0.35)));
+  a.part('oil_drain', drain, [0, -0.45, 0.1]);
+  a.part('drain_gasket', mesh(rbox(0.25, 0.006, 0.17, 0.02), 'green', V3(-0.72, -0.349, 0)), [0, -0.28, 0.25]);
+  a.part('f_drain', FSTS('drain_bolt', [-1, 1].map(s => [V3(-0.72 + s * 0.09, -0.38, 0), V3(0, -1, 0)])), [0, -0.6, 0.35]);
 
-  /* --- крепёж коллектора: самоконтрящиеся гайки 24 Н·м (заменять) --- */
-  const mn = new THREE.Group();
-  for (const x of [-1.62, -0.88, 0, 0.88, 1.62]) for (const y of [0.86, 0.36]) mn.add(fastenerObj('nut', V3(x, y, 1.28), V3(0, 0, -1)));
-  a.part('f_mani', mn, [0, 0.35, -0.9]);
-  a.part('mani_gasket', mesh(rbox(3.3, 0.44, 0.012, 0.01), 'steelDark', V3(0, 0.61, 1.385)), [0, 0.2, 0.55]);
-  /* --- теплозащитный экран над коллектором --- */
-  const hs = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 2.9, 24, 1, true, -Math.PI * 0.05, Math.PI * 0.55), MATS.heat());
-  hs.material.side = THREE.DoubleSide; hs.rotation.z = Math.PI / 2; hs.position.set(0.1, 0.42, 1.0);
-  a.part('heat_shield', group(hs), [0, 1.0, 0]);
-  /* --- опора турбины (Stütze) 9 Н·м --- */
-  const sup = group(mesh(rbox(0.1, 1.12, 0.12, 0.03), 'steelDark', V3(-0.45, -1.02, 0.65), [0.72, 0, 0]));
-  sup.add(fastenerObj('bolt', V3(-0.45, -0.5, 0.2), V3(-1, 0, 0)), fastenerObj('bolt', V3(-0.45, -1.52, 1.25), V3(-1, 0, 0)));
-  a.part('support', sup, [0.35, -0.6, 0]);
-  /* --- штуцеры маслоподвода: накидная гайка 22 Н·м, полые болты 40 и 30 Н·м --- */
-  a.part('f_union', fastenerObj('union', V3(-0.86, 0.47, 0), V3(0, 1, 0)), [0, 0.9, 0.15]);
-  a.part('f_banjo', group(fastenerObj('banjo', V3(-0.2, -0.35, 1.37), V3(0, 0, -1)), fastenerObj('banjo', V3(-0.45, -0.98, 0.62), V3(-1, 0, 0))), [0, -0.3, 0.6]);
-
-  /* --- датчик температуры ОГ перед турбиной G235 --- */
-  const g235 = group(mesh(hexGeo(0.06, 0.07), 'steel', V3(-0.1, 0.84, 0.74)), mesh(cylY(0.022, 0.3, 10), 'stainless', V3(-0.1, 0.99, 0.74)));
-  g235.add(mesh(tubeGeo([[-0.1, 1.13, 0.74], [-0.1, 1.3, 0.8], [0.35, 1.35, 1.0]], 0.018, 20, 6), 'plastic'));
-  a.part('g235', g235, [0.2, 0.7, 0.4]);
+  /* --- датчик температуры ОГ G235: M14×1,5, 45 Н·м, доступ снизу --- */
+  const g235 = group(FST('g235', g235P, g235D));
+  g235.add(mesh(tubeGeo([g235P.clone().addScaledVector(g235D, 0.38), g235P.clone().addScaledVector(g235D, 0.55).add(V3(0.15, 0, -0.05)), V3(0.25, -0.75, -0.32), V3(0.5, -0.4, -0.5)], 0.018, 24, 6), 'plastic'));
+  a.part('g235', g235, [0.1, -0.5, 0.25]);
+  W.anim.g235Conn = TA(0).add(V3(0.5, -0.4, -0.5));
+  /* --- держатель проводов G235/G581, 15 Н·м --- */
+  a.part('wire_holder', group(mesh(rbox(0.26, 0.02, 0.14, 0.01), 'steelDark', V3(0.55, LOGY + 0.175, LOGZ - 0.06)), mesh(rbox(0.02, 0.12, 0.14, 0.01), 'steelDark', V3(0.67, LOGY + 0.24, LOGZ - 0.06)), FST('wire_bolt', V3(0.48, LOGY + 0.185, LOGZ - 0.06), V3(0, 1, 0))), [0.4, 0.6, -0.2]);
+  /* --- V-образный хомут на фланце турбины (к сажевому фильтру) --- */
+  a.part('vband', FSTS('vband', [[V3(0.03, 0, 0), V3(1, 0, 0), {spin: 2.2}]]), [0.5, 0, 0]);
   a.pipRoots = [noz, uni, tw, lev];
 }
 
-/* ================== ВАКУУМНЫЙ АКТУАТОР С ДАТЧИКОМ G581 ================== */
+/* ================== ВАКУУМНЫЙ АКТУАТОР С ДАТЧИКОМ ПОЛОЖЕНИЯ G581 ==================
+   Разрежение над мембраной тянет шток вверх, пружина возвращает его вниз (лопатки открыты). */
 {
   const a = new Asm('actuator', 'boost', TA(0));
-  a.anchor.copy(CAN_C).add(V3(0, 0.3, 0));
+  a.anchor.copy(CAN_C).add(V3(0, 0.42, 0));
   const C = CAN_C;
-  const bot = group(mesh(new THREE.LatheGeometry([[0.0, -0.13], [0.2, -0.13], [0.28, -0.1], [0.315, -0.03], [0.33, 0.0]].map(([r, y]) => new THREE.Vector2(r, y)), 48), 'steel', C.clone()));
-  bot.add(mesh(new THREE.TorusGeometry(0.33, 0.018, 8, 48).rotateX(Math.PI / 2), 'steel', C.clone()));
-  bot.add(mesh(rbox(0.7, 0.05, 0.16, 0.02), 'steelDark', V3(-0.95, 1.14, -0.72), [0, 0, -0.35]));
-  bot.add(mesh(rbox(0.16, 0.46, 0.05, 0.02), 'steelDark', V3(-1.22, 0.93, -0.66), [0, 0, -0.35]));
-  bot.children.forEach(m => m.material.side = THREE.DoubleSide);
-  a.part('can_bottom', bot, [0, -0.05, -0.35]);
-  const dia = group(mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.012, 40), 'rubber', C.clone().add(V3(0, 0.0, 0))), mesh(cylY(0.13, 0.03, 24), 'steel', C.clone().add(V3(0, -0.02, 0))));
-  a.part('diaphragm', dia, [0, 0.45, 0]);
-  const hel = []; for (let i = 0; i <= 90; i++) { const t = i / 90; hel.push(V3(0.16 * Math.cos(t * 5 * TAU), t * 0.1, 0.16 * Math.sin(t * 5 * TAU))); }
-  const spring = mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hel), 180, 0.012, 6), 'steelDark');
-  const springG = group(spring); springG.position.copy(C).add(V3(0, 0.005, 0));
-  a.part('spring', springG, [0, 0.75, 0]);
-  const top = group(mesh(new THREE.LatheGeometry([[0.33, 0.0], [0.315, 0.04], [0.28, 0.1], [0.2, 0.13], [0.0, 0.135]].map(([r, y]) => new THREE.Vector2(r, y)), 48), 'steel', C.clone()));
+  const bot = group(mesh(new THREE.LatheGeometry([[0.03, -0.2], [0.23, -0.2], [0.27, -0.17], [0.295, -0.1], [0.3, -0.02], [0.315, 0.0]].map(([r, y]) => new THREE.Vector2(r, y)), 48), 'steel', C.clone()));
+  bot.children[0].material.side = THREE.DoubleSide;
+  a.part('can_bottom', bot, [0, -0.1, -0.35]);
+  const brk = group(mesh(rbox(0.5, 0.025, 0.46, 0.02), 'steelDark', V3(C.x - 0.12, C.y - 0.23, C.z - 0.02)), mesh(rbox(0.025, 0.2, 0.46, 0.01), 'steelDark', V3(C.x - 0.36, C.y - 0.32, C.z - 0.02)));
+  const brP = [V3(C.x - 0.33, C.y - 0.217, C.z - 0.19), V3(C.x - 0.33, C.y - 0.217, C.z + 0.15), V3(C.x - 0.2, C.y - 0.217, C.z + 0.19)];
+  a.part('bracket', brk, [0, -0.25, -0.5]);
+  a.part('f_bracket', FSTS('act_bolt', brP.map(p => [p, V3(0, 1, 0)])), [0, 0.1, -0.7]);
+  const dia = group(mesh(new THREE.CylinderGeometry(0.29, 0.29, 0.01, 40), 'rubber', C.clone()), mesh(cylY(0.13, 0.025, 28), 'steel', C.clone().add(V3(0, -0.015, 0))));
+  a.part('diaphragm', dia, [0, 0.5, 0]);
+  const hel = []; for (let i = 0; i <= 90; i++) { const t = i / 90; hel.push(V3(0.15 * Math.cos(t * 5 * TAU), t * 0.18, 0.15 * Math.sin(t * 5 * TAU))); }
+  const spring = mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hel), 180, 0.011, 6), 'steelDark');
+  const springIn = group(spring); springIn.position.copy(C).add(V3(0, 0.012, 0));
+  const springG = group(springIn);
+  a.part('spring', springG, [0, 0.8, 0]);
+  const top = group(mesh(new THREE.LatheGeometry([[0.315, 0.0], [0.3, 0.02], [0.295, 0.14], [0.27, 0.2], [0.2, 0.22], [0.0, 0.222]].map(([r, y]) => new THREE.Vector2(r, y)), 48), 'steel', C.clone()));
+  top.add(mesh(new THREE.TorusGeometry(0.31, 0.014, 8, 48).rotateX(Math.PI / 2), 'steel', C.clone()));
   top.children[0].material.side = THREE.DoubleSide;
-  const nip = mesh(cylZ(0.035, 0.2, 12), 'brass', C.clone().add(V3(0, 0.07, -0.3)));
+  const nipDir = V3(-0.72, 0, -0.69).normalize();
+  const nipBase = C.clone().add(V3(0, 0.08, 0)).addScaledVector(nipDir, 0.28);
+  const nip = mesh(cylY(0.024, 0.18, 12), 'steel'); alignY(nip, nipDir); nip.position.copy(nipBase).addScaledVector(nipDir, 0.08);
   top.add(nip);
   a.part('can_top', top, [0, 1.05, 0]);
-  const g581 = group(mesh(rbox(0.3, 0.12, 0.26, 0.04), 'plastic', C.clone().add(V3(0, 0.18, 0))), mesh(rbox(0.12, 0.1, 0.16, 0.02), 'plastic', C.clone().add(V3(0.2, 0.18, 0.02))));
-  const tag = mesh(new THREE.PlaneGeometry(0.2, 0.06), new THREE.MeshBasicMaterial({map: textTex('G581', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), C.clone().add(V3(0, 0.241, 0)), [-Math.PI / 2, 0, 0]);
+  const g581 = group(mesh(new THREE.LatheGeometry([[0.29, 0], [0.29, 0.06], [0.26, 0.1], [0.2, 0.12], [0.0, 0.12]].map(([r, y]) => new THREE.Vector2(r, y)), 40), 'plastic', C.clone().add(V3(0, 0.215, 0))),
+    mesh(rbox(0.3, 0.2, 0.24, 0.04), 'plastic', C.clone().add(V3(0.04, 0.42, 0))), mesh(rbox(0.16, 0.13, 0.17, 0.02), 'plastic', C.clone().add(V3(0.27, 0.45, 0))));
+  const tag = mesh(new THREE.PlaneGeometry(0.2, 0.06), new THREE.MeshBasicMaterial({map: textTex('G581', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), C.clone().add(V3(0.04, 0.521, 0)), [-Math.PI / 2, 0, 0]);
   g581.add(tag);
-  a.part('g581', g581, [0, 1.55, 0.1]);
-  const rodG = new THREE.Group();
-  const rodM = new THREE.Group();
-  rodM.add(mesh(cylY(0.022, 1.0, 10).translate(0, 0.5, 0), 'steel'));
-  rodM.add(mesh(hexGeo(0.04, 0.045).translate(0, 0.16, 0), 'steelDark'));
-  rodM.add(mesh(hexGeo(0.04, 0.045).translate(0, 0.21, 0), 'steelDark'));
-  rodM.add(mesh(rbox(0.1, 0.07, 0.05, 0.015).translate(0, 0.02, 0), 'steelDark'));
+  a.part('g581', g581, [0, 1.6, 0.1]);
+  W.anim.g581Conn = TA(0).add(C).add(V3(0.36, 0.45, 0));
+  /* шток: резьбовой конец M6 проходит через рычаг VNT; две гайки (верхняя — заводская длина) и скоба */
+  const rodG = new THREE.Group(), rodM = new THREE.Group();
+  rodM.add(mesh(cylY(0.024, 0.34, 12).translate(0, 0.45, 0), 'steel'));
+  const rt = new THREE.Mesh(threadGeo(6, 1, -9, 28, {n: 10, hand: -1, tip: 'lo'}), MATS.steel()); rt.scale.setScalar(MM); rodM.add(rt);
+  rodM.add(FST('rod_nut', V3(0, 0.018, 0), V3(0, 1, 0)), FST('rod_nut', V3(0, -0.018, 0), V3(0, -1, 0)), FST('rod_clip', V3(0, -0.078, 0), V3(0, 1, 0)));
   rodG.add(rodM);
-  a.part('rod', rodG, [0, -0.1, -0.55]);
+  a.part('rod', rodG, [0, -0.15, -0.6]);
   W.anim.rod = rodM; W.anim.dia = [...dia.children]; W.anim.spring = spring; W.anim.canTopNip = nip;
-  a.pipRoots = [bot, dia, springG, top, g581, rodG];
+  W.anim.actNip = TA(0).add(nipBase).addScaledVector(nipDir, 0.17);
+  W.anim.actNipDir = nipDir.clone();
+  a.pipRoots = [bot, dia, springG, top, g581, rodG, brk];
 }
 
-/* --- механизм: положение закрытия лопаток c ∈ [0..1] --- */
+/* --- механизм: положение закрытия лопаток c ∈ [0..1] (0 — открыты, разрежения нет) --- */
 const VNT = {c: 0};
+const ROD_LEN = CAN_C.y - 0.015 - LEVER_P.y;
 function setVNT(c) {
   VNT.c = c;
-  const phi = lerp(0, 24 * DEG, c);
+  const phi = lerp(0.17, -0.17, c);        // ход штока ≈ 10 мм при рычаге 30 мм
   W.anim.leverArm.rotation.x = phi;
-  const E = LEVER_P.clone().add(V3(-0.06, Math.sin(phi) * LEVER_LEN, -Math.cos(phi) * LEVER_LEN));
-  const B = CAN_C.clone().add(V3(0, -0.02 + 0.06 * c, 0));
+  const E = LEVER_P.clone().add(V3(0, -Math.sin(phi) * LEVER_LEN, Math.cos(phi) * LEVER_LEN));
+  const B = V3(CAN_C.x, E.y + ROD_LEN, CAN_C.z);
   W.anim.rod.position.copy(E);
   W.anim.rod.quaternion.setFromUnitVectors(V3(0, 1, 0), B.clone().sub(E).normalize());
-  W.anim.dia.forEach(m => m.position.y = CAN_C.y + 0.06 * c - (m.geometry.parameters?.height === 0.03 ? 0.02 : 0));
-  W.anim.spring.scale.y = 1 - 0.35 * c;
+  const dy = E.y - (LEVER_P.y - Math.sin(0.17) * LEVER_LEN);
+  W.anim.dia[0].position.y = CAN_C.y + dy; W.anim.dia[1].position.y = CAN_C.y - 0.015 + dy;
+  W.anim.spring.scale.y = (0.18 - dy) / 0.18;
+  W.anim.spring.parent.position.y = CAN_C.y + 0.012 + dy;   // внутренняя группа пружины (деталь не трогаем — её двигает разборка)
   const al = lerp(38, 77, c) * DEG;
   W.anim.vanes.forEach(pv => pv.rotation.x = pv.userData.phi + al);
-  W.anim.unison.rotation.x = c * 0.22;
+  W.anim.unison.rotation.x = lerp(-0.1, 0.1, c);
 }
 setVNT(0);
 
 /* ================== ВАКУУМНАЯ СИСТЕМА (по схеме руководства VW) ================== */
-const ACT_NIP = TA(0).add(V3(L.tx.lever, 1.37, -0.78 - 0.4)); // конец штуцера на крышке актуатора (мир)
+const ACT_NIP = W.anim.actNip.clone();                          // конец штуцера на крышке актуатора
+const ACT_IN = ACT_NIP.clone().add(W.anim.actNipDir.clone().multiplyScalar(0.16));
 const VAC = {
   pumpSmall: V3(-2.7, 3.38, -0.3), pumpBig: V3(-2.6, 3.36, -0.8),
-  check: V3(-2.45, 4.1, -2.15), res: V3(-2.33, 4.08, -2.62), tee: V3(-2.2, 4.05, -3.05),
+  check: V3(-2.45, 4.32, -2.15), res: V3(-2.36, 4.3, -2.62), tee: V3(-2.25, 4.26, -3.05),
   n75: V3(-1.95, 3.35, -3.78),
   n345: V3(-0.9, 2.93, 2.66), egrCan: V3(-1.18, 0.86, -1.68),
 };
 /* N75: нижний штуцер — подвод разрежения, средний — к актуатору (руководство VW), верхний — атмосфера через глушитель и фильтр */
 const N75P = {in: V3(-1.95, 3.23, -3.5), out: V3(-1.95, 3.35, -3.5), atm: V3(-1.95, 3.47, -3.5)};
 const VACP = {
-  pump_check: [VAC.pumpSmall, [-2.72, 3.9, -0.55], [-2.6, 4.12, -1.45], VAC.check.clone().add(V3(0, 0, 0.16))],
-  check_tee: [VAC.check.clone().add(V3(0, 0, -0.16)), [-2.36, 4.09, -2.42], VAC.res.clone(), [-2.28, 4.07, -2.86], VAC.tee],
-  tee_n75: [VAC.tee, [-2.08, 3.85, -3.25], [-2.02, 3.4, -3.38], N75P.in],
-  n75_act: [N75P.out, [-1.8, 3.6, -3.38], [-1.25, 3.95, -3.5], [-0.8, 3.9, -3.95], ACT_NIP],
+  pump_check: [VAC.pumpSmall, [-2.72, 3.95, -0.55], [-2.6, 4.3, -1.45], VAC.check.clone().add(V3(0, 0, 0.16))],
+  check_tee: [VAC.check.clone().add(V3(0, 0, -0.16)), [-2.4, 4.31, -2.42], VAC.res.clone(), [-2.3, 4.28, -2.86], VAC.tee],
+  tee_n75: [VAC.tee, [-2.14, 4.0, -3.3], [-2.03, 3.45, -3.4], N75P.in],
+  n75_act: [N75P.out, [-1.84, 3.62, -3.42], [-1.66, 4.12, -3.52], ACT_IN, ACT_NIP],
   n75_vent: [N75P.atm, [-2.1, 3.6, -3.4], [-2.3, 3.5, -3.3], [-2.4, 3.2, -3.3]],
-  tee_n345: [VAC.tee, [-2.42, 4.22, -2.1], [-2.52, 4.24, -0.4], [-2.3, 4.12, 1.0], [-1.4, 3.55, 2.3], [-0.96, 3.2, 2.64]],
+  tee_n345: [VAC.tee, [-2.45, 4.4, -2.1], [-2.55, 4.42, -0.4], [-2.35, 4.3, 1.0], [-1.4, 3.6, 2.3], [-0.96, 3.2, 2.64]],
   n345_can: [[-0.9, 2.74, 2.66], [-1.3, 2.45, 2.85], [-2.5, 2.1, 2.55], [-2.98, 1.35, 1.2], [-3.0, 1.0, -0.6], [-2.2, 0.8, -1.3], [-1.16, 0.9, -1.34]],
-  brake: [VAC.pumpBig, [-2.62, 3.78, -0.98], [-2.9, 4.06, -2.25], [-3.15, 4.0, -3.7], [-3.25, 3.9, -4.35]],
+  brake: [VAC.pumpBig, [-2.62, 3.85, -0.98], [-2.95, 4.2, -2.25], [-3.18, 4.1, -3.7], [-3.25, 3.9, -4.35]],
 };
 {
   /* --- вакуумный насос --- */
@@ -1206,8 +1719,8 @@ const VACP = {
   const rotor = group(mesh(cylX(0.22, 0.26, 32), 'steelDark', V3(-2.5, 2.95, -0.62)), mesh(rbox(0.24, 0.5, 0.04, 0.01), 'plasticWhite', V3(-2.5, 2.95, -0.62)));
   a.part('vp_rotor', rotor, [-1.1, -0.45, 0]);
   const cover = group(mesh(cylX(0.37, 0.05, 40), 'alu', V3(-2.7, 2.95, -0.55)));
-  for (let i = 0; i < 5; i++) { const t = i / 5 * TAU; cover.add(fastenerObj('bolt', V3(-2.74, 2.95 + 0.3 * Math.cos(t), -0.55 + 0.3 * Math.sin(t)), V3(-1, 0, 0), 0.8)); }
   a.part('vp_cover', cover, [-1.6, 0, 0]);
+  a.part('f_vp', FSTS('vp_bolt', [Math.PI / 2, Math.PI * 7 / 6, Math.PI * 11 / 6].map(t => [V3(-2.36, 2.95 + 0.4 * Math.cos(t), -0.55 + 0.4 * Math.sin(t)), V3(-1, 0, 0)])), [-1.1, 0.2, 0]);
   const ports = group(mesh(cylY(0.07, 0.22, 16), 'plasticGrey', VAC.pumpBig.clone().add(V3(0, -0.08, 0))), mesh(cylY(0.035, 0.2, 12), 'plasticGrey', VAC.pumpSmall.clone().add(V3(0, -0.08, 0))));
   a.part('vp_ports', ports, [-0.6, 0.55, 0]);
 }
@@ -1241,7 +1754,8 @@ const VACP = {
   a.part('n75_armature', arm, [0, 0.2, -0.45]);
   const conn = group(mesh(rbox(0.16, 0.14, 0.2, 0.03), 'plastic', c.clone().add(V3(0.23, -0.08, 0))), mesh(rbox(0.12, 0.1, 0.24, 0.02), 'plasticGrey', c.clone().add(V3(0.38, -0.08, 0))));
   a.part('n75_conn', conn, [0.5, 0, 0]);
-  a.part('n75_bracket', group(mesh(rbox(0.06, 0.5, 0.36, 0.02), 'steelDark', c.clone().add(V3(0, -0.1, -0.25))), fastenerObj('bolt', c.clone().add(V3(0.04, -0.25, -0.25)), V3(1, 0, 0), 0.8)), [0, -0.3, -0.4]);
+  a.part('n75_bracket', group(mesh(rbox(0.06, 0.5, 0.36, 0.02), 'steelDark', c.clone().add(V3(0, -0.1, -0.25)))), [0, -0.3, -0.4]);
+  a.part('f_n75', FST('n75_bolt', c.clone().add(V3(0.03, -0.25, -0.25)), V3(1, 0, 0)), [0.35, -0.35, -0.4]);
   a.part('n75_silencer', group(mesh(cylY(0.07, 0.22, 18), 'plastic', V3(-2.4, 3.05, -3.3))), [-0.35, -0.2, 0]);
   a.part('n75_filter', group(mesh(cylY(0.12, 0.08, 24), 'plasticGrey', V3(-2.4, 2.9, -3.3)), mesh(cylY(0.1, 0.085, 24), 'paper', V3(-2.4, 2.9, -3.3))), [-0.55, -0.45, 0]);
 }
@@ -1253,7 +1767,8 @@ const VACP = {
   const body = group(mesh(cylY(0.12, 0.24, 24), 'plastic', c.clone()), mesh(cylY(0.025, 0.14, 10), 'plastic', c.clone().add(V3(-0.06, 0.19, -0.02))), mesh(cylY(0.025, 0.14, 10), 'plastic', c.clone().add(V3(0, -0.19, 0))));
   a.part('n345_body', body, [0, 0.4, 0.3]);
   a.part('n345_conn', mesh(rbox(0.13, 0.12, 0.16, 0.03), 'plasticGrey', c.clone().add(V3(0.17, -0.02, 0))), [0.4, 0, 0.2]);
-  a.part('n345_holder', group(mesh(rbox(0.3, 0.3, 0.05, 0.02), 'plasticGrey', c.clone().add(V3(0, 0, -0.14))), fastenerObj('bolt', c.clone().add(V3(0.1, 0.1, -0.1)), V3(0, 0, 1), 0.8)), [0, 0, -0.35]);
+  a.part('n345_holder', group(mesh(rbox(0.3, 0.3, 0.05, 0.02), 'plasticGrey', c.clone().add(V3(0, 0, -0.14)))), [0, 0, -0.35]);
+  a.part('f_n345', FST('n345_bolt', c.clone().add(V3(0.1, 0.1, -0.115)), V3(0, 0, 1)), [0.2, 0.2, 0.3]);
 }
 {
   /* --- вакуумные трубки, ресивер разрежения, теплозащитные рукава --- */
@@ -1310,12 +1825,10 @@ function spigot(r, len, material = 'alu') {
   for (let i = 0; i < 3; i++) g.add(mesh(new THREE.TorusGeometry(r, 0.011, 8, 32).rotateX(Math.PI / 2), material, V3(0, len / 2 - 0.035 - i * 0.045, 0)));
   return g;
 }
-function placeAlong(obj, p, dir) { obj.position.copy(p); alignY(obj, dir); return obj; }
 const exv = (d, k, extra = [0, 0, 0]) => [d.x * k + extra[0], d.y * k + extra[1], d.z * k + extra[2]];
 
 const AIR = {
-  duct: [[-3.4, 3.8, -1.42], [-3.4, 3.76, -1.9], [-3.26, 3.32, -2.55], [-2.85, 2.6, -2.85], [-2.55, 2.27, -2.85], [-2.27, 2.25, -2.85]],
-  pcv: [[-1.65, 3.93, -1.05], [-2.2, 3.98, -1.35], [-2.9, 3.62, -2.2], [-3.1, 3.36, -2.55]],
+  pcv: [[-1.65, 4.32, -1.05], [-2.3, 4.36, -1.4], [-2.8, 4.18, -1.82], [-3.02, 3.98, -2.02]],
   pipeHot: [[-1.45, 0.45, -3.38], [-1.55, 0.0, -3.36], [-1.85, -0.42, -3.25], [-2.42, -0.74, -2.98], [-3.02, -0.84, -2.35], [-3.1, -0.86, -1.0], [-3.1, -0.86, 1.6], [-3.1, -0.8, 3.55], [-3.08, -0.7, 4.2]],
   hotLo: [[-3.08, -0.71, 4.07], [-3.08, -0.62, 4.45], [-3.05, -0.4, 4.78], [-3.05, -0.32, 5.0]],
   coldLo: [[2.65, -0.32, 5.0], [2.66, -0.36, 4.62], [2.6, -0.1, 4.25], [2.52, 0.08, 4.05]],
@@ -1324,8 +1837,10 @@ const AIR = {
   thr: V3(1.45, 2.47, 2.52),
 };
 {
+  const se = TA(0).add(W.anim.stubEnd), sd = W.anim.stubDir.clone().normalize();
+  AIR.duct = [V3(-3.4, 3.8, -1.42), V3(-3.4, 3.79, -1.72), V3(-3.12, 3.72, -2.02), V3(-2.62, 3.63, -2.16), se.clone().addScaledVector(sd, 0.2), se.clone().addScaledVector(sd, -0.03)];
   const p = TA(0).add(W.anim.pulsEnd);
-  AIR.hotUp = [p.clone().add(V3(0, 0.12, 0)), p.clone().add(V3(0, -0.22, -0.01)), V3(-1.36, 0.8, -3.37), V3(-1.45, 0.33, -3.38)];
+  AIR.hotUp = [p.clone().add(V3(0, 0.12, 0)), p.clone().add(V3(0, -0.3, -0.02)), V3(-1.4, 1.1, -3.37), V3(-1.45, 0.33, -3.38)];
   const c = curveOf(AIR.pipeCold.map(q => V3(...q)));
   const pt = c.getPointAt(0.18), tg = c.getTangentAt(0.18);
   AIR.g31Dir = V3().crossVectors(tg, V3(1, 0, 0)).normalize(); if (AIR.g31Dir.y > 0) AIR.g31Dir.negate();
@@ -1344,8 +1859,8 @@ const AIR = {
   const cover = group(mesh(rbox(1.95, 0.5, 2.55, 0.16, 4), 'plastic', V3(-4.05, 4.1, 0.4)));
   for (let i = 0; i < 5; i++) cover.add(mesh(rbox(1.6, 0.05, 0.06, 0.02), 'plastic', V3(-4.05, 4.36, -0.6 + i * 0.5)));
   a.part('ab_cover', cover, [0, 1.7, 0]);
-  a.part('f_ab_top', group(...[[-4.95, -0.8], [-4.95, 1.6], [-3.15, -0.8], [-3.15, 1.6]].map(([x, z]) => fastenerObj('screw', V3(x, 4.36, z), V3(0, 1, 0)))), [0, 2.2, 0]);
-  a.part('f_ab_bot', fastenerObj('bolt', V3(-4.9, 3.1, 1.66), V3(0, 0, 1)), [0, -0.9, 0.4]);
+  a.part('f_ab_top', FSTS('ab_top', [[-4.95, -0.8], [-4.95, 1.6], [-3.15, -0.8], [-3.15, 1.6]].map(([x, z]) => [V3(x, 4.355, z), V3(0, 1, 0)])), [0, 2.2, 0]);
+  a.part('f_ab_bot', FST('ab_bot', V3(-4.9, 3.1, 1.655), V3(0, 0, 1)), [0, -0.9, 0.4]);
   const fl = group(mesh(cylY(0.05, 0.14, 12), 'rubber', V3(-4.7, 3.03, 1.0)), mesh(tubeGeo([[-4.7, 2.97, 1.0], [-4.72, 2.6, 1.05], [-4.75, 2.1, 1.2]], 0.03, 16, 8), 'rubber'));
   a.part('ab_flutter', fl, [0, -0.8, 0.3]);
   const sn = group(mesh(varTubeGeo(curveOf([[-4.3, 3.62, 1.55], [-4.34, 3.7, 2.4], [-4.3, 3.88, 3.55], [-4.28, 3.92, 3.85]]), t => 0.24 + 0.05 * t, 48, 20), 'plastic'));
@@ -1359,7 +1874,7 @@ const AIR = {
   a.part('maf_tube', group(mesh(cylZ(0.24, 0.58, 32), 'plasticGrey', V3(-3.4, 3.8, -1.13)), mesh(cylZ(0.27, 0.06, 32), 'plasticGrey', V3(-3.4, 3.8, -0.87))), [0, 0, -0.3]);
   a.part('maf_sensor', group(mesh(rbox(0.26, 0.2, 0.36, 0.04), 'plastic', V3(-3.4, 4.1, -1.13)), mesh(rbox(0.05, 0.26, 0.14, 0.01), 'pcb', V3(-3.4, 3.9, -1.13))), [0, 0.65, 0]);
   a.part('maf_conn', mesh(rbox(0.2, 0.14, 0.2, 0.03), 'plastic', V3(-3.18, 4.14, -1.13)), [0.45, 0.6, 0]);
-  a.part('maf_screws', group(fastenerObj('screw', V3(-3.4, 4.21, -0.99), V3(0, 1, 0), 0.8), fastenerObj('screw', V3(-3.4, 4.21, -1.27), V3(0, 1, 0), 0.8)), [0, 1.05, 0]);
+  a.part('maf_screws', FSTS('maf_screw', [[V3(-3.4, 4.2, -0.99), V3(0, 1, 0)], [V3(-3.4, 4.2, -1.27), V3(0, 1, 0)]]), [0, 1.05, 0]);
   a.part('maf_oring', at(oringObj(0.235, 0.014).rotateX(Math.PI / 2), -3.4, 3.8, -0.85), [0, 0.35, 0.45]);
 }
 /* --- впускной патрубок к турбине + вентиляция картера --- */
@@ -1370,7 +1885,8 @@ const AIR = {
   a.part('duct', duct.mesh, [0, 0.45, -0.3]);
   W.hoses.duct = duct;
   a.part('pcv_hose', mesh(tubeGeo(AIR.pcv, 0.06, 40, 12), 'vacHose'), [0, 0.8, 0.2]);
-  const cl = group(placeAlong(clampObj(0.275, 0.07), V3(-2.33, 2.25, -2.85), V3(1, 0, 0)), placeAlong(clampObj(0.275, 0.07), V3(-3.4, 3.79, -1.52), V3(0, 0, 1)));
+  const se = AIR.duct[5], sd = V3().subVectors(AIR.duct[4], AIR.duct[5]).normalize();
+  const cl = group(FST('spring_duct', se.clone().addScaledVector(sd, 0.08), sd), FST('spring_duct', V3(-3.4, 3.8, -1.52), V3(0, 0, 1)));
   a.part('duct_clamps', cl, [0, 0.3, -0.5]);
   W.anim.ductClampTurbo = cl.children[0];
 }
@@ -1386,15 +1902,15 @@ const AIR = {
   const spFront = placeAlong(spigot(0.17, 0.26), V3(-3.08, -0.7, 4.2), V3(0.03, 0.15, 1));
   pipe.add(spTop, spFront);
   a.part('pipe_hot', pipe, [-0.4, -0.35, 0]);
-  a.part('pipe_mount', group(mesh(rbox(0.1, 0.3, 0.2, 0.03), 'steelDark', V3(-3.1, -0.62, 0.3)), mesh(cylZ(0.05, 0.12, 12), 'rubber', V3(-3.1, -0.5, 0.3)), fastenerObj('bolt', V3(-3.1, -0.5, 0.42), V3(0, 0, 1))), [0, -0.5, 0.2]);
+  a.part('pipe_mount', group(mesh(rbox(0.1, 0.3, 0.2, 0.03), 'steelDark', V3(-3.1, -0.62, 0.3)), mesh(cylZ(0.05, 0.12, 12), 'rubber', V3(-3.1, -0.5, 0.3)), FST('pipe_bolt', V3(-3.1, -0.5, 0.405), V3(0, 0, 1))), [0, -0.5, 0.2]);
   const lo = new Flex(AIR.hotLo, 0.2, {});
   a.part('hose_hot_lo', lo.mesh, [-0.3, -0.2, 0.5]);
   W.hoses.hotUp = up; W.hoses.hotLo = lo;
-  const cl = group(
-    placeAlong(clampObj(0.215), AIR.hotUp[0].clone().addScaledVector(up.endDir(0), -0.06), up.endDir(0)),
-    placeAlong(clampObj(0.215), AIR.hotUp[3].clone().addScaledVector(up.endDir(1), -0.06), up.endDir(1)),
-    placeAlong(clampObj(0.215), V3(...AIR.hotLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)),
-    placeAlong(clampObj(0.215), V3(...AIR.hotLo[3]).addScaledVector(lo.endDir(1), -0.06), lo.endDir(1)));
+  const cl = FSTS('clamp13', [
+    [AIR.hotUp[0].clone().addScaledVector(up.endDir(0), -0.06), up.endDir(0)],
+    [AIR.hotUp[3].clone().addScaledVector(up.endDir(1), -0.06), up.endDir(1)],
+    [V3(...AIR.hotLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)],
+    [V3(...AIR.hotLo[3]).addScaledVector(lo.endDir(1), -0.06), lo.endDir(1)]]);
   a.part('clamps_hot', cl, [0, 0.7, 0]);
   W.anim.clampsHot = [...cl.children];
   W.anim.spigots = {hotTop: spTop, hotFront: spFront};
@@ -1415,7 +1931,7 @@ const AIR = {
   a.part('ic_seals', seals, [0, 0.35, -0.6]);
   W.anim.icSeals = [...seals.children];
   a.part('ic_mounts', group(...[-2.6, 2.2].map(x => mesh(rbox(0.3, 0.12, 0.3, 0.04), 'rubber', V3(x, -1.0, 5.35)))), [0, -0.5, 0.3]);
-  a.part('f_ic', group(...[-2.6, 2.2].map(x => fastenerObj('bolt', V3(x, 0.52, 5.35), V3(0, 1, 0)))), [0, 0.6, 0.3]);
+  a.part('f_ic', FSTS('ic_bolt', [-2.6, 2.2].map(x => [V3(x, 0.445, 5.35), V3(0, 1, 0)])), [0, 0.6, 0.3]);
 }
 /* --- тракт наддува: холодная сторона --- */
 {
@@ -1434,11 +1950,11 @@ const AIR = {
   const up = new Flex(AIR.coldUp, 0.2, {bell: [[0.3, 0.7, 3, 0.03]]});
   a.part('hose_cold_up', up.mesh, [-0.3, 0.1, 0.55]);
   W.hoses.coldLo = lo; W.hoses.coldUp = up;
-  const clips = group(
-    placeAlong(clampObj(0.215), V3(...AIR.coldLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)),
-    placeAlong(clampObj(0.215), V3(...AIR.coldLo[3]).addScaledVector(lo.endDir(1), -0.05), lo.endDir(1)),
-    placeAlong(clampObj(0.215), V3(...AIR.coldUp[0]).addScaledVector(up.endDir(0), -0.05), up.endDir(0)),
-    placeAlong(clampObj(0.215), V3(...AIR.coldUp[3]).addScaledVector(up.endDir(1), -0.06), up.endDir(1)));
+  const clips = FSTS('clamp9', [
+    [V3(...AIR.coldLo[0]).addScaledVector(lo.endDir(0), -0.06), lo.endDir(0)],
+    [V3(...AIR.coldLo[3]).addScaledVector(lo.endDir(1), -0.05), lo.endDir(1)],
+    [V3(...AIR.coldUp[0]).addScaledVector(up.endDir(0), -0.05), up.endDir(0)],
+    [V3(...AIR.coldUp[3]).addScaledVector(up.endDir(1), -0.06), up.endDir(1)]]);
   a.part('clamps_cold', clips, [0, 0.7, 0.2]);
   W.anim.clipsCold = [...clips.children];
   W.anim.spigots.coldBot = spBot; W.anim.spigots.coldTop = spTop;
@@ -1453,7 +1969,7 @@ const AIR = {
   a.part('g31_elem', placeAlong(mesh(rbox(0.1, 0.03, 0.1, 0.01), 'pcb'), along(0.0), d), exv(d, 0.3, [0.3, 0, 0]));
   a.part('g31_ntc', placeAlong(mesh(cylY(0.018, 0.16, 8), 'brass'), along(-0.1), d), exv(d, -0.35));
   a.part('g31_oring', placeAlong(oringObj(0.07, 0.016), along(-0.02), d), exv(d, 0.2, [0, 0, 0.3]));
-  a.part('g31_screw', placeAlong(fastenerObj('screw', V3(), V3(0, 1, 0)), along(0.12).add(V3(0.17, 0, 0)), d), exv(d, 0.8, [0.35, 0, 0]));
+  a.part('g31_screw', FST('g31_screw', along(0.125).add(V3(0.17, 0, 0)), d), exv(d, 0.8, [0.35, 0, 0]));
   a.part('g31_conn', placeAlong(mesh(rbox(0.18, 0.14, 0.16, 0.03), 'plastic'), along(0.12).add(V3(-0.17, 0, 0)), d), exv(d, 0.6, [-0.45, 0, 0]));
 }
 /* --- дроссельная заслонка J338: на коллекторе спереди, горловиной вниз --- */
@@ -1468,8 +1984,8 @@ const AIR = {
   a.part('thr_motor', group(mesh(rbox(0.3, 0.5, 0.34, 0.06), 'plastic', c.clone().add(V3(0.42, -0.02, 0))), mesh(rbox(0.16, 0.16, 0.22, 0.03), 'plastic', c.clone().add(V3(0.42, 0.28, 0.02)))), [0.6, 0, 0.3]);
   a.part('thr_g69', mesh(rbox(0.06, 0.22, 0.22, 0.02), 'pcb', c.clone().add(V3(0.6, -0.02, 0))), [0.95, 0.1, 0.3]);
   a.part('thr_seal', at(oringObj(0.28, 0.016), c.x, c.y + 0.22, c.z), [0, 0.1, 0.55]);
-  a.part('f_thr', group(...[[-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].map(([dx, dz]) => fastenerObj('bolt', c.clone().add(V3(dx, 0.21, dz)), V3(0, -1, 0)))), [0, -0.15, 0.75]);
-  a.part('thr_support', group(rodBetween(V3(1.2, 2.25, 2.33), V3(1.1, 1.3, 1.62), 0.035, 'steelDark'), fastenerObj('bolt', V3(1.1, 1.3, 1.6), V3(0, 0, 1))), [0, -0.3, 0.5]);
+  a.part('f_thr', FSTS('thr_bolt', [[-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]].map(([dx, dz]) => [c.clone().add(V3(dx, 0.175, dz)), V3(0, -1, 0)])), [0, -0.15, 0.75]);
+  a.part('thr_support', group(rodBetween(V3(1.2, 2.25, 2.33), V3(1.1, 1.3, 1.62), 0.035, 'steelDark'), FST('thr_sup_bolt', V3(1.1, 1.3, 1.64), V3(0, 0, 1))), [0, -0.3, 0.5]);
   W.anim.spigots.thrIn = a.partObj('thr_body').children[1];
 }
 /* --- впускной коллектор: ресивер, патрубок EGR, крепёж Torx T30 --- */
@@ -1481,10 +1997,10 @@ const AIR = {
   pl.add(mesh(rbox(3.6, 0.45, 0.08, 0.04), 'alu', V3(0, 2.86, 1.58)));
   pl.add(mesh(cylY(0.26, 0.12, 32), 'alu', V3(AIR.thr.x, 2.68, AIR.thr.z)));
   a.part('im_plenum', pl, [0, 0.9, 0.2]);
-  a.part('f_im', group(...[-1.76, -0.88, 0, 0.88, 1.76].flatMap(x => [fastenerObj('torx', V3(x, 3.13, 1.63), V3(0, 0, 1)), fastenerObj('torx', V3(x, 2.6, 1.63), V3(0, 0, 1))])), [0, 1.3, 0.5]);
+  a.part('f_im', FSTS('im_bolt', [-1.76, -0.88, 0, 0.88, 1.76].flatMap(x => [[V3(x, 3.13, 1.62), V3(0, 0, 1)], [V3(x, 2.6, 1.62), V3(0, 0, 1)]])), [0, 1.3, 0.5]);
   const egr = group(mesh(tubeGeo([[-2.3, 2.62, 2.2], [-2.1, 2.8, 2.22], [-1.86, 2.9, 2.22]], 0.13, 16, 20), 'alu'), mesh(cylX(0.18, 0.04, 24), 'alu', V3(-1.9, 2.92, 2.22)));
   a.part('im_egr', egr, [-0.55, 0.35, 0.3]);
-  a.part('f_im_egr', group(fastenerObj('bolt', V3(-1.94, 3.12, 2.22), V3(-1, 0, 0)), fastenerObj('bolt', V3(-1.94, 2.72, 2.22), V3(-1, 0, 0))), [-0.8, 0.35, 0.3]);
+  a.part('f_im_egr', FSTS('im_egr_bolt', [[V3(-1.92, 3.12, 2.22), V3(-1, 0, 0)], [V3(-1.92, 2.72, 2.22), V3(-1, 0, 0)]]), [-0.8, 0.35, 0.3]);
   a.part('im_gasket', mesh(rbox(3.6, 0.46, 0.02, 0.01), 'green', V3(0, 2.86, 1.535)), [0, 0.3, -0.35]);
   const dip = group(mesh(tubeGeo([[0.95, 0.5, 1.53], [0.95, 1.6, 1.85], [0.92, 2.6, 2.62], [0.9, 3.45, 2.66]], 0.035, 30, 8), 'plasticGrey'), mesh(rbox(0.12, 0.1, 0.12, 0.03), 'plasticWhite', V3(0.9, 3.5, 2.66)));
   dip.children[1].material.color.set(0xe0a31a);
@@ -1493,11 +2009,12 @@ const AIR = {
 /* --- радиатор (контекст, не выбирается) --- */
 const radiator = new THREE.Mesh(rbox(4.4, 3.7, 0.3, 0.05), new THREE.MeshStandardMaterial({color: 0x6f7780, transparent: true, opacity: 0.12, depthWrite: false, roughness: .6}));
 radiator.position.set(-0.2, 1.05, 4.72);
-scene.add(radiator);
+ROOT.add(radiator);
 
 /* ================== EGR (сзади, под турбиной), ВЫПУСК, ЭБУ ================== */
 /* трубка 1: отвод от выпускного коллектора → вход охладителя (с развязывающим элементом) */
-const EGRP1 = [[-1.05, 2.7, -1.84], [-1.1, 2.35, -1.9], [-1.15, 1.95, -1.95], [-1.18, 1.52, -1.98]];
+const EGRF = W.anim.egrFlange.clone();
+const EGRP1 = [EGRF.clone().add(V3(0, -0.03, 0)), [-1.2, 2.4, -2.06], [-1.19, 1.95, -2.0], [-1.18, 1.52, -1.98]];
 /* трубка 2: клапан EGR → патрубок EGR на впускном коллекторе (вокруг левого торца двигателя) */
 const EGRP2 = [[-2.72, 1.3, -1.98], [-2.86, 1.45, -1.5], [-2.87, 1.62, -0.3], [-2.8, 1.8, 0.9], [-2.6, 2.2, 1.75], [-2.4, 2.52, 2.12], [-2.3, 2.62, 2.2]];
 const EGR_VALVE = V3(-2.55, 1.25, -1.98);
@@ -1509,7 +2026,7 @@ TX.cells = canvasTex(64, 64, (g, w, h) => {
   const a = new Asm('egr', 'egr');
   a.anchor.set(-1.9, 1.95, -1.7);
   const bell2 = (t) => 0.09 + bellow(t, 0.05, 0.16, 6, 0.025) + bellow(t, 0.84, 0.95, 6, 0.025);
-  a.part('egr_pipe1', mesh(varTubeGeo(curveOf(EGRP1), t => 0.09 + bellow(t, 0.3, 0.62, 6, 0.028), 60, 16), 'stainless'), [0.35, 0.45, -0.35]);
+  a.part('egr_pipe1', group(mesh(varTubeGeo(curveOf(EGRP1), t => 0.09 + bellow(t, 0.3, 0.62, 6, 0.028), 60, 16), 'stainless'), mesh(rbox(0.36, 0.02, 0.2, 0.03), 'stainless', EGRF.clone().add(V3(0, -0.02, 0)))), [0.35, -0.45, -0.35]);
   a.part('egr_pipe2', mesh(varTubeGeo(curveOf(EGRP2), bell2, 180, 16), 'stainless'), [-0.45, 0.2, 0]);
   const cooler = group(mesh(rbox(1.2, 0.42, 0.44, 0.06), 'stainless', V3(-1.8, 1.2, -1.98)));
   for (let i = 0; i < 6; i++) cooler.add(mesh(rbox(0.04, 0.48, 0.5, 0.01), 'stainless', V3(-2.3 + i * 0.2, 1.2, -1.98)));
@@ -1529,20 +2046,21 @@ TX.cells = canvasTex(64, 64, (g, w, h) => {
   mot.add(mesh(new THREE.PlaneGeometry(0.22, 0.07), new THREE.MeshBasicMaterial({map: textTex('N18', {w: 128, h: 40, font: '600 26px "IBM Plex Mono", monospace'})}), EGR_VALVE.clone().add(V3(0, 0.36, -0.235)), [0, Math.PI, 0]));
   a.part('egr_motor', mot, [-0.3, 0.6, -0.35]);
   const gk = group(
-    at(oringObj(0.11, 0.012), -1.05, 2.66, -1.84), at(oringObj(0.11, 0.012), -1.18, 1.5, -1.98),
+    at(oringObj(0.11, 0.012), EGRF.x, EGRF.y - 0.006, EGRF.z), at(oringObj(0.11, 0.012), -1.18, 1.5, -1.98),
     at(oringObj(0.11, 0.012).rotateZ(Math.PI / 2), -2.71, 1.3, -1.98), at(oringObj(0.12, 0.012).rotateX(Math.PI / 2), -2.3, 2.62, 2.2));
   a.part('egr_gaskets', gk, [0, -0.4, 0.3]);
-  a.part('f_egr_mani', group(fastenerObj('nut', V3(-0.93, 2.72, -1.84), V3(0, 1, 0)), fastenerObj('nut', V3(-1.17, 2.72, -1.84), V3(0, 1, 0))), [0.2, 0.7, -0.2]);
-  a.part('f_egr_cooler', group(...[-2.25, -1.45].map(x => fastenerObj('bolt', V3(x, 1.2, -1.74), V3(0, 0, 1)))), [0, -0.3, 0.55]);
-  a.part('f_egr_pipes', group(fastenerObj('bolt', V3(-1.02, 1.52, -1.98), V3(0, 1, 0)), fastenerObj('bolt', V3(-2.72, 1.5, -1.98), V3(-1, 0, 0)), fastenerObj('bolt', V3(-2.72, 1.1, -1.98), V3(-1, 0, 0))), [-0.2, 0.5, 0]);
-  a.part('egr_clamp', placeAlong(clampObj(0.12, 0.05), V3(-2.33, 2.6, 2.19), V3(0.3, 0.4, 0.2).normalize()), [-0.4, 0.3, 0.35]);
+  a.part('f_egr_mani', FSTS('egr_mani_nut', [-1, 1].map(s => [EGRF.clone().add(V3(s * 0.12, -0.03, 0)), V3(0, -1, 0)])), [0.2, -0.7, -0.2]);
+  a.part('f_egr_cooler', FSTS('egr_cooler_bolt', [-2.25, -1.45].map(x => [V3(x, 1.2, -1.76), V3(0, 0, 1)])), [0, -0.3, 0.55]);
+  a.part('f_egr_pipes', FSTS('egr_pipe_bolt', [[V3(-1.04, 1.5, -1.98), V3(0, 1, 0)], [V3(-2.71, 1.5, -1.98), V3(-1, 0, 0)], [V3(-2.71, 1.1, -1.98), V3(-1, 0, 0)]]), [-0.2, 0.5, 0]);
+  a.part('egr_clamp', FST('egr_clamp', V3(-2.33, 2.6, 2.19), V3(0.3, 0.4, 0.2).normalize()), [-0.4, 0.3, 0.35]);
 }
 {
   const a = new Asm('dpf', 'exh');
   a.anchor.set(1.25, 2.1, -3.2);
   const X = 0.95, Z = -2.95;
-  const down = group(mesh(tubeGeo([[0.26, 2.25, -2.85], [0.55, 2.25, -2.87], [0.85, 2.15, -2.93], [0.95, 1.98, -2.95], [0.95, 1.86, -2.95]], 0.2, 30, 20), 'stainless'));
-  down.add(mesh(cylX(0.31, 0.06, 32), 'stainless', V3(0.31, 2.25, -2.85)));
+  const T = TA(0);
+  const down = group(mesh(tubeGeo([T.clone().add(V3(0.06, 0, 0)), T.clone().add(V3(0.36, 0, 0)), V3(0.74, T.y - 0.2, -2.9), V3(0.93, T.y - 0.72, -2.95), V3(0.95, 2.1, -2.95), V3(0.95, 1.86, -2.95)], 0.2, 40, 20), 'stainless'));
+  down.add(mesh(latheX([[0.05, 0.2], [0.05, 0.36], [0.09, 0.36], [0.12, 0.22]], 40), 'stainless', T.clone()));
   a.part('dpf_down', down, [0.45, 0.35, 0]);
   const shell = mesh(new THREE.LatheGeometry([[0.2, 1.9], [0.2, 1.84], [0.6, 1.58], [0.61, 1.5], [0.61, -0.28], [0.6, -0.36], [0.2, -0.62], [0.2, -0.68]].reverse().map(([r, y]) => new THREE.Vector2(r, y)), 56), 'stainless', V3(X, 0, Z));
   shell.material.side = THREE.DoubleSide;
@@ -1579,16 +2097,16 @@ TX.cells = canvasTex(64, 64, (g, w, h) => {
   a.part('ecu_baro', mesh(rbox(0.14, 0.06, 0.12, 0.02), 'plastic', c.clone().add(V3(0.3, 0.02, -0.25))), [0.2, 0.55, -0.2]);
   a.part('ecu_conn', group(mesh(rbox(0.5, 0.2, 0.18, 0.03), 'plastic', c.clone().add(V3(-0.2, 0, 0.62))), mesh(rbox(0.36, 0.2, 0.18, 0.03), 'plastic', c.clone().add(V3(0.3, 0, 0.62)))), [0, 0, 0.6]);
   const fr = group(mesh(rbox(1.36, 0.04, 1.26, 0.02), 'steelDark', c.clone().add(V3(0, -0.18, 0))));
-  fr.add(...[[-0.62, -0.56], [0.62, -0.56], [-0.62, 0.56], [0.62, 0.56]].map(([dx, dz]) => fastenerObj('bolt', c.clone().add(V3(dx, -0.15, dz)), V3(0, 1, 0))));
+  fr.add(...[[-0.62, -0.56], [0.62, -0.56], [-0.62, 0.56], [0.62, 0.56]].map(([dx, dz]) => FST('ecu_bolt', c.clone().add(V3(dx, -0.16, dz)), V3(0, 1, 0))));
   a.part('ecu_frame', fr, [0, -0.45, 0]);
 }
 /* точки подключения проводов (для слоя «Сигналы ЭБУ») */
 W.sig = {
   src: V3(-1.3, 4.72, -3.72),
   targets: [
-    ['G70', 'maf', V3(-3.18, 4.14, -1.13)], ['G31/G42', 'g31', AIR.g31.clone().addScaledVector(AIR.g31Dir, 0.15).add(V3(-0.17, 0, 0))], ['G581', 'actuator', TA(0).add(V3(L.tx.lever + 0.2, 1.48, -0.76))],
+    ['G70', 'maf', V3(-3.18, 4.14, -1.13)], ['G31/G42', 'g31', AIR.g31.clone().addScaledVector(AIR.g31Dir, 0.15).add(V3(-0.17, 0, 0))], ['G581', 'actuator', W.anim.g581Conn.clone()],
     ['N75', 'n75', V3(-1.57, 3.27, -3.78)], ['J338', 'throttle', AIR.thr.clone().add(V3(0.42, 0.28, 0.02))], ['N18/G212', 'egr', EGR_VALVE.clone().add(V3(0.1, 0.52, -0.15))],
-    ['N345', 'n345', V3(-0.73, 2.93, 2.66)], ['G505', 'dpf', V3(2.14, 1.34, -2.35)], ['G235', 'turbo', TA(0).add(V3(-0.1, 1.2, 0.8))], ['G39', 'dpf', V3(2.1, 2.3, -2.6)],
+    ['N345', 'n345', V3(-0.73, 2.93, 2.66)], ['G505', 'dpf', V3(2.14, 1.34, -2.35)], ['G235', 'turbo', W.anim.g235Conn.clone()], ['G39', 'dpf', V3(2.1, 2.3, -2.6)],
   ],
 };
 
@@ -1607,38 +2125,46 @@ const SYS = {
 const INFO = {
   turbo: {
     t: 'Турбокомпрессор с изменяемой геометрией (VNT)', codes: ['BorgWarner BV40 (KKK)', '03L 253 010 J / 03L 253 056 E·Q', 'в сборе с коллектором'],
-    what: 'Турбина и компрессор на общем валу. Для 103-кВт мотора CFFB каталоги указывают BorgWarner BV40: колесо компрессора Ø46 мм на выходе и Ø34,4 мм на входе, 6+6 лопаток; колесо турбины Ø40/35,6 мм, 9 лопаток. Корпус турбины отлит заодно с выпускным коллектором.',
+    what: 'Турбина и компрессор на общем валу; корпус турбины отлит заодно с выпускным коллектором. Для 103-кВт мотора CFFB каталоги указывают BorgWarner BV40: колесо компрессора Ø46/34,4 мм, 6+6 лопаток; колесо турбины Ø40/35,6 мм, 9 лопаток. По фото этой турбины: 10 поворотных лопаток, ось турбины выше выпускных окон, вакуумная камера сверху на кронштейне с тремя болтами, фланец к ГБЦ — четыре овальных окна и круглое окно у 4-го цилиндра.',
     role: 'Создаёт давление наддува. Величину наддува ЭБУ меняет поворотом направляющих лопаток вокруг колеса турбины: закрытые лопатки разгоняют газ и быстро раскручивают турбину, открытые расширяют проход и ограничивают наддув.',
     p0299: 'Если лопатки не закрываются (нет разрежения на актуаторе, порвана мембрана, механизм закоксован) или турбина изношена, фактическое давление не догоняет заданное, и ЭБУ записывает P0299.',
-    check: ['Шток актуатора: при разрежении 0,6 бар от ручного насоса уходит в крайнее положение и держится (раздел «Актуатор»).', 'Рычаг VNT со снятой тягой поворачивается рукой по всему ходу, без закусываний.', 'Люфт вала: небольшой радиальный люфт допустим, касаний колёс о корпуса быть не должно.', 'Колесо компрессора без сколов и следов касания. При механическом повреждении руководство требует проверить фильтр, весь тракт и интеркулер на обломки.', 'Выпускной коллектор без трещин и сажи у прокладки.'],
+    check: ['Шток актуатора: при разрежении 0,6 бар от ручного насоса уходит в крайнее положение и держится (раздел «Актуатор»).', 'Рычаг VNT со снятой скобой и гайкой штока поворачивается рукой по всему ходу, без закусываний.', 'Люфт вала: небольшой радиальный люфт допустим, касаний колёс о корпуса быть не должно.', 'Колесо компрессора без сколов и следов касания. При механическом повреждении руководство требует проверить фильтр, весь тракт и интеркулер на обломки.', 'Выпускной коллектор без трещин и сажи у прокладки.'],
     faults: ['Закоксовка механизма VNT (короткие поездки, работа EGR)', 'Износ подшипников вала из-за масла и перегрева', 'Трещины коллектора и корпуса турбины'],
-    spec: [['Гайки коллектора (самоконтрящиеся, заменять)', '24 Н·м'], ['Накидная гайка маслоподводящей трубки', '22 Н·м'], ['Полые болты маслоподвода', '40 и 30 Н·м'], ['Опора турбины', '9 Н·м'], ['Впускной патрубок (Ansaugstutzen)', '9 Н·м'], ['Гаситель пульсаций', '9 Н·м'], ['Датчик G235', '20 Н·м'], ['Держатель проводов', '15 Н·м'], ['Трубка EGR к коллектору (гайки заменять)', '17 Н·м']],
-    note: 'Руководство VW: турбокомпрессор меняется только в сборе с выпускным коллектором и вакуумной камерой; перед установкой маслоподводящей трубки залить масло в штуцер турбины; после установки дать поработать около 1 минуты на ХХ, не газовать; выполнить базовую установку турбокомпрессора. Турбина снимается вниз вместе с коллектором; на 4Motion для доступа к опоре снимают правый привод и фланцевый вал углового редуктора.',
+    spec: [['Гайки коллектора (самоконтрящиеся, новые)', '24 Н·м'], ['Накидная гайка маслоподвода', '22 Н·м'], ['Полые болты маслоподвода', '40 и 30 Н·м'], ['Опора турбины', '9 Н·м'], ['Впускной патрубок, винт', '9 Н·м'], ['Гаситель пульсаций, 2 болта', '9 Н·м'], ['Датчик G235', '45 Н·м'], ['Держатель проводов', '15 Н·м'], ['Трубка EGR к коллектору (гайки новые)', '17 Н·м']],
+    note: 'Руководство VW: турбокомпрессор меняется только в сборе с выпускным коллектором и вакуумной камерой; перед установкой маслоподводящей трубки залить масло в штуцер турбины; после установки дать поработать около 1 минуты на ХХ, не газовать; выполнить базовую установку турбокомпрессора. Турбину снимают вниз вместе с коллектором, повернув впуском вниз; на 4Motion для доступа к опоре снимают правый привод и фланцевый вал углового редуктора. Нажмите на любой болт или гайку — откроется лупа с резьбой и маркировкой.',
     parts: {
-      comp_housing: {t: 'Корпус компрессора («холодная улитка»)', d: 'Литой алюминиевый корпус со спиральным каналом.', r: 'Собирает воздух после колеса и превращает его скорость в давление. Задиры внутри — признак касания колеса и износа подшипников.'},
-      comp_wheel: {t: 'Колесо компрессора', d: 'Алюминиевое колесо BV40: Ø46 мм на выходе, Ø34,4 мм на входе, 6 основных и 6 укороченных лопаток (данные каталогов).', r: 'Сжимает воздух. Вращается с частотой порядка сотен тысяч оборотов в минуту, поэтому любой скол лопатки означает замену турбины.'},
-      intake_stub: {t: 'Впускной патрубок турбины (Ansaugstutzen)', d: 'Пластиковый патрубок, вставляется в корпус компрессора через уплотнительное кольцо и держится двумя невыпадающими винтами 9 Н·м.', r: 'Снимается вместе с воздуховодом от фильтра: воздуховод с патрубком отводят назад и стягивают с турбины (руководство VW).'},
-      stub_oring: {t: 'Уплотнительное кольцо впускного патрубка', d: 'Кольцо между патрубком и корпусом компрессора.', r: 'Заменяется при каждом снятии. Сторона всасывания: небольшие утечки здесь руководство допускает, но подсос мимо G70 сбивает расчёт массы воздуха.'},
-      f_stub: {t: 'Винты впускного патрубка', d: 'Два невыпадающих винта.', r: 'Момент 9 Н·м (руководство VW).'},
-      puls: {t: 'Гаситель пульсаций (Pulsationsdämpfer)', d: 'Резонатор на выходе компрессора. На рифлёный штуцер снизу надевается верхний патрубок наддува под винтовой хомут.', r: 'Гасит пульсации давления и шум компрессора. Крепится стопорным кольцом (ставится только в одном положении) и винтом 9 Н·м.'},
+      comp_housing: {t: 'Корпус компрессора («холодная улитка»)', d: 'Литой алюминиевый корпус со спиральным каналом. У входа три прилива: один под винт патрубка, два — байонет. Выход смотрит назад-вниз, к гасителю пульсаций. На корпусе наклейка с номером турбины.', r: 'Собирает воздух после колеса и превращает его скорость в давление. Задиры внутри — признак касания колеса и износа подшипников.'},
+      f_comp: {t: 'Болты прижимных пластин корпуса компрессора', d: 'Четыре болта по заднему фланцу корпуса.', r: 'Заводская сборка турбины; VW отдельно их не обслуживает.'},
+      comp_wheel: {t: 'Колесо компрессора', d: 'Алюминиевое колесо BV40: Ø46 мм на выходе, Ø34,4 мм на входе, 6 основных и 6 укороченных лопаток (данные каталогов). Держится гайкой на конце вала.', r: 'Сжимает воздух. Вращается с частотой порядка сотен тысяч оборотов в минуту, поэтому любой скол лопатки означает замену турбины.'},
+      intake_stub: {t: 'Впускной патрубок турбины (Ansaugstutzen)', d: 'Пластиковый патрубок-колено: вставлен в корпус компрессора через уплотнительное кольцо и держится одним невыпадающим винтом Torx T30 (9 Н·м) и байонетом.', r: 'Снимается вместе с воздуховодом от фильтра: выкрутить винт, повернуть воздуховод с патрубком назад и стянуть с турбины (руководство VW).'},
+      stub_oring: {t: 'Уплотнительное кольцо впускного патрубка', d: 'Кольцо между патрубком и корпусом компрессора.', r: 'Заменяется при каждом снятии. Сторона всасывания: подсос мимо G70 сбивает расчёт массы воздуха.'},
+      f_stub: {t: 'Винт впускного патрубка', d: 'Один невыпадающий винт Torx T30.', r: 'Момент 9 Н·м (руководство VW).'},
+      puls: {t: 'Гаситель пульсаций (Pulsationsdämpfer)', d: 'Резонатор на выходе компрессора. На рифлёный штуцер снизу надевается верхний патрубок наддува под винтовой хомут.', r: 'Гасит пульсации давления и шум компрессора. Держится стопорным кольцом (ставится только в одном положении) и двумя болтами Torx T30 9 Н·м.'},
+      puls_ring: {t: 'Стопорное кольцо гасителя', d: 'Разрезное кольцо на выходе компрессора.', r: 'Ставится только в одном положении (руководство VW).'},
       puls_oring: {t: 'Уплотнительное кольцо гасителя', d: 'Кольцо между гасителем и выходом компрессора.', r: 'Заменяется при снятии. Порванное кольцо — утечка наддува сразу после турбины.'},
-      f_puls: {t: 'Винт гасителя пульсаций', d: 'Винт крепления гасителя.', r: 'Момент 9 Н·м (руководство VW).'},
-      chra: {t: 'Корпус подшипников (картридж)', d: 'Средняя часть турбины: подшипники скольжения, упорный подшипник, уплотнительные кольца вала. Сверху подвод масла, снизу слив.', r: 'Держит и смазывает вал. Масляное голодание или забитый слив быстро губят подшипники.'},
+      f_puls: {t: 'Болты гасителя пульсаций', d: 'Два болта Torx T30.', r: 'Момент 9 Н·м (руководство VW).'},
+      chra: {t: 'Корпус подшипников (картридж)', d: 'Средняя часть турбины: подшипники скольжения, упорный подшипник, уплотнительные кольца вала. Сверху штуцер подвода масла, снизу фланец слива, сбоку втулка валика VNT.', r: 'Держит и смазывает вал. Масляное голодание или забитый слив быстро губят подшипники.'},
       shaft: {t: 'Вал ротора', d: 'Стальной вал, сваренный с колесом турбины; колесо компрессора надето на другой конец.', r: 'Передаёт мощность от турбины к компрессору.'},
       turb_wheel: {t: 'Колесо турбины', d: 'Жаропрочное колесо: Ø40 мм на входе, Ø35,6 мм на выходе, 9 лопаток (данные каталогов для BV40).', r: 'Принимает энергию выхлопа от сопловых лопаток и вращает вал.'},
-      nozzle: {t: 'Сопловой аппарат VNT (поворотные лопатки)', d: 'Кольцо с поворотными лопатками вокруг колеса турбины, каждая на своей оси.', r: 'Главный орган регулирования наддува. Нагар между лопатками — частая причина их заедания.'},
-      unison: {t: 'Регулировочное кольцо', d: 'Кольцо за сопловым аппаратом, связанное с рычажками всех лопаток.', r: 'Поворачивает все лопатки одновременно. При закоксовке заедает.'},
-      vnt_lever: {t: 'Рычаг привода VNT с валиком', d: 'Наружный рычаг на валике, который проходит в корпус и поворачивает регулировочное кольцо.', r: 'Проверка: снять тягу и провернуть рычаг рукой — ход плавный по всему диапазону.'},
-      turb_housing: {t: 'Корпус турбины с выпускным коллектором', d: 'Чугунная отливка: коллектор собирает газы четырёх цилиндров и подводит их в спиральный канал турбины; здесь же отвод на EGR.', r: 'Трещины и прогар прокладки уводят энергию мимо турбины: наддув падает.'},
-      f_mani: {t: 'Гайки выпускного коллектора', d: 'Самоконтрящиеся гайки на шпильках головки блока.', r: 'Момент 24 Н·м, гайки заменять (руководство VW). Количество на модели — условно, сверить по фото.'},
-      mani_gasket: {t: 'Прокладка выпускного коллектора', d: 'Металлическая прокладка между коллектором и головкой.', r: 'Заменяется при снятии.'},
-      heat_shield: {t: 'Теплозащитный экран', d: 'Экран над коллектором и турбиной.', r: 'Защищает проводку и шланги от жара.'},
-      support: {t: 'Опора турбокомпрессора (Stütze)', d: 'Кронштейн между турбиной и блоком; снимается вместе с маслоподводящей трубкой.', r: 'Момент 9 Н·м (руководство VW).'},
-      f_union: {t: 'Накидная гайка маслоподвода на турбине', d: 'Гайка трубки подвода масла.', r: 'Момент 22 Н·м. Перед затяжкой залить масло в штуцер турбины.'},
+      nozzle: {t: 'Сопловой аппарат VNT', d: 'Кольцо с 10 поворотными лопатками вокруг колеса турбины (по фото этого аппарата). Каждая лопатка на своей оси; с обратной стороны на оси — рычажок с вилкой. Со стороны турбины — крышка на пяти распорках.', r: 'Главный орган регулирования наддува. Нагар между лопатками — частая причина их заедания.'},
+      unison: {t: 'Регулировочное кольцо', d: 'Кольцо с пазами под вилки рычажков всех лопаток и приводным кривошипом от валика VNT.', r: 'Поворачивает все лопатки одновременно. При закоксовке заедает.'},
+      vnt_lever: {t: 'Рычаг привода VNT с валиком', d: 'Наружный рычаг на валике, который проходит через корпус подшипников и поворачивает регулировочное кольцо. Шток актуатора проходит через отверстие в конце рычага.', r: 'Проверка: снять скобу и нижнюю гайку штока, провернуть рычаг рукой — ход плавный по всему диапазону.'},
+      turb_housing: {t: 'Корпус турбины с выпускным коллектором', d: 'Чугунная отливка: четыре коротких патрубка от окон ГБЦ сходятся в общий канал под турбиной, горловина поднимается к спиральному каналу. Снизу прилив фланца трубки EGR и гнездо датчика G235; у 4-го цилиндра — круглое окно во фланце (есть на фото фланца и прокладки).', r: 'Трещины и прогар прокладки уводят энергию мимо турбины: наддув падает.'},
+      mani_studs: {t: 'Шпильки ГБЦ', d: 'Десять шпилек M8 в головке блока, на них надевается фланец коллектора.', r: 'Остаются в ГБЦ при снятии турбины; менять при повреждённой резьбе.'},
+      f_mani: {t: 'Гайки выпускного коллектора', d: 'Десять самоконтрящихся гаек под ключ 12 мм: восемь держат фланец, две — ещё и теплозащитный экран.', r: 'Момент 24 Н·м, гайки заменять (руководство VW).'},
+      mani_gasket: {t: 'Прокладка выпускного коллектора', d: 'Многослойная стальная: четыре овальных окна с выштамповками и круглое окно.', r: 'Заменяется при снятии; ставится одной стороной, надписью наружу.'},
+      heat_shield: {t: 'Теплозащитный экран коллектора', d: 'Штампованный экран над общим каналом коллектора; держится под двумя гайками фланца.', r: 'Защищает проводку и вакуумные трубки от жара.'},
+      support: {t: 'Опора турбокомпрессора (Stütze)', d: 'Кронштейн от прилива корпуса турбины к блоку; снимается вместе с маслоподводящей трубкой.', r: 'Болты 9 Н·м (руководство VW). Изогнутый щуп G235 должен стоять в 3…5 мм от болта опоры.'},
+      f_support: {t: 'Болты опоры турбины', d: 'Верхний — в прилив турбины, нижний — в блок.', r: 'Момент 9 Н·м (руководство VW).'},
+      f_union: {t: 'Накидная гайка маслоподвода на турбине', d: 'Гайка трубки подвода масла, под ключ 17 мм.', r: 'Момент 22 Н·м. Перед затяжкой залить масло в штуцер турбины.'},
       f_banjo: {t: 'Полые болты маслоподвода', d: 'Два полых болта с уплотнительными кольцами разного диаметра.', r: 'Моменты 40 Н·м и 30 Н·м, кольца заменять (руководство VW). Какой болт где — сверить по рисунку ELSA.'},
-      oil_feed: {t: 'Маслоподводящая трубка', d: 'Стальная трубка от блока к корпусу подшипников.', r: 'Перед установкой проверить на проходимость.'},
-      oil_drain: {t: 'Маслосливная трубка', d: 'Трубка от низа картриджа в картер; прокладка заменяется.', r: 'Свободный слив масла. Забитый слив выдавливает масло через уплотнения вала в тракт наддува.'},
-      g235: {t: 'Датчик температуры ОГ перед турбиной G235', d: 'Термодатчик в коллекторе перед турбиной, 20 Н·м.', r: 'ЭБУ защищает турбину от перегрева и использует температуру при регенерации сажевого фильтра.'},
+      oil_feed: {t: 'Маслоподводящая трубка', d: 'Стальная трубка от блока к штуцеру сверху картриджа.', r: 'Перед установкой проверить на проходимость; заломленную не ставить.'},
+      oil_drain: {t: 'Маслосливная трубка', d: 'Трубка от фланца снизу картриджа в блок, с резиновой вставкой.', r: 'Свободный слив масла. Забитый слив выдавливает масло через уплотнения вала в тракт наддува.'},
+      drain_gasket: {t: 'Прокладка фланца маслослива', d: 'Плоская прокладка на два болта (есть в ремкомплектах турбины).', r: 'Заменяется при снятии (руководство VW).'},
+      f_drain: {t: 'Болты фланца маслослива', d: 'Два болта под ключ 10 мм.', r: 'Момент — по рисунку ELSA (в перечне рядом с маслосливом 24 Н·м).'},
+      g235: {t: 'Датчик температуры ОГ перед турбиной G235', d: 'Термодатчик в коллекторе перед турбиной: резьба с высокотемпературной пастой, шестигранник 17 мм, 45 Н·м, доступ снизу.', r: 'ЭБУ защищает турбину от перегрева и использует температуру при регенерации сажевого фильтра.'},
+      wire_holder: {t: 'Держатель проводов', d: 'Скоба на коллекторе для проводов датчиков.', r: 'Болт 15 Н·м (руководство VW).'},
+      vband: {t: 'V-образный хомут фланца турбины', d: 'Стягивает фланец турбины с входом сажевого фильтра.', r: 'Момент — по ELSA (раздел очистки ОГ не загружен).'},
     },
   },
   actuator: {
@@ -1651,12 +2177,14 @@ const INFO = {
     spec: [['Проверочное разрежение', '0,6 бар'], ['Удержание', '≈ 30 с без падения']],
     note: 'Камера отдельно от турбины по руководству VW не меняется: турбина идёт в сборе с коллектором и камерой. После замены выполняется базовая установка турбокомпрессора.',
     parts: {
-      can_top: {t: 'Верхняя крышка (вакуумная полость)', d: 'Штампованная крышка со штуцером разрежения.', r: 'Трещина или ослабленная завальцовка дают утечку разрежения.'},
-      g581: {t: 'Датчик положения G581', d: 'Бесконтактный датчик хода штока в крышке камеры.', r: 'Сообщает ЭБУ фактическое положение лопаток; ЭБУ сравнивает его с заданным.'},
+      can_top: {t: 'Верхняя крышка (вакуумная полость)', d: 'Штампованная крышка со штуцером разрежения сбоку; завальцована с нижней чашкой.', r: 'Трещина или ослабленная завальцовка дают утечку разрежения.'},
+      g581: {t: 'Датчик положения G581', d: 'Чёрный пластиковый корпус сверху камеры с разъёмом; бесконтактно измеряет ход штока.', r: 'Сообщает ЭБУ фактическое положение лопаток; ЭБУ сравнивает его с заданным.'},
       diaphragm: {t: 'Мембрана', d: 'Армированная резиновая мембрана с тарелкой штока.', r: 'Порыв мембраны — классическая причина «шток не двигается» и P0299.'},
-      spring: {t: 'Возвратная пружина', d: 'Витая пружина внутри камеры.', r: 'Без разрежения держит лопатки открытыми.'},
-      can_bottom: {t: 'Нижняя чашка и кронштейн', d: 'Корпус камеры со стороны штока и кронштейн на корпусе компрессора.', r: 'Погнутый кронштейн меняет характеристику регулирования.'},
-      rod: {t: 'Шток с регулировочной резьбой', d: 'Стальной шток с контргайками и наконечником на пальце рычага VNT.', r: 'Длина выставлена на заводе; менять её «на глаз» нельзя.'},
+      spring: {t: 'Возвратная пружина', d: 'Витая пружина над мембраной, в вакуумной полости.', r: 'Без разрежения держит шток внизу, лопатки открыты.'},
+      can_bottom: {t: 'Нижняя чашка', d: 'Корпус камеры со стороны штока.', r: 'Через неё выходит шток.'},
+      bracket: {t: 'Кронштейн камеры', d: 'Стальной кронштейн на корпусе компрессора.', r: 'Погнутый кронштейн меняет характеристику регулирования.'},
+      f_bracket: {t: 'Болты кронштейна камеры', d: 'Три болта (по фото турбины и опыту замены камеры на CR TDI).', r: 'Момент VW не даёт: камера отдельно не меняется.'},
+      rod: {t: 'Шток с гайками и стопорной скобой', d: 'Нижний конец штока с резьбой M6 проходит через отверстие рычага VNT: сверху гайка, заданная на заводе, снизу вторая гайка на фиксаторе резьбы и C-образная скоба.', r: 'Длина штока выставлена на заводе — верхнюю гайку не трогать. Нажмите на гайку или скобу — откроется лупа.'},
     },
   },
   n75: {
@@ -1674,6 +2202,7 @@ const INFO = {
       n75_armature: {t: 'Якорь с клапаном', d: 'Подвижный сердечник с уплотнением.', r: 'Переключает выход между разрежением и атмосферой. Именно он щёлкает при тесте.'},
       n75_conn: {t: 'Разъём', d: 'Двухконтактный разъём от ЭБУ.', r: 'Окисленные контакты дают прерывистую работу.'},
       n75_bracket: {t: 'Кронштейн', d: 'Держатель клапана.', r: 'Шланги не должны перегибаться.'},
+      f_n75: {t: 'Болт кронштейна N75', d: 'Болт держателя клапана.', r: 'Момент — по ELSA.'},
       n75_silencer: {t: 'Глушитель', d: 'Глушитель на атмосферном штуцере (есть на схеме VW).', r: 'Снижает шум сбрасываемого воздуха.'},
       n75_filter: {t: 'Фильтр атмосферного входа', d: 'Фильтр на атмосферном штуцере (есть на схеме VW).', r: 'Забитый фильтр делает регулирование вялым.'},
     },
@@ -1688,7 +2217,8 @@ const INFO = {
     parts: {
       vp_body: {t: 'Корпус насоса', d: 'Алюминиевый корпус на головке блока.', r: 'Сюда же подходит масло для смазки.'},
       vp_rotor: {t: 'Ротор с лопаткой', d: 'Ротор с подвижной лопаткой.', r: 'Износ снижает глубину разрежения.'},
-      vp_cover: {t: 'Крышка', d: 'Крышка корпуса на болтах.', r: 'Течь масла видна на торце ГБЦ.'},
+      vp_cover: {t: 'Крышка', d: 'Крышка корпуса насоса.', r: 'Течь масла видна на торце ГБЦ.'},
+      f_vp: {t: 'Болты насоса', d: 'Болты крепления насоса к торцу ГБЦ.', r: 'Число и момент — по ELSA (раздел насоса не загружен).'},
       vp_ports: {t: 'Штуцеры', d: 'Большой — к усилителю тормозов, малый — к управлению.', r: 'Трещина штуцера даёт утечку во всей системе.'},
     },
   },
@@ -1714,6 +2244,7 @@ const INFO = {
       n345_body: {t: 'Корпус со штуцерами', d: 'Нижний штуцер — подвод разрежения (руководство VW).', r: 'Пропускает разрежение к камере заслонки по команде ЭБУ.'},
       n345_conn: {t: 'Разъём', d: 'Разъём от ЭБУ.', r: 'Обрыв цепи ЭБУ фиксирует кодом.'},
       n345_holder: {t: 'Держатель N345', d: 'Держатель спереди на впускном коллекторе; клапан вщёлкивается в него.', r: 'Болт держателя 9 Н·м (руководство VW).'},
+      f_n345: {t: 'Болт держателя N345', d: 'Болт держателя на коллекторе.', r: 'Момент 9 Н·м (руководство VW).'},
     },
   },
   vlines: {
@@ -2045,7 +2576,7 @@ const SCEN = [
 
 /* соединения тракта наддува (типы — по руководству VW) */
 const JOINT_TXT = {
-  1: {t: 'Гаситель пульсаций → верхний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Штуцер гасителя без трещин, резина у кромки целая, хомут затянут моментом (13 мм — 5,5 Н·м). Сам гаситель держится стопорным кольцом и винтом 9 Н·м, под ним O-ring.'},
+  1: {t: 'Гаситель пульсаций → верхний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Штуцер гасителя без трещин, резина у кромки целая, хомут затянут моментом (13 мм — 5,5 Н·м). Сам гаситель держится стопорным кольцом и двумя болтами Torx T30 9 Н·м, под ним O-ring.'},
   2: {t: 'Верхний патрубок → левая труба', k: 'Винтовой хомут на рифлёном штуцере', c: 'Рифление штуцера чистое, патрубок надет до упора, внутренний слой не расслоился.'},
   3: {t: 'Левая труба → нижний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Трещины снизу патрубка, масло и грязь, момент хомута.'},
   4: {t: 'Нижний патрубок → интеркулер (вход)', k: 'Винтовой хомут и уплотнение штуцера', c: 'Трещины бачка у штуцера, состояние уплотнения.'},
@@ -2054,26 +2585,32 @@ const JOINT_TXT = {
   7: {t: 'Правая труба → верхний патрубок', k: 'Винтовой хомут на рифлёном штуцере', c: 'Сюда часто попадает масло — резина разбухает и сползает.'},
   8: {t: 'Верхний патрубок → горловина J338', k: 'Винтовой хомут на горловине заслонки', c: 'Горловина и кромка патрубка. Нагар и масло здесь — повод осмотреть коллектор.'},
   9: {t: 'Датчик G31/G42 → труба', k: 'Уплотнительное кольцо, винт 5 Н·м', c: 'Кольцо на месте и целое, винт 5 Н·м. Масло на сенсоре искажает показания. Доступ снизу.'},
-  10: {t: 'Впускной патрубок → компрессор', k: 'O-ring и два невыпадающих винта 9 Н·м', c: 'Патрубок снимается вместе с воздуховодом от фильтра. Кольцо заменить. Сторона всасывания: небольшие утечки допускаются, трещины — нет.'},
+  10: {t: 'Впускной патрубок → компрессор', k: 'O-ring, один невыпадающий винт T30 9 Н·м и байонет', c: 'Выкрутить винт, повернуть воздуховод с патрубком назад и стянуть с турбины. Кольцо заменить. Сторона всасывания: небольшие утечки допускаются, трещины — нет.'},
 };
 
 /* ================== ПАСПОРТ ДАННЫХ, КРЕПЁЖ, СПИСОК НА ЗАВТРА ================== */
 /* status: vw — руководство VW; cat — каталоги и продавцы (сверить по VIN); you — ваши данные; model — условно */
-const STATUS = {vw: ['руководство VW', 'ok'], cat: ['каталог, сверить по VIN', 'warn'], you: ['ваши данные', 'ok'], model: ['условно, нужны фото', 'bad']};
+const STATUS = {vw: ['руководство VW', 'ok', 'VW'], cat: ['каталог, фото деталей — сверить по VIN', 'warn', 'каталог'], you: ['ваши данные', 'ok', 'ваши'], model: ['условно, нужны фото или номер из ETKA', 'bad', 'условно']};
 const PASSPORT = [
   ['Автомобиль', 'VIN WVGZZZ5NZDW114949, 2013 модельный год', 'you'],
   ['Автомобиль', 'ЭБУ 03L 907 309 AE', 'you'],
   ['Автомобиль', 'Код двигателя (вероятно CFFB, 103 кВт)', 'model'],
   ['Турбина', 'BorgWarner BV40, 03L 253 010 J / 03L 253 056 E·Q', 'cat'],
   ['Турбина', 'Колёса: компрессор Ø46 / 34,4 мм, 6+6; турбина Ø40 / 35,6 мм, 9 лопаток', 'cat'],
+  ['Турбина', 'Сопловой аппарат — 10 поворотных лопаток, крышка на 5 распорках', 'cat'],
+  ['Турбина', 'Ось турбины выше выпускных окон, камера сверху на кронштейне с 3 болтами, фланец: 4 овальных окна + круглое', 'cat'],
   ['Турбина', 'Меняется только с коллектором и вакуумной камерой; после установки — базовая установка', 'vw'],
-  ['Турбина', 'Вход — патрубок на O-ring и двух винтах 9 Н·м; выход — гаситель пульсаций, стопорное кольцо, O-ring, 9 Н·м', 'vw'],
-  ['Турбина', 'Гайки коллектора 24 Н·м (новые), маслоподвод 22/40/30 Н·м, опора 9 Н·м, G235 20 Н·м', 'vw'],
+  ['Турбина', 'Вход — патрубок на O-ring, один невыпадающий винт 9 Н·м и байонет: патрубок поворачивают назад и снимают', 'vw'],
+  ['Турбина', 'Выход — гаситель пульсаций: стопорное кольцо, O-ring, 2 болта 9 Н·м', 'vw'],
+  ['Турбина', 'Гайки коллектора 24 Н·м (новые), маслоподвод 22/40/30 Н·м, опора 9 Н·м, держатель проводов 15 Н·м', 'vw'],
+  ['Турбина', 'G235: 45 Н·м, паста на резьбу, ключ 17 мм, доступ снизу, щуп в 3…5 мм от болта опоры', 'vw'],
+  ['Крепёж', 'Гайки коллектора — 10 шт. под ключ 12 мм; винты патрубка и гасителя — Torx T30; болты маслослива — 10 мм', 'cat'],
+  ['Крепёж', 'Размер резьбы, длина и класс прочности каждого болта — до номеров N… из ETKA условно', 'model'],
   ['Вакуум', 'Состав: камера с G581, N75, глушитель, фильтр, обратный клапан, ресивер, N345, камера заслонки EGR', 'vw'],
   ['Вакуум', 'N75: средний штуцер — к камере турбины', 'vw'],
   ['Вакуум', 'Проверки: 0,6 бар, 30 с; шипение обратного клапана', 'vw'],
   ['Вакуум', 'Какой из крайних штуцеров N75 подвод, какой атмосфера; место ресивера', 'model'],
-  ['Тракт', 'Все патрубки — винтовые хомуты: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м', 'vw'],
+  ['Тракт', 'Все патрубки наддува — винтовые хомуты: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м; патрубок от фильтра — пружинные хомуты', 'vw'],
   ['Тракт', 'Кольца — только у G31, J338, впускного патрубка, гасителя и G70; у интеркулера — уплотнения', 'vw'],
   ['Тракт', 'Опрессовка: V.A.G 1687 + 1687/12, не больше 0,5 бар', 'vw'],
   ['Тракт', 'Интеркулер на замковой панели у конденсатора, 5 Н·м', 'vw'],
@@ -2081,39 +2618,22 @@ const PASSPORT = [
   ['Номера', 'N75 1K0 906 627 A/B; G31 03G 906 051 D/E; G70 03L 906 461 A; насос 03L 145 100 F; охладитель EGR 03L 131 512 BB', 'cat'],
   ['EGR', 'Охладитель со встроенным N18/G212 сзади под турбиной; трубки с развязкой; хомут 5 Н·м (новый)', 'vw'],
   ['ЭБУ', 'В водоотводном коробе под решёткой стеклоочистителей; 6 и 7 Н·м', 'vw'],
-  ['Геометрия', 'Точная форма деталей, трассы шлангов, число болтов на фланцах', 'model'],
+  ['Геометрия', 'Модель в правой системе координат: ГРМ справа по ходу машины, коробка слева', 'vw'],
+  ['Геометрия', 'Высота турбины над окнами и трассы шлангов — по фото деталей ±3 см; форма остальных деталей приближённая', 'model'],
 ];
-/* крепёж: ссылка на деталь модели (узел.деталь) */
+/* таблица крепежа: [группа, ключ справочника FS, узел.деталь, пометка] */
 const FASTENERS = [
-  ['Турбина', 'Гайки выпускного коллектора', '24 Н·м', 'самоконтрящиеся — заменять', 'turbo.f_mani'],
-  ['Турбина', 'Прокладка выпускного коллектора', '—', 'заменять', 'turbo.mani_gasket'],
-  ['Турбина', 'Накидная гайка маслоподвода', '22 Н·м', 'залить масло в штуцер турбины', 'turbo.f_union'],
-  ['Турбина', 'Полые болты маслоподвода', '40 и 30 Н·м', 'кольца разного диаметра — заменять', 'turbo.f_banjo'],
-  ['Турбина', 'Опора турбины', '9 Н·м', '', 'turbo.support'],
-  ['Турбина', 'Впускной патрубок, невыпадающие винты', '9 Н·м', 'O-ring заменять', 'turbo.f_stub'],
-  ['Турбина', 'Гаситель пульсаций', '9 Н·м', 'стопорное кольцо — одно положение; O-ring заменять', 'turbo.f_puls'],
-  ['Турбина', 'Датчик G235', '20 Н·м', '', 'turbo.g235'],
-  ['Турбина', 'Держатель проводов', '15 Н·м', '', ''],
-  ['EGR', 'Гайки трубки EGR на выпускном коллекторе', '17 Н·м', 'заменять, прокладку заменять', 'egr.f_egr_mani'],
-  ['EGR', 'Фланцы трубок EGR', '9 Н·м', 'прокладки заменять', 'egr.f_egr_pipes'],
-  ['EGR', 'Модуль охладителя', '9 / 24 Н·м', 'какой болт какой — по рисунку ELSA', 'egr.f_egr_cooler'],
-  ['EGR', 'Хомут соединительной трубки', '5 Н·м', 'заменять', 'egr.egr_clamp'],
-  ['Тракт', 'Винтовой хомут 13 мм', '5,5 Н·м', 'серийный образец; червяк — растворителем ржавчины', 'charge_hot.clamps_hot'],
-  ['Тракт', 'Винтовой хомут 9 мм', '3 Н·м', '', 'charge_cold.clamps_cold'],
-  ['Тракт', 'Крепление левой трубы', '9 Н·м', 'шпильку заменить при повреждении', 'charge_hot.pipe_mount'],
-  ['Тракт', 'Интеркулер', '5 Н·м', '', 'intercooler.f_ic'],
-  ['Тракт', 'Датчик G31/G42', '5 Н·м', 'O-ring заменять', 'g31.g31_screw'],
-  ['Впуск', 'Расходомер G70, 2 винта', '1,5 Н·м', 'O-ring заменять, смазка без силикона', 'maf.maf_screws'],
-  ['Впуск', 'Верхняя часть корпуса фильтра', '1,5 Н·м', '', 'airbox.f_ab_top'],
-  ['Впуск', 'Нижняя часть корпуса фильтра', '8 Н·м', '', 'airbox.f_ab_bot'],
-  ['Коллектор', 'Болты коллектора Torx T30', 'по ELSA', 'изнутри наружу крест-накрест; прокладки заменять', 'manifold.f_im'],
-  ['Коллектор', 'Патрубок EGR', '8 Н·м', 'уплотнительное кольцо заменять', 'manifold.f_im_egr'],
-  ['Коллектор', 'Дроссельная заслонка J338', '8 и 9 Н·м', 'O-ring заменять', 'throttle.f_thr'],
-  ['Коллектор', 'Держатель N345', '9 Н·м', '', 'n345.n345_holder'],
-  ['ЭБУ', 'Гайки держателя', '6 Н·м', '', 'ecu.ecu_frame'],
-  ['ЭБУ', 'Болты ЭБУ', '7 Н·м', '', 'ecu.ecu_frame'],
+  ['Турбина', 'mani_nut', 'turbo.f_mani'], ['Турбина', 'mani_stud', 'turbo.mani_studs'], ['Турбина', 'oil_union', 'turbo.f_union'], ['Турбина', 'banjo40', 'turbo.f_banjo'], ['Турбина', 'banjo30', 'turbo.f_banjo'],
+  ['Турбина', 'sup_bolt', 'turbo.f_support'], ['Турбина', 'stub_screw', 'turbo.f_stub'], ['Турбина', 'puls_bolt', 'turbo.f_puls'], ['Турбина', 'drain_bolt', 'turbo.f_drain'], ['Турбина', 'g235', 'turbo.g235'],
+  ['Турбина', 'wire_bolt', 'turbo.wire_holder'], ['Турбина', 'comp_bolt', 'turbo.f_comp'], ['Турбина', 'vband', 'turbo.vband'],
+  ['Актуатор', 'act_bolt', 'actuator.f_bracket'], ['Актуатор', 'rod_nut', 'actuator.rod'], ['Актуатор', 'rod_clip', 'actuator.rod'],
+  ['EGR', 'egr_mani_nut', 'egr.f_egr_mani'], ['EGR', 'egr_pipe_bolt', 'egr.f_egr_pipes'], ['EGR', 'egr_cooler_bolt', 'egr.f_egr_cooler'], ['EGR', 'egr_clamp', 'egr.egr_clamp'],
+  ['Тракт', 'clamp13', 'charge_hot.clamps_hot'], ['Тракт', 'clamp9', 'charge_cold.clamps_cold'], ['Тракт', 'pipe_bolt', 'charge_hot.pipe_mount'], ['Тракт', 'ic_bolt', 'intercooler.f_ic'], ['Тракт', 'g31_screw', 'g31.g31_screw'],
+  ['Впуск', 'spring_duct', 'induct.duct_clamps'], ['Впуск', 'maf_screw', 'maf.maf_screws'], ['Впуск', 'ab_top', 'airbox.f_ab_top'], ['Впуск', 'ab_bot', 'airbox.f_ab_bot'],
+  ['Коллектор', 'im_bolt', 'manifold.f_im'], ['Коллектор', 'im_egr_bolt', 'manifold.f_im_egr'], ['Коллектор', 'thr_bolt', 'throttle.f_thr'], ['Коллектор', 'thr_sup_bolt', 'throttle.thr_support'],
+  ['Вакуум', 'vp_bolt', 'vpump.f_vp'], ['Вакуум', 'n75_bolt', 'n75.f_n75'], ['Вакуум', 'n345_bolt', 'n345.f_n345'],
+  ['ЭБУ', 'ecu_bolt', 'ecu.ecu_frame'],
 ];
-const FAST_PIDS = new Set(FASTENERS.map(f => f[4]).filter(Boolean).concat(['charge_hot.clamps_hot', 'charge_cold.clamps_cold', 'induct.duct_clamps', 'vpump.vp_cover']));
 const TODO = [
   ['engine', 'Код двигателя: наклейка в багажнике/сервисной книжке или клеймо на блоке — фото'],
   ['turbo', 'Табличка турбины (BorgWarner 5440…, 03L 253 …) — фото крупно'],
@@ -2122,16 +2642,17 @@ const TODO = [
   ['vac', 'N75 крупно: какой шланг на какой штуцер; обратный клапан (стрелка); ресивер; насос'],
   ['vnt', 'Турбина сзади: камера, тяга, рычаг VNT, теплозащитный рукав'],
   ['etka', 'ETKA по VIN: турбина и наддув, фильтр, впускной коллектор, EGR, выпуск, вакуумные шланги'],
+  ['nnum', 'ETKA: номера N… крепежа из таблицы — по ним уточняются резьба, длина, головка и класс прочности'],
   ['elsa', 'ELSA по VIN: рисунки с моментами (уточнят 24 Н·м и болты заслонки)'],
   ['pump', 'Результат ручного насоса на камере: ход штока и держит ли 0,6 бар 30 с'],
   ['log', 'Лог VCDS CSV: 3-я передача, полный газ, 1500→4000 об/мин'],
   ['scan', 'По желанию: 3D-скан телефоном (Polycam, Scaniverse, RealityScan) — GLB, OBJ, STL или PLY'],
 ];
-/* детали-крепёж получают описание из таблицы, если его нет в INFO */
-for (const [g, t, v, note, ref] of FASTENERS) {
-  if (!ref) continue; const [asm, pid] = ref.split('.'); const I = INFO[asm]; if (!I) continue;
+/* детали-крепёж получают описание из справочника, если его нет в INFO */
+for (const [g, key, ref] of FASTENERS) {
+  const [asm, pid] = ref.split('.'); const I = INFO[asm], F = FS[key]; if (!I || !F) continue;
   I.parts = I.parts || {};
-  if (!I.parts[pid]) I.parts[pid] = {t, d: `${g}: ${t}.`, r: `Момент ${v}${note ? '; ' + note : ''} (руководство VW).`};
+  if (!I.parts[pid]) I.parts[pid] = {t: F.t, d: `${g}: ${F.t}.`, r: `Момент ${fsRow(F, 'Момент') || 'по ELSA'}.`};
 }
 
 /* ================== УПРОЩЁННАЯ МОДЕЛЬ РЕГУЛИРОВАНИЯ НАДДУВА ================== */
@@ -2239,9 +2760,10 @@ let sigMat = null;
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.minDistance = 2; controls.maxDistance = 70; controls.screenSpacePanning = true;
-controls.target.set(-0.5, 1.6, 0.2);
-const VIEWS = {iso: [-0.64, 0.5, -0.74], front34: [0.55, 0.46, 0.78], rear: [0.02, 0.2, -1], front: [0.02, 0.18, 1], left: [-1, 0.22, 0.02], right: [1, 0.22, 0.02], top: [0.001, 1, 0.03], bottom: [0.03, -1, 0.1]};
-const HOME = {target: V3(-0.85, 1.25, 0.45), radius: 6.1};
+controls.target.set(0.5, 1.9, 0.2);
+/* направления взгляда в мировых координатах: +X мира — левый борт (сторона коробки) */
+const VIEWS = {iso: [0.64, 0.5, -0.74], front34: [-0.55, 0.46, 0.78], rear: [-0.02, 0.2, -1], front: [-0.02, 0.18, 1], left: [1, 0.22, 0.02], right: [-1, 0.22, 0.02], top: [-0.001, 1, 0.03], bottom: [-0.03, -1, 0.1]};
+const HOME = {target: m2w(V3(-0.85, 1.6, 0.45)), radius: 6.2};
 let camTween = null, autoSpin = false;
 
 function fitDist(radius) {
@@ -2252,7 +2774,7 @@ function fitDist(radius) {
 function viewBias() {
   if (isNarrow()) return {x: 0, y: 0.1};
   const vntOpen = !$('#vnt').classList.contains('collapsed');
-  return {x: vntOpen ? -0.2 : -0.04, y: 0.15};
+  return {x: vntOpen ? -0.3 : -0.04, y: 0.12};
 }
 function flyTo(target, radius, dir) {
   const d = (dir ? (Array.isArray(dir) ? V3(...dir) : dir.clone()) : camera.position.clone().sub(controls.target)).normalize();
@@ -2288,11 +2810,13 @@ function syncTheme() {
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme);
 new MutationObserver(syncTheme).observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme', 'class', 'style']});
 
-const SEL = {asm: null, part: null, joint: null, hoverAsm: null, hoverPart: null, stepFocus: null};
+const SEL = {asm: null, part: null, joint: null, fast: null, hoverAsm: null, hoverPart: null, stepFocus: null};
+/* экземпляры крепежа внутри детали (для лупы и перебора «◀ n из N ▶») */
+function fastList(o) { const l = []; o && o.traverse(x => { if (x.userData.fast) l.push(x); }); return l; }
 const GHOSTED = new Set();
 function isGhost(m) { return m.material === ghostMat; }
 function setAsmGhost(a, on) {
-  a.g.traverse(o => { if (o.isMesh && o.userData.baseMat) { o.material = on ? ghostMat : o.userData.baseMat; o.castShadow = !on; } });
+  a.g.traverse(o => { if (o.isMesh && o.userData.baseMat) { o.material = on ? ghostMat : o.userData.baseMat; o.castShadow = !on && !o.userData.noShadow; } });
   if (on) GHOSTED.add(a.id); else GHOSTED.delete(a.id);
 }
 function emissiveOf(o, c, k) { const m = o.userData.baseMat; if (m && m.emissive) { m.emissive.copy(c); m.emissiveIntensity = k; } }
@@ -2306,7 +2830,8 @@ function paint() {
     if (SEL.asm === a.id && SEL.hoverPart === o.userData.pid && SEL.part !== o.userData.pid) k = Math.max(k, 0.2);
     if (SEL.asm === a.id && SEL.part === o.userData.pid) k = 0.45;
     if (o.userData.vacGlow && FX.vacOn) { c = VACC; k = Math.max(k, 0.55); }
-    if (FX.fastOn && FAST_PIDS.has(a.id + '.' + o.userData.pid) && !isGhost(o)) { c = FASTC; k = Math.max(k, 0.75); }
+    if (FX.fastOn && o.userData.fastRoot && !isGhost(o)) { c = FASTC; k = Math.max(k, 0.75); }
+    if (SEL.fast && o.userData.fastRoot === SEL.fast) { c = FASTC; k = 0.9; }
     emissiveOf(o, c, k);
   });
 }
@@ -2314,6 +2839,7 @@ const VACC = new THREE.Color(), FASTC = new THREE.Color(0xf2a900);
 
 /* --- сфера для кадрирования (с учётом разборки) --- */
 function focusSphere(a, e = a.et) {
+  if (a.focus) { const f = a.focus(e); return {c: m2w(f.c), r: f.r}; }
   const saved = a.parts.map(p => p.position.clone());
   a.parts.forEach(p => p.position.copy(p.userData.home).addScaledVector(p.userData.ex, e));
   a.g.updateMatrixWorld(true);
@@ -2346,28 +2872,34 @@ function selectAsm(id, {fly = true, explode = true} = {}) {
   const a = W.asm.get(id); if (!a) return;
   if (SEL.asm && SEL.asm !== id) W.asm.get(SEL.asm).et = 0;
   closeAllJoints(id);
-  SEL.asm = id; SEL.part = null; SEL.joint = null; SEL.stepFocus = null;
+  SEL.asm = id; SEL.part = null; SEL.joint = null; SEL.fast = null; SEL.stepFocus = null;
   for (const b of W.asm.values()) setAsmGhost(b, b.id !== id);
-  if (['turbo', 'actuator'].includes(id) && !isNarrow()) UI.expandVNT(true);
+  if (['turbo', 'actuator'].includes(id) && !isNarrow()) { if ($('#vnt').classList.contains('collapsed')) { UI.expandVNT(true); UI.vntAuto = true; } }
+  else if (UI.vntAuto) { UI.expandVNT(false); UI.vntAuto = false; }
   a.et = explode ? 1 : 0;
   if (fly) { const f = focusSphere(a, a.et); flyTo(f.c, f.r * (a.et ? 1.3 : 1.05)); }
   makePartLabels(a);
   paint(); UI.renderInspector(); UI.markTree(); FX.onSelection();
 }
-function selectPart(asmId, pid) {
+function selectPart(asmId, pid, fast) {
   if (SEL.asm !== asmId) selectAsm(asmId);
-  SEL.part = pid; SEL.joint = null; paint(); syncPartLabels(); UI.renderInspector();
+  const po = W.asm.get(asmId).partObj(pid), list = fastList(po);
+  SEL.part = pid; SEL.joint = null;
+  SEL.fast = fast || (list.length && (/^f_|clamps|screws|studs|vband|egr_clamp/.test(pid) || list.length === 1 && po.children.length === 1) ? list[0] : null);
+  paint(); syncPartLabels(); UI.renderInspector();
 }
+function selectFast(inst) { SEL.fast = inst; paint(); UI.renderInspector(); }
 function clearSelection({fly = true} = {}) {
   if (SEL.asm) W.asm.get(SEL.asm).et = 0;
-  SEL.asm = SEL.part = SEL.joint = null; SEL.stepFocus = null;
+  SEL.asm = SEL.part = SEL.joint = SEL.fast = null; SEL.stepFocus = null;
   for (const b of W.asm.values()) setAsmGhost(b, FX.xray && ENGINE_IDS.includes(b.id));
   clearPartLabels(); paint(); UI.renderInspector(); UI.markTree(); FX.onSelection();
+  if (UI.vntAuto) { UI.expandVNT(false); UI.vntAuto = false; }
   if (fly) flyTo(HOME.target, HOME.radius);
 }
 function back() {
   if (SEL.joint) { SEL.joint = null; UI.renderInspector(); return; }
-  if (SEL.part) { SEL.part = null; paint(); syncPartLabels(); UI.renderInspector(); return; }
+  if (SEL.part) { SEL.part = null; SEL.fast = null; paint(); syncPartLabels(); UI.renderInspector(); return; }
   if (SEL.asm) clearSelection();
 }
 function toggleExplode() {
@@ -2401,7 +2933,7 @@ renderer.domElement.addEventListener('pointerup', e => {
   const o = pickAt(e.clientX, e.clientY);
   if (!o) { if (SEL.part) back(); return; }
   const id = o.userData.asm, pid = o.userData.pid;
-  if (SEL.asm === id && !isGhost(o)) selectPart(id, pid); else selectAsm(id);
+  if (SEL.asm === id && !isGhost(o)) selectPart(id, pid, o.userData.fastRoot || null); else selectAsm(id);
 });
 renderer.domElement.addEventListener('pointermove', e => {
   if (e.pointerType === 'touch' || downAt) return;
@@ -2413,8 +2945,9 @@ renderer.domElement.addEventListener('pointermove', e => {
     renderer.domElement.style.cursor = o ? 'pointer' : '';
     if (!o) { tip.hidden = true; return; }
     const I = INFO[ha], inFocus = SEL.asm === ha && !isGhost(o);
-    const t = inFocus ? (I?.parts?.[hp]?.t || I?.t) : I?.t;
-    tip.innerHTML = `<b>${esc(t || ha)}</b><span>${inFocus ? 'деталь · нажмите для описания' : 'нажмите, чтобы разобрать узел'}</span>`;
+    const fk = inFocus && o.userData.fastRoot && o.userData.fastRoot.userData.fast, F = fk && FS[fk];
+    const t = F ? F.t : inFocus ? (I?.parts?.[hp]?.t || I?.t) : I?.t;
+    tip.innerHTML = `<b>${esc(t || ha)}</b><span>${F ? esc(fastBrief(F)) + ' · нажмите — лупа' : inFocus ? 'деталь · нажмите для описания' : 'нажмите, чтобы разобрать узел'}</span>`;
     const sr = stage.getBoundingClientRect();
     tip.style.left = Math.min(e.clientX - sr.left + 14, sr.width - 270) + 'px'; tip.style.top = (e.clientY - sr.top + 16) + 'px';
     tip.hidden = false;
@@ -2472,9 +3005,10 @@ for (const j of JOINTS) {
     j.slide = back.multiplyScalar(0.34).addScaledVector(side, 0.16);
     j.clampHome = j.clamp.position.clone();
   }
+  if (j.n === 10) j.slide = V3(-0.3, 0.04, 0.06);   // патрубок снимают с турбины вдоль оси, повернув назад
   const el = document.createElement('button'); el.className = 'lbl jt'; el.textContent = j.n; el.title = j.t;
   el.addEventListener('click', ev => { ev.stopPropagation(); toggleJoint(j); });
-  j.label = new CSS2DObject(el); j.label.position.copy(j.pos); scene.add(j.label);
+  j.label = new CSS2DObject(el); j.label.position.copy(j.pos); ROOT.add(j.label);
 }
 function toggleJoint(j, open) {
   const a = W.asm.get(j.asm);
@@ -2482,7 +3016,7 @@ function toggleJoint(j, open) {
   if (a.et > 0) a.et = 0;
   if (SEL.asm && SEL.asm !== j.asm && !['charge_hot', 'charge_cold', 'intercooler', 'g31', 'induct'].includes(SEL.asm)) clearSelection({fly: false});
   SEL.joint = j;
-  if (j.dt) { const out = V3(j.pos.x, 0, j.pos.z - 0.3).normalize(); flyTo(j.pos, 1.35, out.multiplyScalar(1.1).add(V3(0, 0.75, 0)).addScaledVector(j.slide.clone().normalize(), 0.25)); }
+  if (j.dt) { const out = V3(j.pos.x, 0, j.pos.z - 0.3).normalize(); flyTo(m2w(j.pos), 1.35, m2w(out.multiplyScalar(1.1).add(V3(0, 0.75, 0)).addScaledVector(j.slide.clone().normalize(), 0.25))); }
   UI.renderInspector(); syncJointLabels();
 }
 function setStepFocus(ids) {
@@ -2518,17 +3052,22 @@ const tw = (x, y, z) => TA(0).add(V3(x, y, z));
 const FLOWS = [];
 function addFlow(kind, pts, n) { const c = curveOf(toW(pts)); c.arcLengthDivisions = 300; c.updateArcLengths(); const len = c.getLength(); FLOWS.push({kind, c, len, n: n || Math.max(5, Math.round(len * 3)), ph: Math.random()}); }
 {
-  addFlow('intake', [[-4.28, 3.92, 3.95], [-4.3, 3.86, 3.5], [-4.34, 3.7, 2.4], [-4.3, 3.62, 1.55], [-4.1, 3.62, 0.8], [-3.85, 3.66, -0.3], [-3.45, 3.8, -0.8], ...AIR.duct, [-2.05, 2.25, -2.85], [-1.62, 2.25, -2.85]]);
-  const vol = []; const th0 = -Math.PI / 2 + 0.9 * TAU, span = 0.9 * TAU;
-  for (const f of [0.05, 0.25, 0.45, 0.65, 0.85, 1]) { const th = th0 - f * span, Rc = 0.3 + lerp(0.07, 0.19, f) * 0.92; vol.push(tw(-1.24, Rc * Math.cos(th), Rc * Math.sin(th))); }
+  const stub = []; for (let i = 0; i <= 6; i++) stub.push(TA(0).add(W.anim.stubCurve.getPointAt(1 - i / 6)));
+  addFlow('intake', [[-4.28, 3.92, 3.95], [-4.3, 3.86, 3.5], [-4.34, 3.7, 2.4], [-4.3, 3.62, 1.55], [-4.1, 3.62, 0.8], [-3.85, 3.66, -0.3], [-3.45, 3.8, -0.8], ...AIR.duct.slice(0, -1), ...stub, tw(-1.37, 0, 0)]);
+  const cvp = W.anim.compVol, vol = [];
+  for (const f of [0.05, 0.25, 0.45, 0.65, 0.85, 1]) { const th = cvp.th0 + cvp.dir * f * cvp.span, Rc = cvp.R0 + lerp(cvp.r0, cvp.r1, f) * 0.92; vol.push(tw(cvp.x0, Rc * Math.cos(th), Rc * Math.sin(th))); }
   const co = TA(0).add(W.anim.compOut.p);
-  addFlow('hot', [[-1.6, 2.25, -2.85], tw(-1.3, 0.2, -0.05), ...vol, co, TA(0).add(W.anim.pulsEnd), ...AIR.hotUp.slice(1), ...AIR.pipeHot, ...AIR.hotLo, [-3.05, -0.3, 5.35]]);
+  addFlow('hot', [tw(-1.34, 0, 0), tw(-1.12, 0.25, 0.08), ...vol, co, TA(0).add(W.anim.pulsEnd), ...AIR.hotUp.slice(1), ...AIR.pipeHot, ...AIR.hotLo, [-3.05, -0.3, 5.35]]);
   for (const y of [-0.75, -0.45, -0.15, 0.15]) addFlow('ic', [[-2.9, y, 5.35], [-0.2, y, 5.35], [2.45, y, 5.35]], 10);
   addFlow('cold', [[2.65, -0.3, 5.35], [2.65, -0.32, 5.0], ...AIR.coldLo.slice(1), ...AIR.pipeCold.slice(1), ...AIR.coldUp.slice(1), [1.45, 2.47, 2.52], [1.42, 2.82, 2.36], [0.6, 2.95, 2.22], [-1.8, 2.95, 2.22]]);
   for (const x of L.cyl) addFlow('cold', [[x, 2.95, 2.22], [x, 2.9, 1.8], [x, 2.86, 1.3]], 3);
-  for (const x of L.cyl) addFlow('exh', [[x, 2.86, -1.2], tw(x, 0.61, 1.35), tw(x * 0.7, 0.63, 1.05), tw(-0.34 + x * 0.18, 0.64, 0.78), tw(-0.34, 0.63, 0.6)], 5);
-  addFlow('exh', [tw(-0.34, 0.63, 0.6), tw(-0.35, 0.62, 0.1), tw(-0.35, 0.12, -0.58), tw(-0.35, -0.55, -0.15), tw(-0.34, -0.12, 0.45), tw(-0.3, 0.18, 0.2), tw(-0.2, 0, 0), tw(0.26, 0, 0), [0.55, 2.25, -2.87], [0.85, 2.15, -2.93], [0.95, 1.9, -2.95], [0.95, 1.2, -2.95], [0.95, 0.2, -2.95], [0.95, -0.66, -2.95], [0.95, -1.0, -3.05], [1.0, -1.5, -3.6], [1.05, -1.72, -4.5]]);
-  addFlow('egr', [[-0.6, 2.87, -2.2], ...EGRP1, [-1.3, 1.22, -1.98], [-1.8, 1.2, -1.98], [-2.35, 1.22, -1.98], EGR_VALVE.clone(), ...EGRP2, [-2.1, 2.8, 2.22], [-1.5, 2.95, 2.22]]);
+  const LOG = V3(0, 2.97, -2.08);
+  for (const x of L.cyl) addFlow('exh', [[x, 2.86, -1.2], [x, 2.86, -1.6], [x, 2.9, -1.84], [x * 0.97, LOG.y, LOG.z], [-0.42, LOG.y, LOG.z]], 5);
+  const tvp = W.anim.turbVol, tvol = [];
+  for (const f of [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9]) { const th = tvp.th0 + tvp.dir * f * tvp.span, Rc = tvp.R0 + lerp(tvp.r0, tvp.r1, f) * 0.92; tvol.push(tw(tvp.x0, Rc * Math.cos(th), Rc * Math.sin(th))); }
+  const T0 = TA(0);
+  addFlow('exh', [[-0.42, LOG.y, LOG.z], tw(-0.46, -0.3, 0.72), tw(-0.49, -0.12, 0.52), ...tvol, tw(-0.4, 0.12, -0.12), tw(-0.2, 0.02, 0), tw(0.06, 0, 0), T0.clone().add(V3(0.36, 0, 0)), V3(0.74, T0.y - 0.2, -2.9), V3(0.93, T0.y - 0.72, -2.95), [0.95, 2.1, -2.95], [0.95, 1.2, -2.95], [0.95, 0.2, -2.95], [0.95, -0.66, -2.95], [0.95, -1.0, -3.05], [1.0, -1.5, -3.6], [1.05, -1.72, -4.5]]);
+  addFlow('egr', [[-1.2, LOG.y, LOG.z], ...EGRP1, [-1.3, 1.22, -1.98], [-1.8, 1.2, -1.98], [-2.35, 1.22, -1.98], EGR_VALVE.clone(), ...EGRP2, [-2.1, 2.8, 2.22], [-1.5, 2.95, 2.22]]);
   addFlow('vac_in', [...VACP.pump_check, ...VACP.check_tee.slice(1), ...VACP.tee_n75.slice(1)]);
   addFlow('vac_out', [...VACP.n75_act]);
   addFlow('vac_br', [...VACP.tee_n345, ...VACP.n345_can.slice(1)]);
@@ -2540,7 +3079,7 @@ const flowMat = new THREE.MeshBasicMaterial({color: 0xffffff, toneMapped: false,
 const flowMesh = new THREE.InstancedMesh(arrowGeo, flowMat, nFlow);
 flowMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); flowMesh.frustumCulled = false; flowMesh.renderOrder = 5;
 flowMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(nFlow * 3), 3);
-scene.add(flowMesh);
+ROOT.add(flowMesh);
 const FCOL = {}; const _hot = new THREE.Color(), _cool = new THREE.Color();
 FX.recolor = () => {
   for (const k in FLOW_COL) FCOL[k] = new THREE.Color(cssVar(FLOW_COL[k]) || '#888');
@@ -2591,7 +3130,7 @@ function setFlowLook(on) {
 for (const m of Object.values(W.vlines)) m.userData.vacGlow = true;
 /* --- слой «Сигналы ЭБУ» --- */
 sigMat = new THREE.LineDashedMaterial({color: 0x5c6a77, dashSize: 0.14, gapSize: 0.09, transparent: true, opacity: 0.9});
-const sigGroup = new THREE.Group(); sigGroup.visible = false; scene.add(sigGroup);
+const sigGroup = new THREE.Group(); sigGroup.visible = false; ROOT.add(sigGroup);
 for (const [name, asm, p] of W.sig.targets) {
   const a = W.sig.src, mid = a.clone().lerp(p, 0.5); mid.y = Math.max(a.y, p.y) + 1.1 + a.distanceTo(p) * 0.06;
   const g = new THREE.BufferGeometry().setFromPoints(curveOf([a, mid, p]).getPoints(60));
@@ -2612,7 +3151,7 @@ const FAULT_AT = {
   g31: [AIR.g31.clone().add(V3(0, 0.15, 0)), 'Датчик G31 занижает показания'],
 };
 const faultEl = document.createElement('div'); faultEl.className = 'lbl leak'; faultEl.style.pointerEvents = 'none';
-const faultLbl = new CSS2DObject(faultEl); faultLbl.visible = false; scene.add(faultLbl);
+const faultLbl = new CSS2DObject(faultEl); faultLbl.visible = false; ROOT.add(faultLbl);
 function setFaultMarker(sid) {
   const f = FAULT_AT[sid]; faultLbl.visible = !!f;
   if (f) { faultLbl.position.copy(f[0]); faultEl.innerHTML = `<i style="background:var(--crit)"></i>${esc(f[1])}`; }
@@ -2620,7 +3159,7 @@ function setFaultMarker(sid) {
 /* --- струя утечки --- */
 const JET_N = 46;
 const jetMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(0.035, 8, 6), new THREE.MeshBasicMaterial({color: 0xe8f4ff, transparent: true, opacity: 0.55, toneMapped: false, depthWrite: false}), JET_N);
-jetMesh.frustumCulled = false; jetMesh.visible = false; scene.add(jetMesh);
+jetMesh.frustumCulled = false; jetMesh.visible = false; ROOT.add(jetMesh);
 const jets = Array.from({length: JET_N}, () => ({age: Math.random(), v: V3()}));
 function updateJets(dt, strength) {
   jetMesh.visible = strength > 0.02; if (!jetMesh.visible) return;
@@ -2641,22 +3180,26 @@ pipCam.layers.set(1);
 [hemi, key, fill, rim].forEach(l => l.layers.enable(1));
 const pipMeshes = [];
 for (const id of ['turbo', 'actuator']) W.asm.get(id).pipRoots.forEach(o => o.traverse(m => { m.layers.enable(1); if (m.isMesh) pipMeshes.push(m); }));
+/* в окне лупы VNT механизм всегда показан собранным, даже если узел разложен */
+const pipPartRoots = [...new Set(['turbo', 'actuator'].flatMap(id => W.asm.get(id).pipRoots.map(o => { let p = o; while (p.parent && !p.userData.home) p = p.parent; return p; })))].filter(p => p.userData.home);
 const pipEl = $('#pip');
 function renderPip() {
   const card = $('#vnt'); if (card.classList.contains('collapsed') || card.offsetParent === null) return;
   const r = pipEl.getBoundingClientRect(), sr = stage.getBoundingClientRect();
   if (r.width < 10 || r.height < 10) return;
   const x = r.left - sr.left + 1, y = sr.bottom - r.bottom + 1, w = r.width - 2, h = r.height - 2;
-  const hh = 1.25, ww = hh * w / h;
+  const hh = 0.86, ww = hh * w / h;
   Object.assign(pipCam, {left: -ww, right: ww, top: hh, bottom: -hh}); pipCam.updateProjectionMatrix();
-  const c = TA(0).add(V3(0, 0.55, -0.35));
-  pipCam.position.set(4, c.y, c.z); pipCam.lookAt(-1, c.y, c.z);
+  const c = TA(0).add(V3(0, 0.4, -0.1));
+  pipCam.position.copy(m2w(V3(4, c.y, c.z))); pipCam.lookAt(m2w(V3(-1, c.y, c.z)));
   const saved = pipMeshes.map(m => m.material); pipMeshes.forEach(m => { if (m.userData.baseMat) m.material = m.userData.baseMat; });
+  const roots = pipPartRoots.map(p => [p, p.position.clone()]); roots.forEach(([p]) => p.position.copy(p.userData.home)); ROOT.updateMatrixWorld(true);
   renderer.setScissorTest(true); renderer.setScissor(x, y, w, h); renderer.setViewport(x, y, w, h);
   renderer.setClearColor(UI.pipBg || 0xeef2f5, 1); renderer.clear(true, true, false);
   renderer.render(scene, pipCam);
   renderer.setScissorTest(false); renderer.setViewport(0, 0, sr.width, sr.height); renderer.setClearColor(0x000000, 0);
   pipMeshes.forEach((m, i) => m.material = saved[i]);
+  roots.forEach(([p, pos]) => p.position.copy(pos)); ROOT.updateMatrixWorld(true);
 }
 
 /* ================== СОСТОЯНИЕ МОДЕЛИ ================== */
@@ -2746,11 +3289,16 @@ UI.renderInspector = () => {
       <div class="callout ${j.ring || j.sensor ? 'good' : ''}"><h4>${j.ring || j.sensor ? 'Кольцо подсвечено на модели' : 'Что проверить'}</h4><p>${esc(j.c)}</p></div>
       ${secList('Порядок осмотра', ['Снять хомут или фиксатор, стянуть патрубок со штуцера.', 'Осмотреть кромку патрубка, буртик штуцера и уплотнение.', 'Перед сборкой очистить поверхности от масла и смазки, уплотнение заменить.', 'Затянуть хомут моментом: 13 мм — 5,5 Н·м, 9 мм — 3 Н·м.'], true)}
       <p class="src">Тип соединения показан типовой для этого семейства двигателей. Точное исполнение на вашем автомобиле сверяйте по каталогу запчастей и ELSA.</p>`;
+  } else if (a && SEL.part && SEL.fast) {
+    const idx = a.parts.findIndex(p => p.userData.pid === SEL.part), P = I?.parts?.[SEL.part] || {t: SEL.part};
+    el.innerHTML = UI.fastCard(a, P, idx); UI.afterFastCard();
   } else if (a && SEL.part) {
     const idx = a.parts.findIndex(p => p.userData.pid === SEL.part), P = I?.parts?.[SEL.part] || {t: SEL.part};
+    const fl = fastList(a.partObj(SEL.part));
     el.innerHTML = `<div class="crumb"><button data-act="home">Модель</button>›<button data-act="asm" data-id="${a.id}">${esc(TREE_NAMES[a.id])}</button>›<span>деталь ${idx + 1}</span></div>
       <h2>${esc(P.t)}</h2><div class="codes"><span class="code">№ ${idx + 1} на модели</span><span class="code">${esc(SYS[a.sys].n)}</span></div>
       ${secP('Что это', P.d)}${secP('Назначение и применение', P.r)}
+      ${fl.length ? `<div class="sec"><h3>Крепёж этой детали — лупа</h3><ul class="plist">${[...new Set(fl.map(o => o.userData.fast))].map(k => `<li><button data-fastkey="${k}"><span class="n">${fl.filter(o => o.userData.fast === k).length}×</span><span>${esc(FS[k].t)} <small>${esc(fastBrief(FS[k]))}</small></span></button></li>`).join('')}</ul></div>` : ''}
       <div class="sec"><h3>Другие детали узла</h3><ul class="plist">${a.parts.map((p, i) => `<li><button data-part="${p.userData.pid}" aria-current="${p.userData.pid === SEL.part}"><span class="n">${i + 1}</span><span>${esc(I?.parts?.[p.userData.pid]?.t || p.userData.pid)}</span></button></li>`).join('')}</ul></div>
       <div class="row"><button class="btn" data-act="up">← К узлу</button></div>`;
   } else if (a) {
@@ -2783,6 +3331,7 @@ UI.renderInspector = () => {
 $('#insp').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.part) return selectPart(SEL.asm, b.dataset.part);
+  if (b.dataset.fastkey) { const l = fastList(W.asm.get(SEL.asm).partObj(SEL.part)); return selectFast(l.find(o => o.userData.fast === b.dataset.fastkey)); }
   if (b.dataset.joint) { const j = JOINTS.find(x => x.n === +b.dataset.joint); clearSelection({fly: false}); return toggleJoint(j, 1); }
   const act = b.dataset.act;
   if (act === 'home') { closeAllJoints(); SEL.joint = null; clearSelection(); }
@@ -2798,11 +3347,17 @@ UI.buildData = () => {
   let g0 = '';
   $('#passport').innerHTML = '<div class="pp">' + PASSPORT.map(([g, t, st]) => {
     const head = g !== g0 ? `<span class="g">${esc(g)}</span>` : ''; g0 = g;
-    return `<div class="pp-row">${head}<span>${esc(t)}</span><span class="pill ${st}">${esc(STATUS[st][0])}</span></div>`;
-  }).join('') + '</div>';
-  $('#fast-table').innerHTML = '<table class="fast"><tbody>' + FASTENERS.map(([g, t, v, note, ref]) =>
-    `<tr${ref ? ` data-ref="${ref}" tabindex="0"` : ''}><td>${esc(t)}${note ? `<br><span class="n">${esc(note)}</span>` : ''}</td><td class="v">${esc(v)}</td></tr>`).join('') + '</tbody></table>';
-  const pick = (tr) => { const [asm, pid] = tr.dataset.ref.split('.'); if (W.asm.get(asm)) { selectPart(asm, pid); UI.mobileShow('info'); } };
+    return `<div class="pp-row">${head}<span>${esc(t)}</span><span class="pill ${st}" title="${esc(STATUS[st][0])}">${esc(STATUS[st][2])}</span></div>`;
+  }).join('') + '</div><p class="src">VW — руководство по ремонту; каталог — каталоги и фото деталей, сверить по VIN; ваши — ваши данные; условно — нужны фото или номер из ETKA.</p>';
+  $('#fast-table').innerHTML = '<table class="fast"><tbody>' + FASTENERS.map(([g, key, ref, extra]) => {
+    const F = FS[key], tq = fsRow(F, 'Момент') || '—', st = (F.info.find(r => r[0] === 'Момент') || [])[2] || 'model', thr = fsRow(F, 'Резьба');
+    return `<tr data-ref="${ref}" data-key="${key}" tabindex="0"><td>${esc(F.t)}${extra ? ` <span class="n">${esc(extra)}</span>` : ''}<br><span class="n">${esc([g, thr && thr.split(' (')[0]].filter(Boolean).join(' · '))}</span></td><td class="v">${esc(tq.length > 22 ? tq.split(/[;—,]/)[0] : tq)}<br>${pill(st, true)}</td></tr>`;
+  }).join('') + '</tbody></table>';
+  const pick = (tr) => {
+    const [asm, pid] = tr.dataset.ref.split('.'); const A = W.asm.get(asm); if (!A) return;
+    const inst = fastList(A.partObj(pid)).find(o => o.userData.fast === tr.dataset.key);
+    selectPart(asm, pid, inst); UI.mobileShow('info');
+  };
   $('#fast-table').addEventListener('click', e => { const tr = e.target.closest('tr[data-ref]'); if (tr) pick(tr); });
   $('#fast-table').addEventListener('keydown', e => { const tr = e.target.closest('tr[data-ref]'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pick(tr); } });
   const done = LS.get('tg-p0299-todo', {});
@@ -2849,6 +3404,124 @@ UI.showStep = (s) => {
   if (s.demo === 'joints') UI.setToggle('joints', true);
   if (s.demo === 'pull') { UI.tab('scen'); setTimeout(() => UI.runPull(), 400); }
 };
+
+/* ================== ЛУПА: КРЕПЁЖ КРУПНО (отдельный рендер в карточке) ================== */
+const LOUPE = {r: null, scene: null, cam: null, cv: null, obj: null, key: null, yaw: 0.7, pitch: 0.42, zoom: 1, spin: true, drag: null, fit: 10, w: 0, h: 0};
+function loupeInit() {
+  if (LOUPE.r) return true;
+  try {
+    const cv = document.createElement('canvas'); cv.className = 'lp-canvas'; cv.setAttribute('aria-label', 'Крепёж крупным планом, перетащите для поворота');
+    const r = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: true});
+    r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.outputColorSpace = THREE.SRGBColorSpace; r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1.05;
+    r.setClearColor(0x000000, 0);
+    const sc = new THREE.Scene(); sc.environment = new THREE.PMREMGenerator(r).fromScene(new RoomEnvironment(), 0.04).texture; sc.environmentIntensity = 0.9;
+    const k = new THREE.DirectionalLight(0xffffff, 1.6); k.position.set(-3, 5, 4);
+    const rim = new THREE.DirectionalLight(0xffe7d2, 0.7); rim.position.set(4, 1.5, -3);
+    sc.add(k, rim, new THREE.HemisphereLight(0xeef3f8, 0x3a3530, 0.45));
+    Object.assign(LOUPE, {r, scene: sc, cam: new THREE.PerspectiveCamera(28, 1, 0.1, 4000), cv});
+    cv.addEventListener('pointerdown', e => { LOUPE.drag = {x: e.clientX, y: e.clientY}; cv.setPointerCapture(e.pointerId); LOUPE.spin = false; syncLoupeBtns(); });
+    cv.addEventListener('pointermove', e => {
+      if (!LOUPE.drag) return;
+      LOUPE.yaw += (e.clientX - LOUPE.drag.x) * 0.012; LOUPE.pitch = clamp(LOUPE.pitch + (e.clientY - LOUPE.drag.y) * 0.01, -1.45, 1.45);
+      LOUPE.drag = {x: e.clientX, y: e.clientY};
+    });
+    const end = () => { LOUPE.drag = null; };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+    cv.addEventListener('wheel', e => { e.preventDefault(); LOUPE.zoom = clamp(LOUPE.zoom * Math.exp(-e.deltaY * 0.0012), 0.5, 4); }, {passive: false});
+    return true;
+  } catch (e) { return false; }
+}
+function loupeSet(key) {
+  if (!loupeInit() || LOUPE.key === key) return;
+  if (LOUPE.obj) { LOUPE.scene.remove(LOUPE.obj); LOUPE.obj.traverse(o => o.material && o.material.dispose()); }
+  const g = new THREE.Group();
+  for (const it of fastParts(key, 1, 1, true)) {
+    const m = fMat(it.m, {side: it.side, mark: it.mark, mirror: false, res: LOD[1].tex});
+    if (it.slots) { m.map = TX.slots; m.color.set(0xffffff); }
+    g.add(new THREE.Mesh(it.g, m));
+  }
+  const box = new THREE.Box3().setFromObject(g), s = box.getBoundingSphere(new THREE.Sphere());
+  g.position.copy(s.center).negate();
+  const pivot = new THREE.Group(); pivot.add(g);
+  LOUPE.scene.add(pivot); LOUPE.obj = pivot; LOUPE.key = key; LOUPE.fit = s.radius; LOUPE.zoom = 1;
+}
+function syncLoupeBtns() { const b = $('#insp [data-lp="spin"]'); if (b) b.setAttribute('aria-pressed', String(LOUPE.spin)); }
+function renderLoupe(dt) {
+  const L0 = LOUPE; if (!L0.r || !L0.cv.isConnected || !L0.obj) return;
+  const host = L0.cv.parentElement, w = host.clientWidth, h = host.clientHeight; if (w < 20 || h < 20) return;
+  if (w !== L0.w || h !== L0.h) { L0.w = w; L0.h = h; L0.r.setSize(w, h, false); L0.cam.aspect = w / h; L0.cam.updateProjectionMatrix(); }
+  if (L0.spin && !reduceMotion) L0.yaw += dt * 0.45;
+  const vf = L0.cam.fov * DEG / 2, hf = Math.atan(Math.tan(vf) * L0.cam.aspect);
+  const d = L0.fit / Math.sin(Math.min(vf, hf)) * 1.08 / L0.zoom;
+  L0.cam.position.set(d * Math.cos(L0.pitch) * Math.sin(L0.yaw), d * Math.sin(L0.pitch), d * Math.cos(L0.pitch) * Math.cos(L0.yaw));
+  L0.cam.lookAt(0, 0, 0);
+  L0.r.render(L0.scene, L0.cam);
+  const pxmm = (h / 2) / (d * Math.tan(vf));                 // пикселей на миллиметр в центре
+  const mm = [1, 2, 5, 10, 20, 50].find(v => v * pxmm >= 36) || 50;
+  const bar = $('#lp-bar'); if (bar) { bar.style.width = Math.round(mm * pxmm) + 'px'; setText('lp-bar-t', mm + ' мм'); }
+}
+
+/* профиль метрической резьбы по ISO 68-1: три шага, размеры подписаны */
+function threadSvg(d, P) {
+  const I = ISO(d, P), h = 0.6134 * P, fl = h * Math.tan(Math.PI / 6), cw = P / 8, rw = P - cw - 2 * fl;
+  const W = 330, Hh = 150, s = 250 / (3 * P), x0 = 40, yC = 44, yR = yC + h * s;   // вершина и впадина
+  let pts = [], x = x0;
+  for (let i = 0; i < 3; i++) { pts.push([x, yC], [x + cw * s, yC], [x + (cw + fl) * s, yR], [x + (cw + fl + rw) * s, yR]); x += P * s; }
+  pts.push([x, yC]);
+  const poly = pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+  const c1 = x0 + cw * s / 2, c2 = c1 + P * s, f = (v) => num(v, v < 10 ? 3 : 2), fp = v => num(v, 2).replace(/,?0+$/, '');
+  const ax = x0 + (cw + fl + rw / 2) * s + P * s;      // середина впадины 2-го витка — угол 60°
+  return `<svg class="thr" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Профиль резьбы M${num(d)}×${fp(P)} по ISO 68-1">
+    <path d="M${x0 - 10},${yR + 22} H${x + 10}" class="axis"/>
+    <polyline points="${poly}" class="prof"/>
+    <path d="M${c1},${yC - 14} V${yC - 4} M${c2},${yC - 14} V${yC - 4} M${c1},${yC - 10} H${c2}" class="dim"/>
+    <text x="${(c1 + c2) / 2}" y="${yC - 16}" class="lbl" text-anchor="middle">P = ${fp(P)}</text>
+    <path d="M${ax - fl * s},${yC} L${ax},${yR} L${ax + fl * s},${yC}" class="dim" transform="translate(0,0)"/>
+    <text x="${ax}" y="${yC + 16}" class="lbl" text-anchor="middle">60°</text>
+    <path d="M${x + 16},${yC} H${x + 26} M${x + 16},${yR} H${x + 26} M${x + 21},${yC} V${yR}" class="dim"/>
+    <text x="${x + 30}" y="${(yC + yR) / 2 + 4}" class="lbl">h₃ ${f(I.h3)}</text>
+    <text x="${x0 - 10}" y="${Hh - 30}" class="lbl">d ${f(d)}</text><text x="${x0 + 70}" y="${Hh - 30}" class="lbl">d₂ ${f(I.d2)}</text><text x="${x0 + 150}" y="${Hh - 30}" class="lbl">d₃ ${f(I.d3)}</text><text x="${x0 + 230}" y="${Hh - 30}" class="lbl">H ${f(I.H)}</text>
+    <text x="${x0 - 10}" y="${Hh - 10}" class="cap">ось болта ↓ · размеры в мм</text></svg>`;
+}
+const pill = (st, short) => `<span class="pill ${FSTAT[st][1]}" title="${esc(FSTAT[st][0])}">${esc(short ? FSTAT[st][2] : FSTAT[st][0])}</span>`;
+/* карточка крепежа в правой панели */
+UI.fastCard = (a, P, idx) => {
+  const inst = SEL.fast, key = inst.userData.fast, F = FS[key];
+  const po = a.partObj(SEL.part), list = fastList(po), i = list.indexOf(inst), n = list.length;
+  const thr = F.g.d && F.g.P && !['worm', 'spring', 'vband', 'clip'].includes(F.kind) ? [F.g.d, F.g.P] : null;
+  const same = list.filter(o => o.userData.fast === key).length;
+  return `<div class="crumb"><button data-act="home">Модель</button>›<button data-act="asm" data-id="${a.id}">${esc(TREE_NAMES[a.id])}</button>›<button data-act="partinfo">деталь ${idx + 1}</button>›<span>крепёж</span></div>
+    <h2>${esc(F.t)}</h2><div class="codes">${fastBrief(F).split(' · ').filter(Boolean).map(c => `<span class="code">${esc(c)}</span>`).join('')}</div>
+    <div class="loupe"><div class="lp-view" id="lp-view"></div>
+      <div class="lp-ov"><span class="lp-scale"><i id="lp-bar"></i><b id="lp-bar-t">10 мм</b></span><span class="lp-hint">перетащите — повернуть · колесо — ближе</span></div>
+      <div class="lp-btns"><button class="btn sm" data-lp="spin" aria-pressed="${LOUPE.spin}">Вращать</button><button class="btn sm" data-lp="reset">Сброс</button></div></div>
+    ${n > 1 ? `<div class="fnav"><button class="btn sm" data-fn="-1" aria-label="Предыдущий">◀</button><span><b>${i + 1}</b> из ${n}${same < n ? ` · в детали разный крепёж` : ''}</span><button class="btn sm" data-fn="1" aria-label="Следующий">▶</button><button class="btn sm" data-act="flyfast">Показать на модели</button></div>` : `<div class="fnav"><span>1 шт. в этой детали</span><button class="btn sm" data-act="flyfast">Показать на модели</button></div>`}
+    <div class="sec"><h3>Данные</h3><table class="spec fspec">${F.info.map(([k, v, st]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td><td>${pill(st, true)}</td></tr>`).join('')}</table><p class="src">VW — руководство по ремонту; практика — фото деталей и опыт демонтажа на EA189 CR; каталог — каталоги и ремкомплекты; условно — нужен номер N… из ETKA.</p></div>
+    ${F.note ? `<p class="fnote">${esc(F.note)}</p>` : ''}
+    ${thr ? `<div class="sec"><h3>Резьба M${num(thr[0])}×${num(thr[1], 2).replace(/,?0+$/, '')} по ISO 68-1</h3>${threadSvg(...thr)}<p class="src">Профиль и диаметры рассчитаны по стандарту для указанной резьбы. Сама резьба у этого крепежа — ${FSTAT[F.info.find(r => r[0] === 'Резьба')?.[2] || 'model'][0]}.</p></div>` : ''}
+    ${P.d && !/^f_/.test(SEL.part) ? `<div class="sec"><h3>Деталь: ${esc(P.t)}</h3><p>${esc(P.d)}</p></div>` : ''}
+    <p class="src">Маркировка на головке показывает класс прочности по ISO 898; у разных поставщиков VW рядом стоит свой знак изготовителя, поэтому он в модели не рисуется. Точные размеры подтверждает номер N… из каталога ETKA по VIN.</p>
+    <div class="row"><button class="btn" data-act="up">← К детали</button></div>`;
+};
+UI.afterFastCard = () => {
+  const host = $('#lp-view'); if (!host) return;
+  if (!loupeInit()) { host.innerHTML = '<p class="src">Лупа недоступна: браузер не дал второй WebGL-контекст.</p>'; return; }
+  host.appendChild(LOUPE.cv); loupeSet(SEL.fast.userData.fast); syncLoupeBtns();
+};
+function flyToFast(inst) {
+  const b = new THREE.Box3().setFromObject(inst), s = b.getBoundingSphere(new THREE.Sphere());
+  flyTo(s.center, Math.max(s.radius * 2.6, 0.32));
+}
+$('#insp').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.lp === 'spin') { LOUPE.spin = !LOUPE.spin; syncLoupeBtns(); }
+  else if (b.dataset.lp === 'reset') { Object.assign(LOUPE, {yaw: 0.7, pitch: 0.42, zoom: 1, spin: true}); syncLoupeBtns(); }
+  else if (b.dataset.fn) {
+    const po = W.asm.get(SEL.asm).partObj(SEL.part), list = fastList(po), i = list.indexOf(SEL.fast);
+    selectFast(list[(i + +b.dataset.fn + list.length) % list.length]);
+  } else if (b.dataset.act === 'flyfast' && SEL.fast) flyToFast(SEL.fast);
+  else if (b.dataset.act === 'partinfo') { SEL.fast = null; paint(); UI.renderInspector(); }
+});
 
 /* ================== СЦЕНАРИИ, ГРАФИКИ, HUD, ПУЛЬТ VNT ================== */
 const DEFAULT_LOG = [[800, 1050, 942]];
@@ -2951,7 +3624,7 @@ UI.expandVNT = (open) => {
   const c = !open; $('#vnt').classList.toggle('collapsed', c);
   $('#vnt-toggle').textContent = c ? (isNarrow() ? 'Лопатки VNT' : 'Развернуть') : 'Свернуть'; $('#vnt-toggle').setAttribute('aria-expanded', String(!c));
 };
-$('#vnt-toggle').addEventListener('click', () => UI.expandVNT($('#vnt').classList.contains('collapsed')));
+$('#vnt-toggle').addEventListener('click', () => { UI.vntAuto = false; UI.expandVNT($('#vnt').classList.contains('collapsed')); });
 UI.demoPump = () => {
   cancelN75Test(); CTRL.mode = 'manual'; const t0 = performance.now();
   const f = () => { const k = (performance.now() - t0) / 1600; CTRL.vac = 0.6 * Math.min(1, k); vacIn.value = CTRL.vac; if (k < 1 && CTRL.mode === 'manual') requestAnimationFrame(f); };
@@ -3205,7 +3878,7 @@ function update(dt) {
   setText('pip-state', pct < 20 ? 'лопатки открыты — наддув минимальный' : pct > 75 ? 'лопатки закрыты — турбина раскручивается' : 'лопатки прикрыты');
   const p = live ? s.actTrue : AMB + 15, rpm = live ? s.rpm : 800;
   const w = 5 + 32 * Math.sqrt(Math.max(0, p - AMB) / 1400);
-  W.anim.compWheel.rotation.x += w * dt; W.anim.turbWheel.rotation.x += w * dt; W.anim.shaft.rotation.x += w * dt;
+  W.anim.compWheel.rotation.x -= w * dt; W.anim.turbWheel.rotation.x -= w * dt; W.anim.shaft.rotation.x -= w * dt;
   const sc = CTRL.scen;
   ST.air = 0.8 + 2.6 * (rpm / RPM1) * Math.sqrt(p / AMB); ST.exh = ST.air * 1.2;
   ST.egr = live ? s.egrOpen : 0.35;
@@ -3221,7 +3894,8 @@ function update(dt) {
   }
   if (SEL.part && SEL.asm) {
     const po = W.asm.get(SEL.asm).partObj(SEL.part);
-    po && po.traverse(o => { if (o.isMesh && o.userData.baseMat.emissive) o.userData.baseMat.emissiveIntensity = 0.32 + 0.16 * Math.sin(T * 4); });
+    po && po.traverse(o => { if (!o.isMesh || !o.userData.baseMat.emissive) return;
+      o.userData.baseMat.emissiveIntensity = SEL.fast ? (o.userData.fastRoot === SEL.fast ? 0.32 + 0.16 * Math.sin(T * 5) : 0.08) : 0.32 + 0.16 * Math.sin(T * 4); });
   }
 }
 function frame() {
@@ -3231,6 +3905,7 @@ function frame() {
   renderer.render(scene, camera);
   labelRenderer.render(scene, camera);
   renderPip();
+  renderLoupe(dt);
 }
 
 /* --- запуск --- */
@@ -3243,6 +3918,7 @@ if (isNarrow()) { UI.mobileShow('parts'); UI.expandVNT(false); }
 $('#loading')?.remove();
 setTimeout(() => { const h = $('#hint'); if (h) h.style.opacity = '0'; }, 9000);
 window.__tgReady = true;
+window.__tg = {selectAsm, selectPart, selectFast, setView, flyTo, SEL, W, FX, UI, m2w, TA, V3, camera, scr: (v) => { const p = v.clone().project(camera); return [Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100]; }};
 frame();
 
 </script>
