@@ -150,8 +150,8 @@ p{margin:0}
 .vnt .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px 7px 12px;background:var(--label-bg);border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
 .vnt h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase}
 #pip{height:164px;border:1px solid var(--line);border-bottom:0;position:relative;background:transparent}
-#pip span{position:absolute;left:8px;top:6px;font:600 10.5px var(--f-mono);color:var(--muted);letter-spacing:.04em}
-#pip em{position:absolute;right:8px;bottom:6px;font:500 11px var(--f-body);font-style:normal;color:var(--ink-2)}
+#pip span{position:absolute;left:6px;top:5px;padding:1px 4px;border-radius:4px;background:color-mix(in srgb,var(--panel-2) 82%,transparent);font:600 10.5px var(--f-mono);color:var(--muted);letter-spacing:.04em}
+#pip em{position:absolute;right:6px;bottom:5px;padding:1px 5px;border-radius:4px;background:color-mix(in srgb,var(--panel-2) 82%,transparent);font:500 11px var(--f-body);font-style:normal;color:var(--ink-2)}
 .vnt .ctl{display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px;background:var(--label-bg);border:1px solid var(--line);border-top:1px solid var(--line);border-radius:0 0 10px 10px;box-shadow:var(--shadow);backdrop-filter:blur(8px)}
 .vnt.collapsed #pip,.vnt.collapsed .ctl{display:none}
 .vnt.collapsed .hd{border-bottom:1px solid var(--line);border-radius:10px}
@@ -1907,7 +1907,7 @@ const AIR = {
 {
   const a = new Asm('maf', 'intake');
   a.anchor.set(-3.4, 4.35, -1.15);
-  a.part('maf_tube', group(mesh(cylZ(0.24, 0.58, 32), 'plasticGrey', V3(-3.4, 3.8, -1.13)), mesh(cylZ(0.27, 0.06, 32), 'plasticGrey', V3(-3.4, 3.8, -0.87))), [0, 0, -0.3]);
+  a.part('maf_tube', group(mesh(cylZ(0.24, 0.58, 32), 'plastic', V3(-3.4, 3.8, -1.13)), mesh(cylZ(0.27, 0.06, 32), 'plastic', V3(-3.4, 3.8, -0.87))), [0, 0, -0.3]);   // выход корпуса фильтра с гнездом G70
   a.part('maf_sensor', group(mesh(rbox(0.26, 0.2, 0.36, 0.04), 'plastic', V3(-3.4, 4.1, -1.13)), mesh(rbox(0.05, 0.26, 0.14, 0.01), 'pcb', V3(-3.4, 3.9, -1.13))), [0, 0.65, 0]);
   a.part('maf_conn', mesh(rbox(0.2, 0.14, 0.2, 0.03), 'plastic', V3(-3.18, 4.14, -1.13)), [0.45, 0.6, 0]);
   a.part('maf_screws', FSTS('maf_screw', [[V3(-3.4, 4.2, -0.99), V3(0, 1, 0)], [V3(-3.4, 4.2, -1.27), V3(0, 1, 0)]]), [0, 1.05, 0]);
@@ -2846,7 +2846,7 @@ function viewBias() {
 }
 function flyTo(target, radius, dir) {
   const d = (dir ? (Array.isArray(dir) ? V3(...dir) : dir.clone()) : camera.position.clone().sub(controls.target)).normalize();
-  const dist = fitDist(radius * (isNarrow() ? 1.05 : 1.12));
+  const dist = fitDist(radius * (isNarrow() ? 1.05 : $('#vnt').classList.contains('collapsed') ? 1.12 : 1.24));   // карточка VNT закрывает часть сцены
   const b = viewBias(), f = d.clone().negate();
   const right = V3().crossVectors(f, V3(0, 1, 0)); if (right.lengthSq() < 1e-6) right.set(1, 0, 0); right.normalize();
   const up = V3().crossVectors(right, f).normalize();
@@ -3069,6 +3069,14 @@ function declutterLabels(force) {
     for (const k of [0, -1, 1, -2, 2]) { const b = rectAt(el, x, y, k * (el._h + 3)); if (!hit(b)) { placed.push(b); dy = k * (el._h + 3); break; } }
     if (dy === null) el.style.visibility = 'hidden'; else { el.style.visibility = ''; el.style.translate = `0 ${dy}px`; }
   }
+  /* номера деталей разобранного узла: выбранная деталь — первой, перекрытые номера прячутся (они есть в списке справа) */
+  const pl = partLabels.slice().sort((a, b) => (b.userData.pid === SEL.part) - (a.userData.pid === SEL.part));
+  for (const o of pl) {
+    const el = o.element; if (!el._w) { el._w = el.offsetWidth; el._h = el.offsetHeight; } if (!el._w) continue;
+    o.getWorldPosition(_lp).project(camera); if (_lp.z > 1) continue;
+    const b = rectAt(el, _lp.x * w2 + w2, -_lp.y * h2 + h2, 0);
+    if (hit(b)) el.style.visibility = 'hidden'; else { placed.push(b); el.style.visibility = ''; }
+  }
 }
 
 /* ================== СОЕДИНЕНИЯ ТРАКТА НАДДУВА ================== */
@@ -3281,9 +3289,9 @@ function renderPip() {
   const r = pipEl.getBoundingClientRect(), sr = stage.getBoundingClientRect();
   if (r.width < 10 || r.height < 10) return;
   const x = r.left - sr.left + 1, y = sr.bottom - r.bottom + 1, w = r.width - 2, h = r.height - 2;
-  const hh = 0.86, ww = hh * w / h;
+  const hh = 0.98, ww = hh * w / h;
   Object.assign(pipCam, {left: -ww, right: ww, top: hh, bottom: -hh}); pipCam.updateProjectionMatrix();
-  const c = TA(0).add(V3(0, 0.4, -0.1));
+  const c = TA(0).add(V3(0, 0.46, -0.1));
   pipCam.position.copy(m2w(V3(4, c.y, c.z))); pipCam.lookAt(m2w(V3(-1, c.y, c.z)));
   const saved = pipMeshes.map(m => m.material); pipMeshes.forEach(m => { if (m.userData.baseMat) m.material = m.userData.baseMat; });
   const roots = pipPartRoots.map(p => [p, p.position.clone()]); roots.forEach(([p]) => p.position.copy(p.userData.home)); ROOT.updateMatrixWorld(true);
