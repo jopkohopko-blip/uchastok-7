@@ -238,6 +238,8 @@ table.spec td:last-child{text-align:right;font-family:var(--f-mono);white-space:
 .pp-row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px;line-height:1.4}
 .pp-row .g{grid-column:1/-1;font:600 10.5px var(--f-disp);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .pill.vw,.pill.you,.pill.ssp{background:var(--good-bg);color:var(--good)}
+ul.srcs{margin:0;padding-left:18px;font-size:12.5px;color:var(--ink-2);display:grid;gap:6px}
+ul.srcs a{color:var(--accent)}
 .pill.cat{background:var(--warn-bg);color:var(--warn)}
 /* лупа крепежа */
 .loupe{position:relative;height:260px;border:1px solid var(--line);border-radius:10px;background:radial-gradient(120% 100% at 50% 32%,var(--stage-hi),var(--stage-lo));overflow:hidden;margin:6px 0 2px}
@@ -446,7 +448,7 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
       </div>
 
       <div class="tabpane" id="pane-data" role="tabpanel" aria-labelledby="t-data" hidden>
-        <div class="callout key"><h4>Насколько модель совпадает с реальной</h4><p>Моменты затяжки, типы соединений, состав вакуумной схемы и порядок проверок взяты из руководства по ремонту Tiguan 2.0 TDI CR. Номера деталей — из каталогов, их надо сверить по VIN. Точная форма деталей и трассы шлангов требуют фото или 3D-скана вашего автомобиля.</p></div>
+        <div class="callout key"><h4>Насколько модель совпадает с реальной</h4><p>Моменты затяжки, типы соединений, состав вакуумной схемы и порядок проверок взяты из руководства по ремонту Tiguan 2.0 TDI CR, устройство систем — из программы самообучения VW 403. Номера деталей — из каталогов, их надо сверить по VIN. Точная форма деталей и трассы шлангов требуют фото или 3D-скана вашего автомобиля. У каждой строки ниже — пометка источника.</p></div>
         <div class="sec"><h3>Паспорт данных</h3><div id="passport"></div></div>
         <div class="sec"><h3>Крепёж и моменты затяжки</h3><p class="src">Нажмите на строку — модель покажет этот крепёж. Кнопка «Крепёж» на сцене подсвечивает весь крепёж жёлтым.</p><div id="fast-table"></div></div>
         <div class="sec"><h3>Что собрать завтра</h3><p class="src">Отметки сохраняются в этом браузере.</p><ul class="todo" id="todo"></ul></div>
@@ -455,6 +457,13 @@ table.log button{border:0;background:none;color:var(--muted);font-size:14px;padd
           <label class="btn sm filebtn" for="scan-file">Загрузить скан…</label><input type="file" id="scan-file" accept=".glb,.gltf,.obj,.stl,.ply" hidden>
           <div id="scan-ctl" hidden></div>
         </div>
+        <div class="sec"><h3>Источники</h3><ul class="srcs">
+          <li><b>Руководство по ремонту VW Tiguan</b>, 4-цил. дизель 2,0 л Common Rail — разделы: <a href="https://www.tiguande.com/536/abgasturbolader.html" target="_blank" rel="noopener">турбокомпрессор</a>, <a href="https://www.tiguande.com/537/ladeluftsystem.html" target="_blank" rel="noopener">система наддувочного воздуха</a>, <a href="https://www.tiguande.com/540/unterdrucksystem.html" target="_blank" rel="noopener">вакуумная система</a>, <a href="https://www.tiguande.com/542/saugrohr.html" target="_blank" rel="noopener">впускной коллектор</a>, <a href="https://www.tiguande.com/543/luftfilter.html" target="_blank" rel="noopener">воздушный фильтр</a>, <a href="https://www.tiguande.com/544/geber_und_sensoren.html" target="_blank" rel="noopener">датчики</a>, <a href="https://www.tiguande.com/547/motorsteuerger_t.html" target="_blank" rel="noopener">ЭБУ</a>, <a href="https://www.tiguande.com/550/abgasreinigung.html" target="_blank" rel="noopener">очистка ОГ</a>, <a href="https://www.tiguande.com/551/abgastemperaturregelung.html" target="_blank" rel="noopener">температура ОГ</a>, <a href="https://www.tiguande.com/552/abgasr_ickf_ihrung.html" target="_blank" rel="noopener">рециркуляция ОГ</a>, <a href="https://www.tiguande.com/521/zylinderkopf.html" target="_blank" rel="noopener">головка блока</a>, <a href="https://www.tiguande.com/508/kennzeichnung.html" target="_blank" rel="noopener">коды двигателя</a>.</li>
+          <li><b>Программа самообучения VW 403</b> «2,0-литровый TDI с Common Rail»: ресивер в крышке ГБЦ, G581 в камере, датчики сажевого фильтра, реакция ЭБУ на отказы.</li>
+          <li><b>Фото турбины BV40</b> 03L 253 010 J / 03L 253 056 Q и её картриджа у продавцов — форма и пропорции турбины.</li>
+          <li><b>Каталоги запчастей</b> — номера деталей; перед заказом сверять по VIN в ETKA.</li>
+          <li><b>Стандарт ISO 68-1</b> — профиль метрической резьбы в лупе.</li>
+        </ul></div>
       </div>
     </aside>
 
@@ -3404,6 +3413,7 @@ UI.renderInspector = () => {
       <div class="sec"><h3>Как пользоваться</h3><ul>
         <li>Поворот — перетаскивание, масштаб — колесо или щипок, сдвиг — правая кнопка или два пальца.</li>
         <li>Нажмите на узел — он разложится на пронумерованные детали; нажмите на деталь — описание справа.</li>
+        <li>Нажмите на болт, гайку, хомут или резьбовой датчик — откроется лупа: резьба, шестигранник или Torx, маркировка, момент затяжки и источник каждого значения. Кнопка «Крепёж» подсвечивает весь крепёж.</li>
         <li>«Соединения» — номера на патрубках: нажмите, чтобы снять патрубок и увидеть уплотнение.</li>
         <li>«Поток воздуха» и «Вакуум» показывают движение воздуха и разрежения стрелками.</li>
         <li>Вкладка «Графики» сравнивает «задано / факт» при разных неисправностях и принимает ваш CSV из VCDS.</li>
